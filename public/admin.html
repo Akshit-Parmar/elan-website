@@ -1,0 +1,109 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="noindex,nofollow" name="robots"/>
+<title>Élan · Issue Participants (Admin)</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="assets/css/styles.css" rel="stylesheet"/><link href="assets/css/portal.css" rel="stylesheet"/>
+<style>
+  .aw{max-width:920px;margin:0 auto;padding:40px 22px 90px}
+  .aw h1{font-family:"Cormorant Garamond",serif;font-size:40px;line-height:1;margin:6px 0 4px}
+  .aw textarea{width:100%;min-height:220px;background:var(--surface,#fff);border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:14px;line-height:1.6}
+  .aw input{width:100%;border:1px solid var(--border,#d9d6cf);border-radius:12px;padding:12px 14px;font-size:15px}
+  .aw label{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:900;color:#6b7280;margin:14px 0 6px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.row{grid-template-columns:1fr}}
+  .rep{margin-top:22px}
+  .rep h3{font-family:"Cormorant Garamond",serif;font-size:22px;margin:18px 0 6px}
+  .chip{display:inline-block;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;margin:0 6px 6px 0}
+  .ok{background:rgba(43,166,164,.14);color:#0f766e}.warn{background:rgba(231,178,74,.18);color:#8b621d}.bad{background:rgba(217,93,99,.14);color:#a12d33}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  td,th{text-align:left;padding:8px 10px;border-bottom:1px solid #eee}
+  .mono{font-family:ui-monospace,Menlo,monospace}
+  .note{font-size:13px;color:#6b7280;margin-top:6px}
+</style></head>
+<body class="light-page"><div class="aw">
+  <div class="ep-eyebrow" style="color:var(--red)">Élan 2026 · Admin</div>
+  <h1>Issue Participants</h1>
+  <p class="note">Paste the school's list of people who have <strong>paid</strong> — one per line. Optionally add the amount after a comma to break ties between people with the same name.<br>Example: <span class="mono">Riya Sharma, 4199</span></p>
+
+  <div class="row">
+    <div><label>Function URL</label><input id="fnUrl" placeholder="https://YOUR-REF.functions.supabase.co/admin-issue-batch"></div>
+    <div><label>Admin secret</label><input id="secret" type="password" placeholder="ADMIN_ISSUE_SECRET"></div>
+  </div>
+  <label>Paid list (one name per line)</label>
+  <textarea id="list" placeholder="Riya Sharma, 4199&#10;Arjun Mehta&#10;..."></textarea>
+  <div style="margin-top:14px"><button class="btn btn-gold" id="run">Match &amp; issue</button>
+    <span id="status" class="note" style="margin-left:12px"></span></div>
+
+  <div class="rep" id="report"></div>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script>
+(function(){
+  var CFG = window.ELAN_CONFIG || {};
+  // default function URL derived from the project URL (editable above)
+  try{ var ref=(CFG.SUPABASE_URL||'').replace('https://','').split('.')[0];
+       if(ref) document.getElementById('fnUrl').value='https://'+ref+'.functions.supabase.co/admin-issue-batch'; }catch(e){}
+
+  function parseLines(txt){
+    return txt.split('\n').map(function(l){return l.trim();}).filter(Boolean).map(function(l){
+      var m=l.split(/[\t,]/);
+      var name=m[0].trim();
+      var amt=null;
+      if(m[1]){ var n=m[1].replace(/[₹,\s]/g,''); if(n && !isNaN(n)) amt=Number(n); }
+      return {name:name, amount:amt};
+    });
+  }
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var lastIssued=[];
+  window.epCopy=function(t){ if(t){ navigator.clipboard.writeText(t); } };
+  window.epCopyAll=function(){ var rows=lastIssued.filter(function(x){return x.link;}).map(function(x){return x.name+'\t'+(x.uid||'')+'\t'+x.link;}); if(rows.length) navigator.clipboard.writeText(rows.join('\n')); };
+  function linkCell(x){ return x.link ? '<button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="epCopy(\''+esc(x.link)+'\')">Copy link</button>' : '<span class="note">—</span>'; }
+
+  document.getElementById('run').addEventListener('click', async function(){
+    var url=document.getElementById('fnUrl').value.trim();
+    var secret=document.getElementById('secret').value;
+    var entries=parseLines(document.getElementById('list').value);
+    var st=document.getElementById('status'), rep=document.getElementById('report');
+    rep.innerHTML='';
+    if(!url||!secret||!entries.length){ st.textContent='Fill in the URL, secret, and at least one name.'; return; }
+    st.textContent='Processing '+entries.length+' names…';
+    try{
+      var res=await fetch(url,{method:'POST',
+        headers:{'content-type':'application/json','x-admin-secret':secret,
+                 'Authorization':'Bearer '+(CFG.SUPABASE_ANON_KEY||''),'apikey':(CFG.SUPABASE_ANON_KEY||'')},
+        body:JSON.stringify({entries:entries})});
+      if(!res.ok){ st.textContent='Error '+res.status+': '+(await res.text()).slice(0,160); return; }
+      var d=await res.json();
+      st.textContent='Done.';
+      var s=d.summary||{};
+      rep.innerHTML='<div style="margin-top:8px">'
+        +'<span class="chip ok">Issued '+(s.issued||0)+'</span>'
+        +'<span class="chip ok">Already done '+(s.already_done||0)+'</span>'
+        +'<span class="chip warn">Needs review '+(s.ambiguous||0)+'</span>'
+        +'<span class="chip bad">Unmatched '+(s.unmatched||0)+'</span></div>';
+      lastIssued=(d.issued||[]).concat(d.already||[]);
+      if(d.issued&&d.issued.length){
+        rep.innerHTML+='<h3>Issued — send each person their link</h3>'
+          +'<button class="btn btn-gold" style="padding:6px 14px;font-size:13px;margin-bottom:8px" onclick="epCopyAll()">Copy all (name, UID, link)</button>'
+          +'<table><tr><th>Name</th><th>UID</th><th>Email</th><th>Set-password link</th></tr>'
+          +d.issued.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td class="mono">'+esc(x.uid||'—')+'</td><td>'+esc(x.email||'')+'</td><td>'+(x.uid?linkCell(x):'<span class="chip bad">'+esc(x.note||'failed — check function logs')+'</span>')+'</td></tr>';}).join('')+'</table>'
+          +'<p class="note">Send each person their own link (WhatsApp / email). It opens the set-password page so they can log in. Links expire, so send promptly — if one expires, just re-run that name to get a fresh link.</p>';
+      }
+      if(d.already&&d.already.length){
+        rep.innerHTML+='<h3>Already issued earlier (fresh link below)</h3><table><tr><th>Name</th><th>UID</th><th>Set-password link</th></tr>'
+          +d.already.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td class="mono">'+esc(x.uid||'—')+'</td><td>'+linkCell(x)+'</td></tr>';}).join('')+'</table>';
+      }
+      if(d.ambiguous&&d.ambiguous.length){
+        rep.innerHTML+='<h3>Needs review — same name matches several registrations</h3><table><tr><th>Name</th><th>Matches</th><th>Hint</th></tr>'
+          +d.ambiguous.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td>'+esc(x.count)+'</td><td>'+esc(x.hint||'')+'</td></tr>';}).join('')+'</table>';
+      }
+      if(d.unmatched&&d.unmatched.length){
+        rep.innerHTML+='<h3>Unmatched — no pending registration with that name</h3><p class="note">Check spelling, or they may not have registered on the site.</p><p class="mono">'+d.unmatched.map(esc).join('<br>')+'</p>';
+      }
+    }catch(e){ st.textContent='Request failed: '+e.message; }
+  });
+})();
+</script></body></html>

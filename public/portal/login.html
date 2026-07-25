@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><meta content="noindex" name="robots"/><title>Participant Login · Élan 2026</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;family=Playfair+Display:wght@600;700;800&amp;display=swap" rel="stylesheet"/><link href="../assets/css/styles.css" rel="stylesheet"/><link href="../assets/css/portal.css" rel="stylesheet"/></head>
+<body><section class="page-hero" style="min-height:100vh;display:grid;place-items:center;padding:40px 0"><div class="container" style="max-width:460px">
+<div class="breadcrumb" style="justify-content:center"><a href="../index.html">Élan 2026</a><span>/ Participant Login</span></div>
+<article class="white-card"><h2 style="font-family:'Cormorant Garamond',serif;font-size:44px;line-height:.95;margin-bottom:6px">Participant Login</h2>
+<p class="card-copy" style="margin-bottom:18px">Sign in with the email you registered with.</p>
+<div class="field"><label>Email</label><input id="email" type="email" autocomplete="email" placeholder="you@school.in"/></div>
+<div class="field" style="margin-top:12px"><label>Password</label><input id="password" type="password" autocomplete="current-password"/></div>
+<button class="btn btn-gold" id="loginBtn" style="width:100%;margin-top:16px">Log in</button>
+<div id="msg"></div>
+<p class="card-copy" style="margin-top:14px;font-size:14px;text-align:center">First time here? Use the set-password link from your confirmation email.<br/><a href="#" id="forgot">Set / reset password</a></p>
+</article>
+<p class="card-copy" style="text-align:center;margin-top:16px;font-size:13px"><a href="../index.html">← Back to the Élan site</a></p>
+</div></section><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/js/config.js"></script><script src="../assets/js/auth.js"></script>
+<script>elanAuth.redirectIfSignedIn();
+var b=document.getElementById('loginBtn'),e=document.getElementById('email'),p=document.getElementById('password');
+b.addEventListener('click',function(){elanAuth.signIn(e.value,p.value,'msg');});
+p.addEventListener('keydown',function(ev){if(ev.key==='Enter')elanAuth.signIn(e.value,p.value,'msg');});
+document.getElementById('forgot').addEventListener('click',function(ev){ev.preventDefault();if(!e.value){document.getElementById('msg').innerHTML='<div class=\"ep-msg err\">Enter your email above first.</div>';return;}elanAuth.requestReset(e.value,'msg');});
+</script></body></html>
