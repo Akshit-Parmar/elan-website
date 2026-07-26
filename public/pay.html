@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Complete Your Payment | Élan Summit</title>
+<meta content="Complete your Élan Summit registration payment securely via UPI." name="description"/>
+<meta name="robots" content="noindex,follow"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="assets/css/styles.css" rel="stylesheet"/>
+<link rel="icon" href="/favicon.ico" sizes="48x48"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"/>
+<style>
+.pay-wrap{max-width:760px;margin:0 auto;padding:46px 20px 90px}
+.pay-amount{font-family:"Cormorant Garamond",serif;font-size:64px;line-height:1;margin:4px 0 2px}
+.pay-step{display:flex;gap:14px;margin:18px 0}
+.pay-step .n{flex:0 0 34px;height:34px;border-radius:50%;background:var(--navy,#13273F);color:var(--pearl,#E9D4C3);display:flex;align-items:center;justify-content:center;font-weight:800}
+.qr-box{background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:18px;padding:18px;display:inline-block}
+.upi-id{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.upi-id code{background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:10px;padding:10px 14px;font-size:16px;font-weight:700}
+.pay-note{font-size:14px;color:#6b7280}
+#utrForm input{width:100%;border:1px solid var(--border,#d9d6cf);border-radius:12px;padding:12px 14px;font-size:15px;margin-top:6px}
+#utrForm label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:#6b7280}
+.pay-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+</style>
+</head>
+<body data-page="pay">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main">
+<section class="page-hero"><div class="container">
+<span class="section-label">Registration payment</span>
+<h1>Complete your payment.</h1>
+<p>Your registration is saved. Pay via UPI to confirm your spot, then submit your transaction ID below so we can verify it quickly.</p>
+</div></section>
+
+<section class="light-section"><div class="container pay-wrap">
+<div class="white-card" style="padding:26px">
+  <span class="section-label">Amount to pay</span>
+  <div class="pay-amount" id="amt">₹—</div>
+  <div class="pay-note" id="amtDetail"></div>
+</div>
+
+<div class="white-card" style="padding:26px;margin-top:18px">
+  <div class="pay-step"><div class="n">1</div><div>
+    <h3 style="margin:4px 0 6px">Pay via any UPI app</h3>
+    <p class="pay-note">Scan the QR (the amount is pre-filled), or pay directly to the UPI ID. <strong>Important:</strong> put your <strong>full name and phone number</strong> in the payment note/remark.</p>
+    <div style="margin:14px 0" class="qr-box"><canvas id="qr"></canvas></div>
+    <div class="upi-id"><code id="upiId">parmarakshit90@okhdfcbank</code>
+      <button class="btn btn-ghost" id="copyUpi" type="button">Copy UPI ID</button>
+      <a class="btn btn-dark" id="upiLink" href="#">Open in UPI app</a></div>
+    <p class="pay-note" style="margin-top:8px">Receiver name shows as <strong>Akshit Parmar</strong> (Élan Summit payments).</p>
+  </div></div>
+
+  <div class="pay-step"><div class="n">2</div><div style="flex:1">
+    <h3 style="margin:4px 0 6px">Submit your transaction ID (UTR)</h3>
+    <p class="pay-note">After paying, your UPI app shows a 12-digit UTR / UPI reference number. Paste it here with your details so we can match your payment and confirm your registration.</p>
+    <form id="utrForm" novalidate>
+      <input type="text" name="elan_hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true"/>
+      <label for="pName">Full name (same as registration)</label>
+      <input id="pName" required autocomplete="name"/>
+      <label for="pEmail" style="margin-top:10px;display:block">Email (same as registration)</label>
+      <input id="pEmail" type="email" required autocomplete="email"/>
+      <label for="pPhone" style="margin-top:10px;display:block">Phone</label>
+      <input id="pPhone" type="tel" required autocomplete="tel"/>
+      <label for="pUtr" style="margin-top:10px;display:block">UPI transaction ID (UTR)</label>
+      <input id="pUtr" required inputmode="numeric" placeholder="e.g. 415203698741"/>
+      <div class="pay-actions">
+        <button class="btn btn-gold" type="submit" id="utrBtn">Submit payment details</button>
+      </div>
+      <div id="utrMsg" style="margin-top:12px"></div>
+    </form>
+  </div></div>
+</div>
+
+<div class="white-card" style="padding:22px;margin-top:18px">
+  <h3 style="margin:0 0 6px">What happens next</h3>
+  <p class="pay-note" style="margin:0">The Élan team verifies your payment against the bank statement (usually within 24–48 hours). Once verified, you'll receive your <strong>participant portal invitation</strong> with a link to set your password. Questions? <a href="contact.html">Contact us</a>.</p>
+</div>
+</div></section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script>
+(function(){
+  var UPI_ID="parmarakshit90@okhdfcbank";
+  var UPI_NAME="Akshit Parmar";
+  // read details passed from the registration form
+  var q=new URLSearchParams(location.search);
+  var amount=parseInt(q.get("amt")||"0",10);
+  var ticket=q.get("t")||""; var qty=parseInt(q.get("q")||"1",10)||1;
+  var name=q.get("n")||""; var phone=q.get("p")||""; var email=q.get("e")||"";
+
+  var amtEl=document.getElementById("amt"), det=document.getElementById("amtDetail");
+  if(amount>0){ amtEl.textContent="₹"+amount.toLocaleString("en-IN");
+    det.textContent=ticket?(ticket+(qty>1?" × "+qty:"")):""; }
+  else { amtEl.textContent="See your ticket amount";
+    det.textContent="Pay the amount for the ticket you selected (Early Bird ₹3,699 · Standard ₹4,199 · Late ₹4,899 · School Pack ₹18,999)."; }
+
+  var note=(name?name:"")+(phone?" "+phone:""); if(!note) note="Elan Summit registration";
+  var upiUrl="upi://pay?pa="+encodeURIComponent(UPI_ID)+"&pn="+encodeURIComponent(UPI_NAME)
+    +(amount>0?("&am="+amount+".00"):"")+"&cu=INR&tn="+encodeURIComponent(note.slice(0,50));
+  try{ new QRious({element:document.getElementById("qr"),value:upiUrl,size:230}); }
+  catch(e){ document.getElementById("qr").outerHTML='<p class="pay-note">QR unavailable — pay to the UPI ID below.</p>'; }
+  document.getElementById("upiLink").href=upiUrl;
+  document.getElementById("copyUpi").addEventListener("click",function(){
+    navigator.clipboard.writeText(UPI_ID); this.textContent="Copied ✓";
+    var b=this; setTimeout(function(){b.textContent="Copy UPI ID";},1600);
+  });
+
+  // prefill UTR form from registration
+  if(name) document.getElementById("pName").value=name;
+  if(email) document.getElementById("pEmail").value=email;
+  if(phone) document.getElementById("pPhone").value=phone;
+
+  // UTR submit -> contact_messages (same table + keys the contact form already uses)
+  var sb=null;
+  try{ sb=window.supabase.createClient(window.ELAN_CONFIG.SUPABASE_URL,window.ELAN_CONFIG.SUPABASE_ANON_KEY);}catch(e){}
+  document.getElementById("utrForm").addEventListener("submit",async function(ev){
+    ev.preventDefault();
+    var hp=this.querySelector('input[name="elan_hp"]'); if(hp&&hp.value.trim()!=="")return;
+    var m=document.getElementById("utrMsg"), btn=document.getElementById("utrBtn");
+    var nm=document.getElementById("pName").value.trim(),
+        em=document.getElementById("pEmail").value.trim(),
+        ph=document.getElementById("pPhone").value.trim(),
+        utr=document.getElementById("pUtr").value.trim();
+    if(!nm||!em||!ph||!utr){ m.innerHTML='<div class="ep-msg err">Please fill every field, including the UTR.</div>'; return; }
+    if(!/^\d{10,16}$/.test(utr.replace(/\s/g,""))){ m.innerHTML='<div class="ep-msg err">That doesn\u2019t look like a UTR — it\u2019s the 10–16 digit reference number in your UPI app\u2019s payment details.</div>'; return; }
+    if(!sb){ m.innerHTML='<div class="ep-msg err">Connection problem — please try again.</div>'; return; }
+    btn.disabled=true; btn.textContent="Submitting…";
+    var row={ full_name:nm, email:em, phone:ph, inquiry_type:"Payment UTR",
+      message:"[PAYMENT-UTR] UTR: "+utr+" | Ticket: "+(ticket||"not passed")+" | Qty: "+qty+" | Amount: ₹"+(amount||"?")+" | Paid to: "+UPI_ID };
+    var r=await sb.from("contact_messages").insert(row);
+    btn.disabled=false; btn.textContent="Submit payment details";
+    if(r.error){ m.innerHTML='<div class="ep-msg err">Couldn\u2019t submit ('+String(r.error.message||"").slice(0,80)+'). Please try again or email us your UTR.</div>'; return; }
+    m.innerHTML='<div class="ep-msg ok">Got it \u2014 payment details received. We\u2019ll verify and send your portal invitation soon. You can close this page.</div>';
+    this.querySelectorAll("input,button").forEach(function(x){x.disabled=true;});
+  });
+})();
+</script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

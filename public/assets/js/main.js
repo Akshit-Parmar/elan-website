@@ -482,9 +482,22 @@ const FORM_BUILDERS = {
   }
 };
 
-// Single Easebuzz registration form — the participant re-selects their ticket there.
-const EASEBUZZ_FORM_URL = 'https://forms.easebuzz.in/register/SANJAYGHODAWATINTERNATI/Elan_Registration_Form_SGIS_2026-27';
-function selectedTicketPayUrl(){ return EASEBUZZ_FORM_URL; }
+// UPI payment page — receives the registrant's details so the QR pre-fills
+// their exact amount. (Previously: Easebuzz school form.)
+function selectedTicketPayUrl(){
+  const unit = parseTicketAmount(fieldVal('ticketType'));
+  const qty = fieldInt('quantity') || 1;
+  const amt = unit != null ? unit * qty : 0;
+  const p = new URLSearchParams({
+    amt: String(amt || ''),
+    t: fieldVal('ticketType') || '',
+    q: String(qty),
+    n: fieldVal('fullName') || '',
+    p: fieldVal('phone') || '',
+    e: fieldVal('email') || ''
+  });
+  return 'pay.html?' + p.toString();
+}
 
 async function submitForm(form){
   // Honeypot: bots fill hidden fields humans never see -> silently accept + drop.
