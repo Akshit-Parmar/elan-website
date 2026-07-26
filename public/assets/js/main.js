@@ -296,13 +296,13 @@ function validateForm(form){
 /* ------------------------------------------------------------------ *
  *  Ticket availability windows (times are IST, +05:30).
  *  Each tier's Select button + dropdown option is only active inside
- *  its window. Registration opens 12 Jul; everything closes 23 Aug.
+ *  its window. Registration opens 12 Jul; everything closes 30 Aug.
  * ------------------------------------------------------------------ */
 const TICKET_WINDOWS = {
-  early:    { opens: '2026-07-12T00:00:00+05:30', closes: '2026-07-26T00:00:00+05:30' },
-  standard: { opens: '2026-07-26T00:00:00+05:30', closes: '2026-08-15T00:00:00+05:30' },
-  late:     { opens: '2026-08-15T00:00:00+05:30', closes: '2026-08-24T00:00:00+05:30' },
-  school:   { opens: '2026-07-12T00:00:00+05:30', closes: '2026-08-24T00:00:00+05:30' }
+  early:    { opens: '2026-07-12T00:00:00+05:30', closes: '2026-08-03T00:00:00+05:30' },
+  standard: { opens: '2026-08-03T00:00:00+05:30', closes: '2026-08-24T00:00:00+05:30' },
+  late:     { opens: '2026-08-24T00:00:00+05:30', closes: '2026-08-31T00:00:00+05:30' },
+  school:   { opens: '2026-07-12T00:00:00+05:30', closes: '2026-08-31T00:00:00+05:30' }
 };
 
 function fmtWindowDate(d){
