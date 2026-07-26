@@ -224,7 +224,42 @@
       note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load</strong> — your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase — ask and I\u2019ll provide it.</span></div>';
     }
     renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched();
+    autoPilot();
   }
+
+  // ---- automatic housekeeping: stamp flagships + assign CC posts without clicks ----
+  var AUTOP_RAN=false;
+  async function autoPilot(){
+    if(AUTOP_RAN) return; AUTOP_RAN=true;
+    try{
+      var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
+      var changed=false;
+      // 1) sync flagship/theme/cents where missing
+      for(var i=0;i<PARTS.length;i++){
+        var p=PARTS[i];
+        if(p.flagship) continue;
+        var reg=REGS.find(function(r){ return (r.email||'').toLowerCase()===(p.email||'').toLowerCase(); });
+        var mfl=reg?((reg.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/)):null;
+        if(!mfl) continue;
+        var upd={ flagship: mfl[1].trim(), centsible_theme: mfl[2]?mfl[2].trim():null };
+        if(upd.flagship==='Cent$ible' && p.cents_balance==null) upd.cents_balance=500000;
+        var r=await sb.from('participants').update(upd).eq('id', p.id);
+        if(!r.error){ Object.assign(p,upd); changed=true; }
+      }
+      // 2) assign CC posts round-robin in registration (UID) order, keeping existing
+      var cc=PARTS.filter(function(p){return p.flagship==='Crisis Command';})
+                  .sort(function(a,b){return String(a.participant_uid).localeCompare(String(b.participant_uid));});
+      for(var j=0;j<cc.length;j++){
+        if(cc[j].cc_role) continue;
+        var role=ROLES[j % ROLES.length];
+        var r2=await sb.from('participants').update({cc_role: role}).eq('id', cc[j].id);
+        if(!r2.error){ cc[j].cc_role=role; changed=true; }
+      }
+      if(changed){ renderStats(); renderParts(); }
+    }catch(e){}
+  }
+  // allow the issue tool (separate scope) to trigger a refresh + re-run of autopilot
+  window.elanAdminRefresh = function(){ AUTOP_RAN=false; loadAll(); };
 
   function money(n){ n=Number(n)||0; return '\u20B9'+n.toLocaleString('en-IN'); }
   function isPaid(r){ return STATUS_COL ? String(r[STATUS_COL]).toLowerCase()==='paid' : false; }
@@ -511,6 +546,10 @@
         rep.innerHTML+='<h3>Unmatched — no pending registration with that name</h3><p class="note">Check spelling, or they may not have registered on the site.</p><p class="mono">'+d.unmatched.map(esc).join('<br>')+'</p>';
       }
     }catch(e){ st.textContent='Request failed: '+e.message; }
+  });
+  // after an issue run completes, refresh the console so autopilot stamps the new participants
+  document.getElementById('run').addEventListener('click', function(){
+    setTimeout(function(){ if(window.elanAdminRefresh) window.elanAdminRefresh(); }, 6000);
   });
 })();
 </script></body></html>

@@ -15,11 +15,37 @@
 document.addEventListener("elan:participant",function(ev){
   var p=ev.detail||{}; var hero=document.querySelector(".page-hero");
   if(!hero) return;
+  var ROLES={
+    "Head of State":{duty:"You lead the cabinet and carry final responsibility for every decision your nation makes.",
+      points:["Set your nation\u2019s overall strategy and priorities for the crisis","Chair every cabinet discussion and break deadlocks \u2014 the final call is yours","Balance the advice of all four ministers; own the trade-offs","Deliver (or lead) your team\u2019s final presentation to the judges","Keep the cabinet calm, coordinated, and decisive as pressure escalates"]},
+    "Finance Minister":{duty:"You control the national budget \u2014 nothing your cabinet proposes happens unless you can fund it.",
+      points:["Manage your nation\u2019s budget and resources across both days","Cost every proposed response and flag what the nation cannot afford","Allocate funds between competing priorities \u2014 relief, security, infrastructure, communication","Track the economic fallout of each escalation and adapt","Defend the financial feasibility of your cabinet\u2019s plan to the judges"]},
+    "Foreign Affairs Minister":{duty:"You are your nation\u2019s face to the outside world \u2014 alliances, negotiations, and de-escalation run through you.",
+      points:["Manage relations with other nations (other teams) throughout the simulation","Lead negotiations \u2014 seek aid, form alliances, strike agreements","Represent your nation in any inter-cabinet or diplomatic moments","De-escalate international pressure when the crisis crosses borders","Ensure your cabinet\u2019s decisions don\u2019t isolate your nation"]},
+    "Policy Advisor":{duty:"You are the cabinet\u2019s brain \u2014 research, options, and the written word are your weapons.",
+      points:["Analyse each crisis brief and lay out the realistic options with pros and cons","Draft the Day 1 Initial Response Brief and the final written response","Anticipate second-order consequences before the cabinet commits","Keep decisions consistent \u2014 flag contradictions with earlier positions","Make sure every submission is clear, structured, and on time"]},
+    "Media & PR Head":{duty:"You control the story \u2014 public trust in your government is won or lost through you.",
+      points:["Manage the public narrative around every cabinet decision","Draft official statements and press lines under time pressure","Respond to media injects, rumours, and misinformation fast","Protect the government\u2019s credibility when decisions are unpopular","Shape the final presentation so the judges see a government in control"]}
+  };
   var wrap=document.createElement("div"); wrap.className="ep-flag-strip";
   if(p.flagship==="Cent$ible"){
     wrap.innerHTML='<article class="white-card"><h3 class="card-title">You\u2019re registered for Cent$ible</h3><p class="card-copy">Crisis Command and Cent$ible run at the same time, and your flagship is Cent$ible'+(p.centsible_theme?" \u2014 "+p.centsible_theme:"")+'. This page is for Crisis Command participants.</p><div class="cta-row" style="margin-top:10px"><a class="btn btn-gold" href="centsible.html">Go to your Cent$ible arena</a></div></article>';
   } else {
-    wrap.innerHTML='<article class="white-card"><span class="section-label">Your cabinet post</span><h3 class="card-title" style="font-size:26px">'+(p.cc_role?p.cc_role:"To be assigned")+'</h3><p class="card-copy">'+(p.cc_role?"You hold this post in your mixed-school cabinet for both days. Your team and nation details will be shared at the briefing.":"Cabinet posts \u2014 Head of State, Finance Minister, Foreign Affairs Minister, Policy Advisor, and Media &amp; PR Head \u2014 are being assigned as teams are formed. Yours will appear here.")+'</p></article>';
+    var role=p.cc_role, r=role&&ROLES[role];
+    var html='<article class="white-card"><span class="section-label">Your cabinet post</span><h3 class="card-title" style="font-size:28px">'+(role?role:"Being assigned")+'</h3>';
+    if(r){
+      html+='<p class="card-copy"><strong>'+r.duty+'</strong></p><ul class="list-clean" style="margin-top:10px">'+r.points.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';
+      html+='<p class="card-copy" style="margin-top:12px">Your agenda across the event: study the crisis briefing, coordinate in your cabinet\u2019s strategy room, contribute your part to the Day 1 Initial Response Brief, adapt through every escalation, and bring it together for the final response and presentation on Day 2.</p>';
+    } else {
+      html+='<p class="card-copy">Posts are assigned automatically in registration order and will appear here shortly.</p>';
+    }
+    html+='</article>';
+    // the full cabinet overview
+    html+='<article class="white-card" style="margin-top:14px"><span class="section-label">Your cabinet \u2014 all five posts</span><ul class="list-clean" style="margin-top:10px">'+
+      Object.keys(ROLES).map(function(k){
+        return '<li'+(k===role?' style="font-weight:800"':'')+'><strong>'+k+(k===role?' (you)':'')+':</strong> '+ROLES[k].duty+'</li>';
+      }).join('')+'</ul><p class="card-copy" style="margin-top:10px">Every cabinet is a mixed-school team of five \u2014 one of each post. You win or lose together.</p></article>';
+    wrap.innerHTML=html;
   }
   hero.insertAdjacentElement("afterend",wrap);
 });

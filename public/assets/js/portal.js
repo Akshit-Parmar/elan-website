@@ -233,6 +233,11 @@
     var p = await guard(main);
     if (!p) return;                       // blocking state rendered
     window.__elanParticipant = p;
+    // Personalized nav: each participant sees only their flagship.
+    if (p.flagship === "Crisis Command" || p.flagship === "Cent$ible") {
+      var hideHref = p.flagship === "Crisis Command" ? "centsible.html" : "flagship.html";
+      document.querySelectorAll('.nav-link[href="' + hideHref + '"]').forEach(function (el) { el.remove(); });
+    }
     if (pages[page]) await pages[page](p, main);   // data pages
     else main.querySelectorAll("[data-uid]").forEach(function (el) { el.textContent = p.participant_uid; }); // static pages
     document.dispatchEvent(new CustomEvent("elan:participant", { detail: p }));
