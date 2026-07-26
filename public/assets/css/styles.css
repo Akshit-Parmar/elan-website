@@ -988,3 +988,6 @@ a:focus-visible,button:focus-visible,.btn:focus-visible,.nav-link:focus-visible,
   .elan-scroll-progress{display:none}
   .elan-tilt{transform:none!important}
 }
+
+/* Labels on dark heroes must be pearl, not dark red (contrast fix). */
+.page-hero .section-label,.hero .section-label,.final-cta .section-label{color:var(--pearl,#E9D4C3)}
