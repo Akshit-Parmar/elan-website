@@ -36,24 +36,212 @@
 <meta content="Élan Summit internal admin console." name="description"/>
 <link rel="icon" href="/favicon.ico" sizes="48x48"/><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"/><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicon-192.png"/><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"/>
 </head>
-<body class="light-page"><div class="aw">
-  <div class="ep-eyebrow" style="color:var(--red)">Élan Summit · Admin</div>
-  <h1>Issue Participants</h1>
-  <p class="note">Paste the school's list of people who have <strong>paid</strong> — one per line. Optionally add the amount after a comma to break ties between people with the same name.<br>Example: <span class="mono">Riya Sharma, 4199</span></p>
+<body class="light-page"><div class="aw" style="max-width:1080px">
+  <div class="ep-eyebrow" style="color:var(--red)">Élan Summit · Admin Console</div>
+  <h1 style="margin-bottom:2px">Command Centre</h1>
 
-  <div class="row">
-    <div><label>Function URL</label><input id="fnUrl" placeholder="https://YOUR-REF.functions.supabase.co/admin-issue-batch"></div>
-    <div><label>Admin secret</label><input id="secret" type="password" placeholder="ADMIN_ISSUE_SECRET"></div>
+  <!-- AUTH GATE -->
+  <div id="gate" class="rep" style="max-width:460px">
+    <p class="note">Sign in with your admin account to load event data. (Link-issuing additionally requires the function secret.)</p>
+    <label>Email</label><input id="gEmail" type="email" autocomplete="email"/>
+    <label>Password</label><input id="gPw" type="password" autocomplete="current-password"/>
+    <div style="margin-top:12px"><button class="btn btn-gold" id="gBtn">Sign in</button>
+    <span class="note" id="gMsg" style="margin-left:10px"></span></div>
   </div>
-  <label>Paid list (one name per line)</label>
-  <textarea id="list" placeholder="Riya Sharma, 4199&#10;Arjun Mehta&#10;..."></textarea>
-  <div style="margin-top:14px"><button class="btn btn-gold" id="run">Match &amp; issue</button>
-    <span id="status" class="note" style="margin-left:12px"></span></div>
 
-  <div class="rep" id="report"></div>
+  <div id="console" style="display:none">
+    <p class="note" style="margin:6px 0 14px">Signed in as <strong id="whoami"></strong> · <a href="#" id="signout">Sign out</a> · <button class="btn btn-ghost" style="padding:4px 12px;font-size:12px" id="refresh">Refresh data</button></p>
+
+    <div class="admin-tabs">
+      <button class="atab active" data-tab="overview">Overview</button>
+      <button class="atab" data-tab="regs">Registrations</button>
+      <button class="atab" data-tab="pays">Payments (UTR)</button>
+      <button class="atab" data-tab="issue">Issue links</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="apanel" id="tab-overview">
+      <div id="rlsNote"></div>
+      <div class="stat-cards" id="statCards"></div>
+      <div class="stat-cards" id="statCards2"></div>
+    </section>
+
+    <!-- REGISTRATIONS -->
+    <section class="apanel" id="tab-regs" style="display:none">
+      <div class="row" style="grid-template-columns:2fr 1fr 1fr 1fr">
+        <div><label>Search</label><input id="rSearch" placeholder="name / email / school / phone"/></div>
+        <div><label>Status</label><select id="rStatus"><option value="">All</option><option>pending</option><option>paid</option></select></div>
+        <div><label>Ticket</label><select id="rTier"><option value="">All</option><option>Early Bird</option><option>Standard</option><option>Late Registration</option><option>School Delegation Pack</option></select></div>
+        <div><label>&nbsp;</label><button class="btn btn-ghost" id="rCsv" style="width:100%">Export CSV</button></div>
+      </div>
+      <div id="regTable" class="rep"></div>
+    </section>
+
+    <!-- PAYMENTS -->
+    <section class="apanel" id="tab-pays" style="display:none">
+      <p class="note">UTR submissions from the payment page. Verify each against your bank statement, then mark the matching registration paid in the Registrations tab.</p>
+      <div id="payTable" class="rep"></div>
+    </section>
+
+    <!-- ISSUE LINKS (original tool, unchanged contract) -->
+    <section class="apanel" id="tab-issue" style="display:none">
+      <p class="note">Paste the list of people who have <strong>paid</strong> — one per line. Optionally add the amount after a comma to break ties between people with the same name.<br>Example: <span class="mono">Riya Sharma, 4199</span></p>
+      <div class="row">
+        <div><label>Function URL</label><input id="fnUrl" placeholder="https://YOUR-REF.functions.supabase.co/admin-issue-batch"></div>
+        <div><label>Admin secret</label><input id="secret" type="password" placeholder="ADMIN_ISSUE_SECRET"></div>
+      </div>
+      <label>Paid list (one name per line)</label>
+      <textarea id="list" placeholder="Riya Sharma, 4199&#10;Arjun Mehta&#10;..."></textarea>
+      <div style="margin-top:14px"><button class="btn btn-gold" id="run">Match &amp; issue</button>
+        <span id="status" class="note" style="margin-left:12px"></span></div>
+      <div class="rep" id="report"></div>
+    </section>
+  </div>
 </div>
 
+<style>
+.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}
+.atab{border:1px solid var(--border,#d9d6cf);background:#fff;border-radius:999px;padding:10px 18px;font-weight:800;font-size:13px;cursor:pointer}
+.atab.active{background:var(--navy,#13273F);color:var(--pearl,#E9D4C3);border-color:var(--navy,#13273F)}
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0}
+.stat-card{background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:16px;padding:16px}
+.stat-card b{display:block;font-family:"Cormorant Garamond",serif;font-size:34px;line-height:1}
+.stat-card span{font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:800;color:#6b7280}
+.rep table{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:12px;overflow:hidden}
+.rep th,.rep td{padding:10px 12px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}
+.rep th{background:#faf7f2;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.pill-paid{background:#dcfce7;color:#166534;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
+.pill-pending{background:#fef3c7;color:#92400e;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
+.mini-btn{padding:5px 12px;font-size:12px;border-radius:999px;border:1px solid var(--border,#d9d6cf);background:#fff;cursor:pointer;font-weight:700}
+.mini-btn:hover{background:var(--navy,#13273F);color:#fff}
+@media(max-width:820px){.stat-cards{grid-template-columns:repeat(2,1fr)}}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/config.js"></script>
+<script>
+(function(){
+  var sb=window.supabase.createClient(window.ELAN_CONFIG.SUPABASE_URL, window.ELAN_CONFIG.SUPABASE_ANON_KEY);
+  var REGS=[], PAYS=[], STATUS_COL=null;
+  function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  // ---- auth gate ----
+  async function showConsoleIfAuthed(){
+    var s=await sb.auth.getSession();
+    if(s.data.session){ document.getElementById('gate').style.display='none';
+      document.getElementById('console').style.display='';
+      document.getElementById('whoami').textContent=s.data.session.user.email||'';
+      loadAll(); return true; }
+    return false;
+  }
+  document.getElementById('gBtn').addEventListener('click', async function(){
+    var m=document.getElementById('gMsg'); m.textContent='Signing in…';
+    var r=await sb.auth.signInWithPassword({email:document.getElementById('gEmail').value.trim(),password:document.getElementById('gPw').value});
+    if(r.error){ m.textContent='Sign-in failed: '+r.error.message; return; }
+    m.textContent=''; showConsoleIfAuthed();
+  });
+  document.getElementById('signout').addEventListener('click', async function(e){ e.preventDefault(); await sb.auth.signOut(); location.reload(); });
+  document.getElementById('refresh').addEventListener('click', function(){ loadAll(); });
+  showConsoleIfAuthed();
+
+  // ---- tabs ----
+  document.querySelectorAll('.atab').forEach(function(t){ t.addEventListener('click', function(){
+    document.querySelectorAll('.atab').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    ['overview','regs','pays','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
+  });});
+
+  // ---- data loading (graceful if RLS blocks) ----
+  async function loadAll(){
+    var note=document.getElementById('rlsNote'); note.innerHTML='';
+    var blocked=[];
+    var r1=await sb.from('registrations').select('*').order('created_at',{ascending:false});
+    if(r1.error){ blocked.push('registrations ('+r1.error.message+')'); REGS=[]; } else REGS=r1.data||[];
+    var r2=await sb.from('contact_messages').select('*').eq('inquiry_type','Payment UTR').order('created_at',{ascending:false});
+    if(r2.error){ blocked.push('contact_messages ('+r2.error.message+')'); PAYS=[]; } else PAYS=r2.data||[];
+    if(REGS.length){ STATUS_COL=['payment_status','status'].find(function(k){return k in REGS[0];})||null; }
+    if(blocked.length){
+      note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load</strong> — your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase — ask and I\u2019ll provide it.</span></div>';
+    }
+    renderStats(); renderRegs(); renderPays();
+  }
+
+  function money(n){ n=Number(n)||0; return '\u20B9'+n.toLocaleString('en-IN'); }
+  function isPaid(r){ return STATUS_COL ? String(r[STATUS_COL]).toLowerCase()==='paid' : false; }
+
+  function renderStats(){
+    var paid=REGS.filter(isPaid), pend=REGS.filter(function(r){return !isPaid(r);});
+    var rev=paid.reduce(function(a,r){return a+(Number(r.amount)||0);},0);
+    var pendRev=pend.reduce(function(a,r){return a+(Number(r.amount)||0);},0);
+    var flag=function(name){ return REGS.filter(function(r){return (r.notes||'').indexOf('[Flagship: '+name)!==-1;}).length; };
+    var tiers={}; REGS.forEach(function(r){ var t=(r.ticket_type||'').split('\u00B7')[0].trim()||'—'; tiers[t]=(tiers[t]||0)+1; });
+    document.getElementById('statCards').innerHTML=
+      '<div class="stat-card"><b>'+REGS.length+'</b><span>Total registrations</span></div>'+
+      '<div class="stat-card"><b>'+paid.length+'</b><span>Paid</span></div>'+
+      '<div class="stat-card"><b>'+pend.length+'</b><span>Pending</span></div>'+
+      '<div class="stat-card"><b>'+money(rev)+'</b><span>Verified revenue</span></div>';
+    document.getElementById('statCards2').innerHTML=
+      '<div class="stat-card"><b>'+flag('Crisis Command')+'</b><span>Crisis Command</span></div>'+
+      '<div class="stat-card"><b>'+flag('Cent$ible')+'</b><span>Cent$ible</span></div>'+
+      '<div class="stat-card"><b>'+PAYS.length+'</b><span>UTR submissions</span></div>'+
+      '<div class="stat-card"><b>'+money(pendRev)+'</b><span>Pending value</span></div>'+
+      Object.keys(tiers).map(function(t){return '<div class="stat-card"><b>'+tiers[t]+'</b><span>'+esc(t)+'</span></div>';}).join('');
+  }
+
+  function renderRegs(){
+    var q=(document.getElementById('rSearch').value||'').toLowerCase();
+    var st=document.getElementById('rStatus').value, tr=document.getElementById('rTier').value;
+    var rows=REGS.filter(function(r){
+      if(q && ((r.full_name||'')+' '+(r.email||'')+' '+(r.school||'')+' '+(r.phone||'')).toLowerCase().indexOf(q)===-1) return false;
+      if(st && STATUS_COL && String(r[STATUS_COL]).toLowerCase()!==st) return false;
+      if(tr && (r.ticket_type||'').indexOf(tr)===-1) return false;
+      return true;
+    });
+    var el=document.getElementById('regTable');
+    if(!rows.length){ el.innerHTML='<p class="note">No registrations match.</p>'; return; }
+    el.innerHTML='<table><tr><th>Name</th><th>Contact</th><th>School</th><th>Ticket</th><th>Amount</th><th>Flagship</th><th>Status</th><th></th></tr>'+
+      rows.map(function(r){
+        var fl=(r.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/);
+        var paid=isPaid(r);
+        return '<tr><td><strong>'+esc(r.full_name)+'</strong></td>'+
+          '<td>'+esc(r.email||'')+'<br><span class="note">'+esc(r.phone||'')+'</span></td>'+
+          '<td>'+esc(r.school||'')+'</td><td>'+esc((r.ticket_type||'').split('\u00B7')[0])+(r.quantity>1?' \u00D7'+r.quantity:'')+'</td>'+
+          '<td>'+money(r.amount)+'</td><td>'+esc(fl?fl[1].trim()+(fl[2]?' \u2014 '+fl[2].trim():''):'\u2014')+'</td>'+
+          '<td>'+(STATUS_COL?('<span class="'+(paid?'pill-paid':'pill-pending')+'">'+(paid?'paid':'pending')+'</span>'):'\u2014')+'</td>'+
+          '<td>'+(STATUS_COL?('<button class="mini-btn" data-id="'+esc(r.id)+'" data-to="'+(paid?'pending':'paid')+'">Mark '+(paid?'pending':'paid')+'</button>'):'')+'</td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('.mini-btn').forEach(function(b){ b.addEventListener('click', async function(){
+      b.disabled=true; b.textContent='Saving\u2026';
+      var upd={}; upd[STATUS_COL]=b.dataset.to;
+      var r=await sb.from('registrations').update(upd).eq('id', b.dataset.id);
+      if(r.error){ alert('Update blocked: '+r.error.message+'\n(If this is RLS, mark paid in the Supabase Table Editor, or ask me for the admin update policy.)'); b.disabled=false; b.textContent='Retry'; return; }
+      loadAll();
+    });});
+  }
+  ['rSearch','rStatus','rTier'].forEach(function(id){ document.getElementById(id).addEventListener('input', renderRegs); });
+
+  document.getElementById('rCsv').addEventListener('click', function(){
+    var head=['full_name','email','phone','school','ticket_type','quantity','amount','status','notes','created_at'];
+    var lines=[head.join(',')].concat(REGS.map(function(r){
+      return head.map(function(k){ var v=k==='status'?(STATUS_COL?r[STATUS_COL]:''):r[k]; v=String(v==null?'':v).replace(/"/g,'""'); return '"'+v+'"'; }).join(',');
+    }));
+    var blob=new Blob([lines.join('\n')],{type:'text/csv'}); var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='elan-registrations.csv'; a.click();
+  });
+
+  function renderPays(){
+    var el=document.getElementById('payTable');
+    if(!PAYS.length){ el.innerHTML='<p class="note">No UTR submissions yet.</p>'; return; }
+    el.innerHTML='<table><tr><th>Name</th><th>Contact</th><th>Details</th><th>When</th></tr>'+
+      PAYS.map(function(p){
+        return '<tr><td><strong>'+esc(p.full_name)+'</strong></td><td>'+esc(p.email||'')+'<br><span class="note">'+esc(p.phone||'')+'</span></td>'+
+        '<td class="mono" style="font-size:12px">'+esc(p.message||'')+'</td>'+
+        '<td class="note">'+esc((p.created_at||'').slice(0,16).replace('T',' '))+'</td></tr>';
+      }).join('')+'</table>';
+  }
+})();
+</script>
+
 <script>
 (function(){
   var CFG = window.ELAN_CONFIG || {};
