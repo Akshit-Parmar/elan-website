@@ -2,6 +2,11 @@
 
 <html lang="en">
 <head>
+<script>/* Supabase auth links land on the Site URL root with the token in the
+   hash. Forward them to the portal set-password page, token intact. */
+if(location.hash && location.hash.indexOf("access_token=")!==-1){
+  location.replace("portal/set-password.html"+location.hash);
+}</script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Élan Summit — Inter-School Student Event in Pune | Crisis Command &amp; Cent$ible</title>
