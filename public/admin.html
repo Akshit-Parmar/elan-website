@@ -72,9 +72,9 @@
   }
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   var lastIssued=[];
-  window.epCopy=function(t){ if(t){ navigator.clipboard.writeText(t); } };
-  window.epCopyAll=function(){ var rows=lastIssued.filter(function(x){return x.link;}).map(function(x){return x.name+'\t'+(x.uid||'')+'\t'+x.link;}); if(rows.length) navigator.clipboard.writeText(rows.join('\n')); };
-  function linkCell(x){ return x.link ? '<button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="epCopy(\''+esc(x.link)+'\')">Copy link</button>' : '<span class="note">—</span>'; }
+  window.epCopy=function(t,btn){ if(!t) return; navigator.clipboard.writeText(t);var b=btn||(window.event&&window.event.target); if(b&&b.tagName==='BUTTON'){var o=b.textContent;b.textContent='Copied \u2713'; b.disabled=true; setTimeout(function(){b.textContent=o;b.disabled=false;},1500);} };
+  window.epCopyAll=function(){ var rows=lastIssued.filter(function(x){return x.link;}).map(function(x){return x.name+'\t'+(x.uid||'')+'\t'+x.link;});if(!rows.length) return; navigator.clipboard.writeText(rows.join('\n'));var b=window.event&&window.event.target; if(b&&b.tagName==='BUTTON'){var o=b.textContent;b.textContent='Copied '+rows.length+' \u2713'; setTimeout(function(){b.textContent=o;},1800);} };
+  function linkCell(x){ return x.link ? '<button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="epCopy(\''+esc(x.link)+'\',this)">Copy link</button>' : '<span class="note">—</span>'; }
 
   document.getElementById('run').addEventListener('click', async function(){
     var url=document.getElementById('fnUrl').value.trim();
