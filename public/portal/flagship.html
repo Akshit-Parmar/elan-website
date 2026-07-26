@@ -11,4 +11,17 @@
 <article class="white-card" style="margin-top:16px"><h3 class="card-title">Initial plan submission</h3><p class="card-copy">On Day 1, after the initial briefing, teams must submit their Initial Response Brief by the end of the briefing window, or as per the announced deadline. Watch <a href="announcements.html">Announcements</a> for the exact cutoff.</p><div style="margin-top:12px"><span class="tag ep-warn">Submission status: not submitted</span></div></article>
 <article class="white-card" style="margin-top:16px"><h3 class="card-title">Final presentation</h3><p class="card-copy">On Day 2, teams manage the consequences of their Day 1 decisions, finalise their response, and present and defend it before a panel. Format and timings are on the <a href="portal-schedule.html">Schedule</a>.</p></article>
 </div></section>
-</main><div class="toast" role="status" aria-live="polite"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/js/config.js"></script><script src="../assets/js/portal.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/main.js"></script></body></html>
+</main><div class="toast" role="status" aria-live="polite"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/js/config.js"></script><script src="../assets/js/portal.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/main.js"></script><style>.ep-flag-strip{margin:18px auto 0;max-width:1120px;padding:0 20px}.ep-flag-strip .white-card{border-left:4px solid var(--red,#4E0000)}</style><script>
+document.addEventListener("elan:participant",function(ev){
+  var p=ev.detail||{}; var hero=document.querySelector(".page-hero");
+  if(!hero) return;
+  var wrap=document.createElement("div"); wrap.className="ep-flag-strip";
+  if(p.flagship==="Cent$ible"){
+    wrap.innerHTML='<article class="white-card"><h3 class="card-title">You\u2019re registered for Cent$ible</h3><p class="card-copy">Crisis Command and Cent$ible run at the same time, and your flagship is Cent$ible'+(p.centsible_theme?" \u2014 "+p.centsible_theme:"")+'. This page is for Crisis Command participants.</p><div class="cta-row" style="margin-top:10px"><a class="btn btn-gold" href="centsible.html">Go to your Cent$ible arena</a></div></article>';
+  } else {
+    wrap.innerHTML='<article class="white-card"><span class="section-label">Your cabinet post</span><h3 class="card-title" style="font-size:26px">'+(p.cc_role?p.cc_role:"To be assigned")+'</h3><p class="card-copy">'+(p.cc_role?"You hold this post in your mixed-school cabinet for both days. Your team and nation details will be shared at the briefing.":"Cabinet posts \u2014 Head of State, Finance Minister, Foreign Affairs Minister, Policy Advisor, and Media &amp; PR Head \u2014 are being assigned as teams are formed. Yours will appear here.")+'</p></article>';
+  }
+  hero.insertAdjacentElement("afterend",wrap);
+});
+</script>
+</body></html>

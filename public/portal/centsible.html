@@ -11,4 +11,19 @@
 </div>
 <article class="white-card" style="margin-top:16px"><h3 class="card-title">The Boardroom Finale</h3><p class="card-copy">Top teams from every theme advance to the Boardroom Finale for the overall Cent$ible championship. Watch <a href="announcements.html">Announcements</a> for your theme's round times and reporting details.</p></article>
 </div></section>
-</main><div class="toast" role="status" aria-live="polite"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/js/config.js"></script><script src="../assets/js/portal.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/main.js"></script></body></html>
+</main><div class="toast" role="status" aria-live="polite"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/js/config.js"></script><script src="../assets/js/portal.js"></script><script src="../assets/js/auth.js"></script><script src="../assets/js/main.js"></script><style>.ep-flag-strip{margin:18px auto 0;max-width:1120px;padding:0 20px}.ep-flag-strip .white-card{border-left:4px solid var(--red,#4E0000)}</style><script>
+document.addEventListener("elan:participant",function(ev){
+  var p=ev.detail||{}; var hero=document.querySelector(".page-hero");
+  if(!hero) return;
+  var wrap=document.createElement("div"); wrap.className="ep-flag-strip";
+  if(p.flagship==="Crisis Command"){
+    wrap.innerHTML='<article class="white-card"><h3 class="card-title">You\u2019re registered for Crisis Command</h3><p class="card-copy">Crisis Command and Cent$ible run at the same time, and your flagship is Crisis Command. This page is for Cent$ible participants.</p><div class="cta-row" style="margin-top:10px"><a class="btn btn-gold" href="flagship.html">Go to your Crisis Command briefing</a></div></article>';
+  } else {
+    var theme=p.centsible_theme||"";
+    var cents=(p.cents_balance!=null)?'<article class="white-card" style="margin-top:14px"><span class="section-label">Your Cents balance</span><h3 class="card-title" style="font-size:34px">'+Number(p.cents_balance).toLocaleString("en-IN")+' \u00A2</h3><p class="card-copy">Cents are Cent$ible\u2019s in-event currency. You\u2019ll earn, invest, and bid with them across your rounds \u2014 balances update during the event.</p></article>':'';
+    wrap.innerHTML='<article class="white-card"><span class="section-label">Your theme</span><h3 class="card-title" style="font-size:26px">'+(theme?theme:"Theme being confirmed")+'</h3><p class="card-copy">All three rounds of your theme run on <strong>Day 1 (5 September)</strong>. The strongest teams from every theme advance to the <strong>Boardroom Finale on Day 2 (6 September)</strong>.</p></article>'+cents;
+  }
+  hero.insertAdjacentElement("afterend",wrap);
+});
+</script>
+</body></html>

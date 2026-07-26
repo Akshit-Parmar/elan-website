@@ -90,13 +90,28 @@
             '<article class="white-card"><span class="section-label">Ticket</span><h3 class="card-title" style="font-size:26px">' + esc(p.ticket_type || "—") + '</h3><span class="tag ep-good">Access active</span></article>' +
             '<article class="white-card"><span class="section-label">Élan begins in</span><h3 class="ep-count ep-mono"><span id="days">00</span>d <span id="hours">00</span>h <span id="minutes">00</span>m <span id="seconds">00</span>s</h3><p class="card-copy">5–6 September 2026 · SGI Campus</p></article>' +
           "</div>" +
+          (p.flagship ? ('<article class="white-card" style="margin-top:16px"><span class="section-label">Your flagship</span>' +
+            (p.flagship === "Crisis Command"
+              ? '<h3 class="card-title" style="font-size:26px">Crisis Command</h3>' +
+                (p.cc_role ? '<p class="card-copy">Your cabinet post: <strong>' + esc(p.cc_role) + '</strong></p>'
+                           : '<p class="card-copy">Your cabinet post will appear here once teams are formed.</p>') +
+                '<div class="cta-row" style="margin-top:10px"><a class="btn btn-link" href="flagship.html">Crisis Command briefing →</a></div>'
+              : '<h3 class="card-title" style="font-size:26px">Cent$ible' + (p.centsible_theme ? ' — ' + esc(p.centsible_theme) : '') + '</h3>' +
+                (p.cents_balance != null ? '<p class="card-copy">Cents balance: <strong>' + Number(p.cents_balance).toLocaleString("en-IN") + ' ¢</strong></p>' : '') +
+                '<p class="card-copy">All three theme rounds run on Day 1; the Boardroom Finale is on Day 2.</p>' +
+                '<div class="cta-row" style="margin-top:10px"><a class="btn btn-link" href="centsible.html">Your Cent$ible arena →</a></div>') +
+            '</article>') : '') +
           '<div class="ep-grid2" style="margin-top:16px">' +
             '<article class="white-card"><h3 class="card-title">Latest announcement</h3>' +
               (latest ? '<span class="stage">' + new Date(latest.created_at).toLocaleString() + "</span><p class=\"card-copy\" style=\"margin-top:8px\"><strong>" + esc(latest.title) + "</strong><br>" + esc(latest.body) + '</p><div class="cta-row" style="margin-top:14px"><a class="btn btn-link" href="announcements.html">All announcements →</a></div>'
                      : '<p class="card-copy">No announcements yet. Official updates will appear here.</p>') +
             "</article>" +
             '<article class="white-card"><h3 class="card-title">Quick links</h3><ul class="list-clean" style="margin-top:10px">' +
-              '<li><a href="ticket.html">My Ticket</a></li><li><a href="portal-schedule.html">Schedule</a></li><li><a href="participant-guide.html">Participant Guide</a></li><li><a href="flagship.html">Crisis Command</a></li><li><a href="help-desk.html">Help Desk</a></li></ul></article>' +
+              '<li><a href="ticket.html">My Ticket</a></li><li><a href="portal-schedule.html">Schedule</a></li><li><a href="participant-guide.html">Participant Guide</a></li>' +
+              (p.flagship === "Cent$ible" ? '<li><a href="centsible.html">Cent$ible' + (p.centsible_theme ? " — " + esc(p.centsible_theme) : "") + '</a></li>'
+               : p.flagship === "Crisis Command" ? '<li><a href="flagship.html">Crisis Command</a></li>'
+               : '<li><a href="flagship.html">Crisis Command</a></li><li><a href="centsible.html">Cent$ible</a></li>') +
+              '<li><a href="help-desk.html">Help Desk</a></li></ul></article>' +
           "</div>" +
         "</div></section>";
       startCountdown();
@@ -217,8 +232,10 @@
     var page = document.body.dataset.page;
     var p = await guard(main);
     if (!p) return;                       // blocking state rendered
+    window.__elanParticipant = p;
     if (pages[page]) await pages[page](p, main);   // data pages
     else main.querySelectorAll("[data-uid]").forEach(function (el) { el.textContent = p.participant_uid; }); // static pages
+    document.dispatchEvent(new CustomEvent("elan:participant", { detail: p }));
     document.body.insertAdjacentHTML("beforeend", footHTML());
     var out = document.getElementById("epLogout");
     if (out) out.addEventListener("click", function (e) { e.preventDefault(); window.elanAuth.signOut(); });
