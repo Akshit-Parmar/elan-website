@@ -36,10 +36,10 @@
 <meta content="Élan Summit internal admin console." name="description"/>
 <link rel="icon" href="/favicon.ico" sizes="48x48"/><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"/><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicon-192.png"/><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"/>
 </head>
-<body class="light-page"><div class="aw" style="max-width:1080px">
-  <div class="ep-eyebrow" style="color:var(--red)">Élan Summit · Admin Console</div>
-  <h1 style="margin-bottom:2px">Command Centre</h1>
-
+<body class="light-page"><div class="admin-band"><div class="aw" style="max-width:1080px;padding-bottom:26px">
+  <div class="ep-eyebrow" style="color:var(--pearl,#E9D4C3);opacity:.85">Élan Summit · Admin Console</div>
+  <h1 style="margin:4px 0 0;color:var(--pearl,#E9D4C3)">Command Centre</h1>
+</div></div><div class="aw" style="max-width:1080px;padding-top:22px">
   <!-- AUTH GATE -->
   <div id="gate" class="rep" style="max-width:460px">
     <p class="note">Sign in with your admin account to load event data. (Link-issuing additionally requires the function secret.)</p>
@@ -56,6 +56,7 @@
       <button class="atab active" data-tab="overview">Overview</button>
       <button class="atab" data-tab="regs">Registrations</button>
       <button class="atab" data-tab="pays">Payments (UTR)</button>
+      <button class="atab" data-tab="parts">Participants</button>
       <button class="atab" data-tab="issue">Issue links</button>
     </div>
 
@@ -81,6 +82,12 @@
     <section class="apanel" id="tab-pays" style="display:none">
       <p class="note">UTR submissions from the payment page. Verify each against your bank statement, then mark the matching registration paid in the Registrations tab.</p>
       <div id="payTable" class="rep"></div>
+    </section>
+
+    <!-- PARTICIPANTS -->
+    <section class="apanel" id="tab-parts" style="display:none">
+      <p class="note">Issued participants and their UIDs. To re-send someone a fresh set-password link, use the Issue links tab with their name.</p>
+      <div id="partTable" class="rep"></div>
     </section>
 
     <!-- ISSUE LINKS (original tool, unchanged contract) -->
@@ -115,6 +122,14 @@
 .mini-btn{padding:5px 12px;font-size:12px;border-radius:999px;border:1px solid var(--border,#d9d6cf);background:#fff;cursor:pointer;font-weight:700}
 .mini-btn:hover{background:var(--navy,#13273F);color:#fff}
 @media(max-width:820px){.stat-cards{grid-template-columns:repeat(2,1fr)}}
+.admin-band{background:linear-gradient(135deg,#0B1626,var(--navy,#13273F) 60%,#1b3350);padding:34px 0 0;box-shadow:inset 0 -60px 80px -60px rgba(0,0,0,.5)}
+.stat-card{box-shadow:0 8px 26px rgba(19,39,63,.07);transition:transform .2s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-card b{color:var(--navy,#13273F)}
+.rep table{box-shadow:0 8px 26px rgba(19,39,63,.06)}
+.rep th{background:var(--navy,#13273F);color:var(--pearl,#E9D4C3);letter-spacing:.1em}
+.atab{transition:all .18s}
+.mini-btn{transition:all .15s}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -122,7 +137,7 @@
 <script>
 (function(){
   var sb=window.supabase.createClient(window.ELAN_CONFIG.SUPABASE_URL, window.ELAN_CONFIG.SUPABASE_ANON_KEY);
-  var REGS=[], PAYS=[], STATUS_COL=null;
+  var REGS=[], PAYS=[], PARTS=[], STATUS_COL=null;
   function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
   // ---- auth gate ----
@@ -148,7 +163,7 @@
   document.querySelectorAll('.atab').forEach(function(t){ t.addEventListener('click', function(){
     document.querySelectorAll('.atab').forEach(function(x){x.classList.remove('active');});
     t.classList.add('active');
-    ['overview','regs','pays','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
+    ['overview','regs','pays','parts','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
   });});
 
   // ---- data loading (graceful if RLS blocks) ----
@@ -159,11 +174,13 @@
     if(r1.error){ blocked.push('registrations ('+r1.error.message+')'); REGS=[]; } else REGS=r1.data||[];
     var r2=await sb.from('contact_messages').select('*').eq('inquiry_type','Payment UTR').order('created_at',{ascending:false});
     if(r2.error){ blocked.push('contact_messages ('+r2.error.message+')'); PAYS=[]; } else PAYS=r2.data||[];
+    var r3=await sb.from('participants').select('*').order('participant_uid',{ascending:true});
+    if(r3.error){ if(blocked.length===0||r3.error.message.indexOf('permission')!==-1) blocked.push('participants ('+r3.error.message+')'); PARTS=[]; } else PARTS=r3.data||[];
     if(REGS.length){ STATUS_COL=['payment_status','status'].find(function(k){return k in REGS[0];})||null; }
     if(blocked.length){
       note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load</strong> — your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase — ask and I\u2019ll provide it.</span></div>';
     }
-    renderStats(); renderRegs(); renderPays();
+    renderStats(); renderRegs(); renderPays(); renderParts();
   }
 
   function money(n){ n=Number(n)||0; return '\u20B9'+n.toLocaleString('en-IN'); }
@@ -184,6 +201,7 @@
       '<div class="stat-card"><b>'+flag('Crisis Command')+'</b><span>Crisis Command</span></div>'+
       '<div class="stat-card"><b>'+flag('Cent$ible')+'</b><span>Cent$ible</span></div>'+
       '<div class="stat-card"><b>'+PAYS.length+'</b><span>UTR submissions</span></div>'+
+      '<div class="stat-card"><b>'+PARTS.length+'</b><span>Participants issued</span></div>'+
       '<div class="stat-card"><b>'+money(pendRev)+'</b><span>Pending value</span></div>'+
       Object.keys(tiers).map(function(t){return '<div class="stat-card"><b>'+tiers[t]+'</b><span>'+esc(t)+'</span></div>';}).join('');
   }
@@ -228,6 +246,16 @@
     var blob=new Blob([lines.join('\n')],{type:'text/csv'}); var a=document.createElement('a');
     a.href=URL.createObjectURL(blob); a.download='elan-registrations.csv'; a.click();
   });
+
+  function renderParts(){
+    var el=document.getElementById('partTable');
+    if(!PARTS.length){ el.innerHTML='<p class="note">No participants issued yet (or reads are blocked).</p>'; return; }
+    el.innerHTML='<table><tr><th>UID</th><th>Name</th><th>Ticket</th><th>Contact</th></tr>'+
+      PARTS.map(function(p){
+        return '<tr><td class="mono"><strong>'+esc(p.participant_uid||'')+'</strong></td><td>'+esc(p.full_name||'')+'</td>'+
+        '<td>'+esc((p.ticket_type||'').split('\u00B7')[0])+'</td><td>'+esc(p.email||'')+'<br><span class="note">'+esc(p.phone||'')+'</span></td></tr>';
+      }).join('')+'</table>';
+  }
 
   function renderPays(){
     var el=document.getElementById('payTable');
