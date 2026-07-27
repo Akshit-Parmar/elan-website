@@ -198,29 +198,40 @@
           var title = i[3], loc = i[5], tag = "Shared";
           if (i[2] === "cc") { title = "Crisis Command · " + title; tag = "Crisis Command"; }
           if (i[2] === "cent") { title = "Cent$ible · " + title + (theme ? " — " + theme : ""); tag = "Cent$ible"; loc = theme ? "Your theme room — " + theme : "Cent$ible theme rooms"; }
-          return { t: i[1], title: title, d: i[4], loc: loc, tag: tag, upd: false };
+          return { t: i[1], title: title, d: i[4], loc: loc, tag: tag };
         });
-        db.filter(function (i) { return Number(i.day) === day; }).forEach(function (i) {
-          list.push({ t: (i.start_time || "").slice(0, 5), title: i.title || "", d: i.description || "", loc: i.location || "", tag: i.category || "Update", upd: true });
-        });
-        list.sort(function (a, b) { return a.t < b.t ? -1 : a.t > b.t ? 1 : 0; });
         return list.map(function (x) {
           return '<article class="schedule-card"><div class="schedule-time">' + esc(x.t) + "</div><div>" +
-            '<span class="tag">' + esc(x.tag) + (x.upd ? " · update" : "") + "</span><h3>" + esc(x.title) + "</h3>" +
+            '<span class="tag">' + esc(x.tag) + "</span><h3>" + esc(x.title) + "</h3>" +
             (x.d ? "<p>" + esc(x.d) + "</p>" : "") + "</div>" +
             (x.loc ? '<span class="stage">' + esc(x.loc) + "</span>" : "<span></span>") + "</article>";
         }).join("");
       }
 
+      // Admin-posted notices live in their own block so they can never distort
+      // the official timeline above.
+      function updates(day) {
+        var u = db.filter(function (i) { return Number(i.day) === day; });
+        if (!u.length) return "";
+        return '<h2 class="card-title" style="margin:28px 0 10px">Updates from the organising team</h2>' +
+          u.map(function (i) {
+            return '<article class="schedule-card"><div class="schedule-time">' + esc((i.start_time || "").slice(0, 5)) + "</div><div>" +
+              '<span class="tag">' + esc(i.category || "Update") + "</span><h3>" + esc(i.title || "") + "</h3>" +
+              (i.description ? "<p>" + esc(i.description) + "</p>" : "") + "</div>" +
+              (i.location ? '<span class="stage">' + esc(i.location) + "</span>" : "<span></span>") + "</article>";
+          }).join("");
+      }
+
       mount.innerHTML = '<div class="ep-day-tabs">' +
         '<button class="filter-btn active" data-day="1">Day 1 · 5 Sep</button>' +
         '<button class="filter-btn" data-day="2">Day 2 · 6 Sep</button></div>' +
-        '<div class="schedule-list" id="epDay">' + rows(1) + "</div>";
+        '<div class="schedule-list" id="epDay">' + rows(1) + updates(1) + "</div>";
       mount.querySelectorAll(".ep-day-tabs .filter-btn").forEach(function (b) {
         b.addEventListener("click", function () {
           mount.querySelectorAll(".ep-day-tabs .filter-btn").forEach(function (x) { x.classList.remove("active"); });
           b.classList.add("active");
-          document.getElementById("epDay").innerHTML = rows(Number(b.dataset.day));
+          var d = Number(b.dataset.day);
+          document.getElementById("epDay").innerHTML = rows(d) + updates(d);
         });
       });
     },

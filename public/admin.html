@@ -124,6 +124,12 @@
         <div style="margin-top:12px"><button class="btn btn-gold" id="scAdd">Add &amp; publish item</button>
         <span class="note" id="scMsg" style="margin-left:10px"></span></div>
       </div>
+      <div style="margin:14px 0;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px">
+        <strong>Note:</strong> the official two-day itinerary is built into the participant portal already — you don’t need to re-enter it here.
+        Use this tab only for <em>changes and notices</em> (room moves, delays, extra briefings); they appear under “Updates from the organising team” on each participant’s schedule.
+        <div style="margin-top:10px"><button class="mini-btn danger" id="scClearAll">Delete ALL schedule items</button>
+        <span class="note" id="scClearMsg" style="margin-left:10px"></span></div>
+      </div>
       <div id="schedTable" class="rep"></div>
     </section>
 
@@ -453,6 +459,18 @@
     if(r.error){ m.textContent='Blocked: '+r.error.message; return; }
     m.textContent='Published \u2713'; document.getElementById('anTitle').value=''; document.getElementById('anBody').value='';
     loadAll();
+  });
+
+  document.getElementById('scClearAll').addEventListener('click', async function(){
+    var m=document.getElementById('scClearMsg');
+    if(!SCHED.length){ m.textContent='Nothing to delete.'; return; }
+    if(!confirm('Delete all '+SCHED.length+' schedule items from the database?\n\nThe official itinerary in the portal is NOT affected \u2014 it is built into the site. This only clears admin-posted items (including any old seeded rows).')) return;
+    m.textContent='Deleting\u2026'; var n=0;
+    for(var i=0;i<SCHED.length;i++){
+      var r=await sb.from('portal_schedule_items').delete().eq('id', SCHED[i].id);
+      if(!r.error) n++;
+    }
+    m.textContent='Deleted '+n+' items \u2713'; loadAll();
   });
 
   document.getElementById('scAdd').addEventListener('click', async function(){
