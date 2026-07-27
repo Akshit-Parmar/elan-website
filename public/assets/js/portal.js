@@ -131,29 +131,96 @@
           "</article></div></div></section>";
     },
 
-    schedule: async function (_p, main) {
+    schedule: async function (p, main) {
+      var flag = p.flagship || "", theme = p.centsible_theme || "";
+      var isCC = flag === "Crisis Command", isCent = flag === "Cent$ible", unknown = !isCC && !isCent;
+      var THEMES = ["BRAND \u092C\u0928\u093E\u0913", "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930", "NOTE \u0928\u0940\u0924\u093F", "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"];
+
+      // Official Élan itinerary — [day, time, track(all|cc|cent), title, detail, location]
+      var OFFICIAL = [
+        [1,"08:00","all","Arrival, Registration and Breakfast","Attendance and school verification, pass and event-kit collection, flagship role or theme verification, then breakfast. Be seated by 8:50 a.m.","Registration Counters"],
+        [1,"08:45","all","Auditorium Doors Close","Dignitaries are received and participants settle for the opening.","Auditorium"],
+        [1,"09:00","all","Grand Opening Ceremony","Ceremonial lamp-lighting, welcome performance, addresses by the Élan Director, school leadership and the Chief Guest, the Élan film, and the introduction of both flagships. Ends strictly at 11:00 a.m.","Auditorium"],
+        [1,"11:00","all","Movement to Your Flagship Venue","Fifteen minutes to move to your competition venue.","Flagship Venues"],
+        [1,"11:15","cc","Preliminary Phase 1 — The Situation Room","You receive the national crisis briefing, your governing-council dossier, available resources, key stakeholders, confidential role information and initial intelligence. Analyse the crisis, assign responsibilities, set immediate priorities and build your initial response strategy. Ends with a short situation-room briefing or submission.","Crisis Command Venue"],
+        [1,"11:15","cent","Round 1","Foundational round — interpret the situation you are given and make your first decisions. Scores are recorded immediately and you move straight into Round 2.","Your theme room"],
+        [1,"12:15","cc","Preliminary Phase 2 — Escalation","A major crisis update lands: international pressure, economic instability, public unrest, infrastructure failure, media leaks or new evidence. Modify your strategy and make time-sensitive decisions. Judged on adaptability, strategic reasoning, leadership, coordination, ethics and resource management.","Crisis Command Venue"],
+        [1,"12:15","cent","Round 2","Difficulty increases — new commercial information, financial constraints, market changes, stakeholder pressure, risk factors and ethical considerations. Adapt your decisions to the new information.","Your theme room"],
+        [1,"13:15","all","Lunch Break","Competition rooms are secured. No formal competition work during lunch unless your rules specifically allow it.","Dining Area"],
+        [1,"14:00","cc","Preliminary Phase 3 — National Response","The final major Day 1 development. Prepare your complete National Crisis Response Plan, resource-allocation strategy, public communication plan, diplomatic strategy, official government statement and contingency plan. This is the most substantial Day 1 phase.","Crisis Command Venue"],
+        [1,"14:00","cent","Round 3","Your final preliminary round — produce your strongest complete response. Depending on your theme this may be a financial strategy, business plan, investment decision, marketing response, negotiation strategy or commercial presentation. Must finish by 3:15 p.m.","Your theme room"],
+        [1,"15:15","all","Refreshment and Transition Break","A short break before the final Day 1 evaluation block.","Flagship Venues"],
+        [1,"15:30","cc","Day 1 Defence and Submission","Submit your final Day 1 response. This block may include a written submission, council presentation, press statement, media questioning and judges\u2019 questioning. The deadline is strict — late submissions carry a predetermined penalty.","Crisis Command Venue"],
+        [1,"15:30","cent","Final Submission and Questioning","Complete your final submission and face judges\u2019 questions, a short defence, rapid presentation, clarification round or theme-specific challenge.","Your theme room"],
+        [1,"16:20","cc","Shortlisting and Finalist Briefing","Judges consolidate scores and announce the finalist councils. Finalists receive Day 2 reporting time, final-round format, presentation duration, device and research rules, dress expectations and holding-room instructions. The final crisis update is not revealed until Day 2.","Crisis Command Venue"],
+        [1,"16:20","cent","Final Boardroom Shortlisting","Scores go to the Central Evaluation Room for moderation and the Final Boardroom teams are confirmed. Finalists receive reporting time, presentation rules, holding-room instructions, dress expectations, allowed materials and time limits.","Your theme room"],
+        [1,"17:00","all","Open Stage","Music, poetry, storytelling, comedy, spoken word, short dance and participant showcases. Register your name in advance; each act has a fixed time limit and all tracks must be submitted beforehand. Ends strictly at 6:00 p.m.","Main Stage"],
+        [1,"18:00","all","Changing and Preparation Break","Change into cultural or formal clothing, refresh and prepare for Cultural Night. Start returning to the venue by 6:45 p.m.","Changing Areas"],
+        [1,"19:00","all","Cultural Night","Three cultural performance blocks, an interactive audience activity, and a DJ and social celebration. Day 1 closes at 9:00 p.m.","Main Stage"],
+        [1,"21:00","all","Organised Departure","Staged departure by school and transport group. No participant leaves without being checked out by the departure team.","Departure Point"],
+        [2,"08:15","all","Arrival, Breakfast and Check-in","Complete attendance and have breakfast. Finalists report directly to their designated holding rooms and must not interact with judges before the round begins.","Registration Counters"],
+        [2,"08:50","all","Seating and Final Instructions","Participants settle and receive instructions for the finals, carnival and closing ceremony.","Auditorium"],
+        [2,"09:00","all","Finalist Reporting and Venue Preparation","Finalists take position and audiences move to the finals venues.","Finals Venues"],
+        [2,"09:20","cc","Crisis Command Final","The final crisis development is revealed at 9:20, followed by a short preparation period. Each council presents its final strategic response, immediate action plan, long-term recovery plan, resource allocation, public communication strategy, diplomatic response, ethical justification and contingency plan — roughly 12 minutes presenting and 6 minutes of questioning — closing with a final judges\u2019 challenge. Ends at 12:00 p.m.","Crisis Command Finals Venue"],
+        [2,"09:20","cent","Final Boardroom","The strongest shortlisted teams enter the Boardroom, which is more formal and demanding than the preliminary rounds. Present your final recommendation, explain your financial reasoning, defend your assumptions, respond to board questioning, address risks and justify trade-offs — roughly 15 minutes presenting and 7 minutes of questioning. Ends at 12:00 p.m.","Final Boardroom"],
+        [2,"12:00","all","Judges\u2019 Deliberation","Winners, runners-up, theme recognitions and individual awards are finalised. Results remain confidential until the Closing Ceremony.","Central Evaluation Room"],
+        [2,"12:30","all","Lunch","Lunch for participants, judges, dignitaries and the organising committee.","Dining Area"],
+        [2,"13:30","all","Élan Carnival","Food and student-run stalls, carnival games, skill challenges, photo booths, sponsor stalls, interactive installations, music and merchandise. Stalls close at 3:30 p.m.","Carnival Grounds"],
+        [2,"15:30","all","Carnival Closure and Assembly","Move to the auditorium and take your school\u2019s seating block. The Closing Ceremony begins at 4:00 p.m. sharp.","Auditorium"],
+        [2,"16:00","all","Grand Closing and Awards Ceremony","Highlights film, dignitary addresses, individual certificates for every participant, felicitations, special recognitions, flagship awards, winning-team speeches, the Director\u2019s closing address and the national anthem.","Auditorium"],
+        [2,"20:00","all","Official Photographs and Departure","Winning teams, schools, judges and the organising committee take official photographs before organised dispersal.","Auditorium"]
+      ];
+
+      function mine(tr){ return tr === "all" || unknown || (tr === "cc" && isCC) || (tr === "cent" && isCent); }
+      function dbMine(cat){
+        if (!cat) return true;
+        var c = String(cat);
+        for (var i = 0; i < THEMES.length; i++) { if (c.indexOf(THEMES[i]) !== -1) return !!theme && c.indexOf(theme) !== -1; }
+        if (c.indexOf("Crisis Command") !== -1) return isCC || unknown;
+        if (c.indexOf("Cent$ible") !== -1) return isCent || unknown;
+        return true;
+      }
+
       var r = await sb.from("portal_schedule_items").select("*").eq("is_published", true).order("day").order("start_time");
-      main.innerHTML = '<section class="page-hero"><div class="container"><div class="breadcrumb"><span>Participants only</span></div><h1>Schedule.</h1><p>Detailed timings for both event days.</p></div></section>' +
+      var db = (r.error ? [] : (r.data || [])).filter(function (i) { return dbMine(i.category); });
+
+      var label = isCC ? "Crisis Command" : isCent ? ("Cent$ible" + (theme ? " — " + theme : "")) : "";
+      main.innerHTML = '<section class="page-hero"><div class="container"><div class="breadcrumb"><span>Participants only</span></div>' +
+        "<h1>Your schedule.</h1>" +
+        "<p>" + (label
+          ? "The official two-day flow, showing only what applies to you as a <strong>" + esc(label) + "</strong> participant, plus everything shared by all participants."
+          : "The official two-day flow. Your flagship is being confirmed, so both flagship tracks are shown for now.") + "</p></div></section>" +
         '<section class="section light-section"><div class="container" id="epSched"></div></section>';
       var mount = document.getElementById("epSched");
-      if (r.error) { mount.innerHTML = '<article class="white-card"><p class="card-copy">Couldn\'t load the schedule. Please try again shortly.</p></article>'; return; }
-      var items = r.data || [];
-      if (!items.length) { mount.innerHTML = '<article class="white-card"><p class="card-copy">The detailed schedule will be published here soon.</p></article>'; return; }
-      var days = items.map(function (i) { return i.day; }).filter(function (v, x, a) { return a.indexOf(v) === x; }).sort();
-      function row(i) {
-        return '<article class="schedule-card"><div class="schedule-time">' + (i.start_time || "").slice(0, 5) + "</div>" +
-          "<div>" + (i.category ? '<span class="tag">' + esc(i.category) + "</span>" : "") + "<h3>" + esc(i.title) + "</h3>" +
-          (i.description ? "<p>" + esc(i.description) + "</p>" : "") + "</div>" +
-          (i.location ? '<span class="stage">' + esc(i.location) + "</span>" : "<span></span>") + "</article>";
+
+      function rows(day) {
+        var list = OFFICIAL.filter(function (i) { return i[0] === day && mine(i[2]); }).map(function (i) {
+          var title = i[3], loc = i[5], tag = "Shared";
+          if (i[2] === "cc") { title = "Crisis Command · " + title; tag = "Crisis Command"; }
+          if (i[2] === "cent") { title = "Cent$ible · " + title + (theme ? " — " + theme : ""); tag = "Cent$ible"; loc = theme ? "Your theme room — " + theme : "Cent$ible theme rooms"; }
+          return { t: i[1], title: title, d: i[4], loc: loc, tag: tag, upd: false };
+        });
+        db.filter(function (i) { return Number(i.day) === day; }).forEach(function (i) {
+          list.push({ t: (i.start_time || "").slice(0, 5), title: i.title || "", d: i.description || "", loc: i.location || "", tag: i.category || "Update", upd: true });
+        });
+        list.sort(function (a, b) { return a.t < b.t ? -1 : a.t > b.t ? 1 : 0; });
+        return list.map(function (x) {
+          return '<article class="schedule-card"><div class="schedule-time">' + esc(x.t) + "</div><div>" +
+            '<span class="tag">' + esc(x.tag) + (x.upd ? " · update" : "") + "</span><h3>" + esc(x.title) + "</h3>" +
+            (x.d ? "<p>" + esc(x.d) + "</p>" : "") + "</div>" +
+            (x.loc ? '<span class="stage">' + esc(x.loc) + "</span>" : "<span></span>") + "</article>";
+        }).join("");
       }
-      function render(d) { return items.filter(function (i) { return i.day === d; }).map(row).join(""); }
-      mount.innerHTML = '<div class="ep-day-tabs">' + days.map(function (d, x) {
-        return '<button class="filter-btn' + (x === 0 ? " active" : "") + '" data-day="' + d + '">Day ' + d + "</button>"; }).join("") +
-        '</div><div class="schedule-list" id="epDay">' + render(days[0]) + "</div>";
+
+      mount.innerHTML = '<div class="ep-day-tabs">' +
+        '<button class="filter-btn active" data-day="1">Day 1 · 5 Sep</button>' +
+        '<button class="filter-btn" data-day="2">Day 2 · 6 Sep</button></div>' +
+        '<div class="schedule-list" id="epDay">' + rows(1) + "</div>";
       mount.querySelectorAll(".ep-day-tabs .filter-btn").forEach(function (b) {
         b.addEventListener("click", function () {
           mount.querySelectorAll(".ep-day-tabs .filter-btn").forEach(function (x) { x.classList.remove("active"); });
-          b.classList.add("active"); document.getElementById("epDay").innerHTML = render(Number(b.dataset.day));
+          b.classList.add("active");
+          document.getElementById("epDay").innerHTML = rows(Number(b.dataset.day));
         });
       });
     },
