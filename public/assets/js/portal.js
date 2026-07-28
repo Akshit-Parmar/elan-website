@@ -316,47 +316,49 @@
     // Only works for admin accounts, and only changes what is DISPLAYED — no
     // participant record is modified and no other participant's data is read.
     var THEME_LIST = ["BRAND \u092C\u0928\u093E\u0913", "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930", "NOTE \u0928\u0940\u0924\u093F", "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"];
-    var qp = new URLSearchParams(location.search), pv = qp.get("preview");
+    var qp = new URLSearchParams(location.search);
+    var pv = qp.get("preview");
+    var pvRole = qp.get("role");
+    // Sticky preview: once set, it survives navigation anywhere in the portal
+    // until "exit preview" clears it. Far more reliable than intercepting clicks.
+    try {
+      if (qp.get("exitpreview") === "1") { sessionStorage.removeItem("elanPreview"); sessionStorage.removeItem("elanPreviewRole"); pv = null; }
+      else if (pv) { sessionStorage.setItem("elanPreview", pv); if (pvRole) sessionStorage.setItem("elanPreviewRole", pvRole); }
+      else { pv = sessionStorage.getItem("elanPreview"); pvRole = sessionStorage.getItem("elanPreviewRole"); }
+    } catch (e) {}
+
     if (pv && p.is_admin !== true) {
+      try { sessionStorage.removeItem("elanPreview"); } catch (e) {}
       document.body.insertAdjacentHTML("afterbegin",
         '<div style="position:sticky;top:0;z-index:999;background:#7f1d1d;color:#fff;padding:8px 16px;' +
         'font-size:13px;font-weight:800;text-align:center">PREVIEW UNAVAILABLE \u2014 this account is not flagged as an Élan admin ' +
         '(set is_admin = true on your participant record). Showing your own portal instead.</div>');
+      pv = null;
     }
-    if (pv && p.is_admin === true) {
-      {
-        p = Object.assign({}, p);                    // never mutate the real record
-        var who = "";
-        if (pv === "cc") {
-          p.flagship = "Crisis Command";
-          p.cc_role = qp.get("role") || p.cc_role || "Head of State";
-          p.centsible_theme = null; p.cents_balance = null;
-          who = "Crisis Command \u2014 " + p.cc_role;
-        } else {
-          var idx = parseInt(String(pv).replace(/^t/, ""), 10) - 1;
-          if (idx >= 0 && idx < THEME_LIST.length) {
-            p.flagship = "Cent$ible"; p.centsible_theme = THEME_LIST[idx];
-            p.cc_role = null;
-            if (p.cents_balance == null) p.cents_balance = 500000;
-            who = "Cent$ible \u2014 " + p.centsible_theme;
-          }
+
+    if (pv) {
+      p = Object.assign({}, p);                      // never mutate the real record
+      var who = "";
+      if (pv === "cc") {
+        p.flagship = "Crisis Command";
+        p.cc_role = pvRole || p.cc_role || "Head of State";
+        p.centsible_theme = null; p.cents_balance = null;
+        who = "Crisis Command \u2014 " + p.cc_role;
+      } else {
+        var idx = parseInt(String(pv).replace(/^t/, ""), 10) - 1;
+        if (idx >= 0 && idx < THEME_LIST.length) {
+          p.flagship = "Cent$ible"; p.centsible_theme = THEME_LIST[idx];
+          p.cc_role = null;
+          if (p.cents_balance == null) p.cents_balance = 500000;
+          who = "Cent$ible \u2014 " + p.centsible_theme;
         }
-        if (who) {
-          document.body.insertAdjacentHTML("afterbegin",
-            '<div style="position:sticky;top:0;z-index:999;background:#4E0000;color:#E9D4C3;' +
-            'padding:8px 16px;font-size:13px;font-weight:800;letter-spacing:.06em;text-align:center">' +
-            "ADMIN PREVIEW \u00B7 viewing the portal as: " + esc(who) +
-            ' \u00B7 <a href="' + location.pathname + '" data-exit-preview="1" style="color:#fff;text-decoration:underline">exit preview</a></div>');
-          // keep the preview persona while clicking around the portal
-          document.addEventListener("click", function (ev) {
-            var a = ev.target.closest && ev.target.closest("a[href$='.html']");
-            if (!a || a.hasAttribute("data-exit-preview")) return;   // let the exit link work
-            var href = a.getAttribute("href");
-            if (!href || href.indexOf("://") !== -1 || href.indexOf("?") !== -1 || href.indexOf("../") === 0) return;
-            ev.preventDefault();
-            location.href = href + "?preview=" + encodeURIComponent(pv) + (qp.get("role") ? "&role=" + encodeURIComponent(qp.get("role")) : "");
-          });
-        }
+      }
+      if (who) {
+        document.body.insertAdjacentHTML("afterbegin",
+          '<div style="position:sticky;top:0;z-index:999;background:#4E0000;color:#E9D4C3;' +
+          'padding:8px 16px;font-size:13px;font-weight:800;letter-spacing:.06em;text-align:center">' +
+          "ADMIN PREVIEW \u00B7 viewing as: " + esc(who) +
+          ' \u00B7 <a href="?exitpreview=1" style="color:#fff;text-decoration:underline">exit preview</a></div>');
       }
     }
 
