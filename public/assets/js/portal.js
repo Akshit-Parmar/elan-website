@@ -317,6 +317,12 @@
     // participant record is modified and no other participant's data is read.
     var THEME_LIST = ["BRAND \u092C\u0928\u093E\u0913", "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930", "NOTE \u0928\u0940\u0924\u093F", "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"];
     var qp = new URLSearchParams(location.search), pv = qp.get("preview");
+    if (pv && p.is_admin !== true) {
+      document.body.insertAdjacentHTML("afterbegin",
+        '<div style="position:sticky;top:0;z-index:999;background:#7f1d1d;color:#fff;padding:8px 16px;' +
+        'font-size:13px;font-weight:800;text-align:center">PREVIEW UNAVAILABLE \u2014 this account is not flagged as an Élan admin ' +
+        '(set is_admin = true on your participant record). Showing your own portal instead.</div>');
+    }
     if (pv && p.is_admin === true) {
       {
         p = Object.assign({}, p);                    // never mutate the real record
