@@ -59,6 +59,7 @@
       <button class="atab" data-tab="parts">Participants</button>
       <button class="atab" data-tab="ann">Announcements</button>
       <button class="atab" data-tab="sched">Portal schedule</button>
+      <button class="atab" data-tab="admins">Admins</button>
       <button class="atab" data-tab="checkin">Check-in</button>
       <button class="atab" data-tab="prev">Portal previews</button>
       <button class="atab" data-tab="issue">Issue links</button>
@@ -134,6 +135,20 @@
         <span class="note" id="scClearMsg" style="margin-left:10px"></span></div>
       </div>
       <div id="schedTable" class="rep"></div>
+    </section>
+
+    <!-- ADMINS -->
+    <section class="apanel" id="tab-admins" style="display:none">
+      <p class="note">Create another Élan admin. They get the full console — registrations, payments, check-in, announcements and previews — the moment they sign in.</p>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:560px">
+        <label>Full name</label><input id="adName" autocomplete="off" placeholder="e.g. Riya Sharma"/>
+        <label style="margin-top:10px;display:block">Email</label><input id="adEmail" type="email" autocomplete="off" placeholder="their login email"/>
+        <label style="margin-top:10px;display:block">Password</label><input id="adPw" type="text" autocomplete="off" placeholder="at least 8 characters — share it with them"/>
+        <div style="margin-top:12px"><button class="btn btn-gold" id="adCreate">Create admin</button>
+          <span class="note" id="adMsg" style="margin-left:10px"></span></div>
+        <p class="note" style="margin-top:10px">The password is shown in plain text here only so you can pass it on. Ask them to change it after their first sign-in.</p>
+      </div>
+      <div id="adTable" class="rep"></div>
     </section>
 
     <!-- EVENT-DAY CHECK-IN -->
@@ -264,7 +279,7 @@
   document.querySelectorAll('.atab').forEach(function(t){ t.addEventListener('click', function(){
     document.querySelectorAll('.atab').forEach(function(x){x.classList.remove('active');});
     t.classList.add('active');
-    ['overview','regs','pays','parts','ann','sched','checkin','prev','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
+    ['overview','regs','pays','parts','ann','sched','admins','checkin','prev','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
   });});
 
   // ---- data loading (graceful if RLS blocks) ----
@@ -285,7 +300,7 @@
     if(blocked.length){
       note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load</strong> — your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase — ask and I\u2019ll provide it.</span></div>';
     }
-    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderCheckin();
+    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin();
     autoPilot();
   }
 
@@ -297,8 +312,9 @@
       var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
       var changed=false;
       // 1) sync flagship/theme/cents where missing
-      for(var i=0;i<PARTS.length;i++){
-        var p=PARTS[i];
+      var AP=realParts();
+      for(var i=0;i<AP.length;i++){
+        var p=AP[i];
         if(p.flagship) continue;
         var reg=REGS.find(function(r){ return (r.email||'').toLowerCase()===(p.email||'').toLowerCase(); });
         var mfl=reg?((reg.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/)):null;
@@ -309,7 +325,7 @@
         if(!r.error){ Object.assign(p,upd); changed=true; }
       }
       // 2) assign CC posts round-robin in registration (UID) order, keeping existing
-      var cc=PARTS.filter(function(p){return p.flagship==='Crisis Command';})
+      var cc=realParts().filter(function(p){return p.flagship==='Crisis Command';})
                   .sort(function(a,b){return String(a.participant_uid).localeCompare(String(b.participant_uid));});
       for(var j=0;j<cc.length;j++){
         if(cc[j].cc_role) continue;
@@ -322,6 +338,8 @@
   }
   // allow the issue tool (separate scope) to trigger a refresh + re-run of autopilot
   window.elanAdminRefresh = function(){ AUTOP_RAN=false; loadAll(); };
+
+  function realParts(){ return PARTS.filter(function(p){ return p.is_admin !== true; }); }
 
   function money(n){ n=Number(n)||0; return '\u20B9'+n.toLocaleString('en-IN'); }
   function isPaid(r){ return STATUS_COL ? String(r[STATUS_COL]).toLowerCase()==='paid' : false; }
@@ -341,7 +359,7 @@
       '<div class="stat-card"><b>'+flag('Crisis Command')+'</b><span>Crisis Command</span></div>'+
       '<div class="stat-card"><b>'+flag('Cent$ible')+'</b><span>Cent$ible</span></div>'+
       '<div class="stat-card"><b>'+PAYS.length+'</b><span>UTR submissions</span></div>'+
-      '<div class="stat-card"><b>'+PARTS.length+'</b><span>Participants issued</span></div>'+
+      '<div class="stat-card"><b>'+realParts().length+'</b><span>Participants issued</span></div>'+
       '<div class="stat-card"><b>'+money(pendRev)+'</b><span>Pending value</span></div>'+
       Object.keys(tiers).map(function(t){return '<div class="stat-card"><b>'+tiers[t]+'</b><span>'+esc(t)+'</span></div>';}).join('');
   }
@@ -389,10 +407,11 @@
 
   function renderParts(){
     var el=document.getElementById('partTable');
-    if(!PARTS.length){ el.innerHTML='<p class="note">No participants issued yet (or reads are blocked).</p>'; return; }
+    if(!realParts().length){ el.innerHTML='<p class="note">No participants issued yet (or reads are blocked).</p>'; return; }
     var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
+    var LIST=realParts();
     el.innerHTML='<table><tr><th>UID</th><th>Name</th><th>Flagship</th><th>Role / Theme</th><th>Cents</th><th>Contact</th><th></th></tr>'+
-      PARTS.map(function(p){
+      LIST.map(function(p){
         var mid='';
         if(p.flagship==='Crisis Command'){
           mid='<select class="mini-btn" data-role="'+esc(p.id)+'"><option value="">\u2014 assign post \u2014</option>'+ROLES.map(function(r){return '<option'+(p.cc_role===r?' selected':'')+'>'+r+'</option>';}).join('')+'</select>';
@@ -473,18 +492,67 @@
     });
   })();
 
+  // ---- admins ----
+  function renderAdmins(){
+    var el=document.getElementById('adTable'); if(!el) return;
+    var admins=PARTS.filter(function(p){return p.is_admin===true;});
+    if(!admins.length){ el.innerHTML='<p class="note">No admins listed yet.</p>'; return; }
+    el.innerHTML='<h3 style="margin:22px 0 8px">Current admins</h3><table><tr><th>Name</th><th>Email</th><th>UID</th><th></th></tr>'+
+      admins.map(function(p){
+        return '<tr><td><strong>'+esc(p.full_name||'')+'</strong></td><td>'+esc(p.email||'')+'</td>'+
+        '<td class="mono">'+esc(p.participant_uid||'')+'</td>'+
+        '<td><button class="mini-btn danger" data-revoke="'+esc(p.id)+'" data-nm="'+esc(p.full_name||'')+'">Revoke admin</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-revoke]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Remove admin access for '+b.dataset.nm+'? Their login still works, but the console will be empty for them.')) return;
+      b.disabled=true;
+      var r=await sb.from('participants').update({is_admin:false}).eq('id', b.dataset.revoke);
+      if(r.error){ alert('Blocked: '+r.error.message); b.disabled=false; return; }
+      loadAll();
+    });});
+  }
+
+  document.getElementById('adCreate').addEventListener('click', async function(){
+    var m=document.getElementById('adMsg');
+    var nm=document.getElementById('adName').value.trim(),
+        em=document.getElementById('adEmail').value.trim().toLowerCase(),
+        pw=document.getElementById('adPw').value;
+    if(!nm||!em||!pw){ m.textContent='Fill in name, email and password.'; return; }
+    if(pw.length<8){ m.textContent='Password must be at least 8 characters.'; return; }
+    m.textContent='Creating\u2026';
+    // A SEPARATE client so signUp does not replace YOUR session.
+    var sb2=window.supabase.createClient(window.ELAN_CONFIG.SUPABASE_URL, window.ELAN_CONFIG.SUPABASE_ANON_KEY,
+      {auth:{persistSession:false, autoRefreshToken:false, storageKey:'elan-admin-create'}});
+    var r=await sb2.auth.signUp({email:em, password:pw});
+    if(r.error){ m.textContent='Could not create login: '+r.error.message; return; }
+    var uid=(r.data && r.data.user && r.data.user.id) || null;
+    if(!uid){ m.textContent='Login created, but no user id returned \u2014 check Supabase Auth.'; return; }
+    // next admin UID: ELAN26-A001, A002 …
+    var used=PARTS.map(function(p){return String(p.participant_uid||'');}).filter(function(u){return /^ELAN26-A\d+$/.test(u);});
+    var n=used.reduce(function(a,u){return Math.max(a, parseInt(u.slice(9),10)||0);},0)+1;
+    var newUid='ELAN26-A'+String(n).padStart(3,'0');
+    var row={ full_name:nm, email:em, auth_user_id:uid, is_admin:true,
+              participant_uid:newUid, payment_status:'confirmed' };
+    var ins=await sb.from('participants').insert(row);
+    if(ins.error){ m.textContent='Login created, but admin record failed: '+ins.error.message+' (they can still sign in \u2014 re-run after fixing).'; return; }
+    m.textContent='Admin created \u2713  '+newUid+' \u2014 send them the email and password.';
+    ['adName','adEmail','adPw'].forEach(function(id){document.getElementById(id).value='';});
+    loadAll();
+  });
+
   // ---- event-day check-in ----
   function renderCheckin(){
     var el=document.getElementById('ciTable'); if(!el) return;
     var q=(document.getElementById('ciSearch').value||'').toLowerCase().trim();
     var fs=document.getElementById('ciFilter').value, ff=document.getElementById('ciFlag').value;
-    var inCount=PARTS.filter(function(p){return !!p.checked_in_at;}).length;
+    var LIST0=realParts();
+    var inCount=LIST0.filter(function(p){return !!p.checked_in_at;}).length;
     document.getElementById('ciStats').innerHTML=
-      '<div class="stat-card"><b>'+PARTS.length+'</b><span>Participants</span></div>'+
+      '<div class="stat-card"><b>'+LIST0.length+'</b><span>Participants</span></div>'+
       '<div class="stat-card"><b>'+inCount+'</b><span>Checked in</span></div>'+
-      '<div class="stat-card"><b>'+(PARTS.length-inCount)+'</b><span>Not arrived</span></div>'+
-      '<div class="stat-card"><b>'+(PARTS.length?Math.round(inCount/PARTS.length*100):0)+'%</b><span>Arrived</span></div>';
-    var rows=PARTS.filter(function(p){
+      '<div class="stat-card"><b>'+(LIST0.length-inCount)+'</b><span>Not arrived</span></div>'+
+      '<div class="stat-card"><b>'+(LIST0.length?Math.round(inCount/LIST0.length*100):0)+'%</b><span>Arrived</span></div>';
+    var rows=LIST0.filter(function(p){
       if(q && ((p.participant_uid||'')+' '+(p.full_name||'')+' '+(p.school||'')+' '+(p.phone||'')).toLowerCase().indexOf(q)===-1) return false;
       if(fs==='in' && !p.checked_in_at) return false;
       if(fs==='out' && p.checked_in_at) return false;
@@ -519,7 +587,7 @@
     var b=document.getElementById('ciCsv'); if(!b) return;
     b.addEventListener('click', function(){
       var head=['participant_uid','full_name','school','email','phone','flagship','cc_role','centsible_theme','checked_in_at'];
-      var lines=[head.join(',')].concat(PARTS.map(function(p){
+      var lines=[head.join(',')].concat(realParts().map(function(p){
         return head.map(function(k){ return '"'+String(p[k]==null?'':p[k]).replace(/"/g,'""')+'"'; }).join(',');
       }));
       var blob=new Blob([lines.join('\n')],{type:'text/csv'});
