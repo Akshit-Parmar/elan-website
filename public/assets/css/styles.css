@@ -991,3 +991,46 @@ a:focus-visible,button:focus-visible,.btn:focus-visible,.nav-link:focus-visible,
 
 /* Labels on dark heroes must be pearl, not dark red (contrast fix). */
 .page-hero .section-label,.hero .section-label,.final-cta .section-label{color:var(--pearl,#E9D4C3)}
+
+
+/* ============================================================================
+   LEGAL PAGES — list rendering fix
+   .legal-content ul{display:grid} and .list-clean li{display:grid} nest two
+   grids, which collapses the text track to min-content (one word per line).
+   Force simple block flow with an absolutely-positioned bullet instead.
+   ============================================================================ */
+.legal-content ul,
+.legal-content ul.list-clean{
+  display:block;
+  margin:12px 0 18px;
+  padding:0;
+  list-style:none;
+  gap:0;
+}
+.legal-content ul li,
+.legal-content ul.list-clean li{
+  display:block;
+  grid-template-columns:none;
+  position:relative;
+  padding-left:24px;
+  margin:0 0 10px;
+  line-height:1.75;
+  max-width:70ch;
+}
+.legal-content ul li::before,
+.legal-content ul.list-clean li::before{
+  content:"";
+  position:absolute;
+  left:2px;
+  top:.68em;
+  width:8px;
+  height:8px;
+  margin-top:0;
+  border-radius:50%;
+  background:var(--red,#4E0000);
+  box-shadow:none;
+}
+.legal-content p{max-width:70ch}
+.legal-content h2{max-width:70ch}
+.legal-content a{color:var(--red,#4E0000);text-decoration:underline;text-underline-offset:2px}
+.legal-content a:hover{opacity:.75}
