@@ -294,62 +294,52 @@ function validateForm(form){
 }
 
 /* ------------------------------------------------------------------ *
- *  Ticket availability windows (times are IST, +05:30).
- *  Each tier's Select button + dropdown option is only active inside
- *  its window. Registration opens 12 Jul; everything closes 30 Aug.
+ *  Ticket availability — MANUAL CONTROL.
+ *
+ *  Set a tier to true to open it, false to close it, then redeploy.
+ *  No dates are involved: tickets open and close only when changed here.
  * ------------------------------------------------------------------ */
-const TICKET_WINDOWS = {
-  early:    { opens: '2026-07-12T00:00:00+05:30', closes: '2026-08-03T00:00:00+05:30' },
-  standard: { opens: '2026-08-03T00:00:00+05:30', closes: '2026-08-24T00:00:00+05:30' },
-  late:     { opens: '2026-08-24T00:00:00+05:30', closes: '2026-08-31T00:00:00+05:30' },
-  school:   { opens: '2026-07-12T00:00:00+05:30', closes: '2026-08-31T00:00:00+05:30' }
+const TICKET_OPEN = {
+  early:    true,    // Early Bird        — ₹3,699 (includes stay + transport)
+  standard: false,   // Standard          — ₹4,199 (includes stay + transport)
+  late:     false,   // Late Registration — ₹4,899 (includes stay + transport)
+  day:      true     // Day Delegate      — ₹2,800 (no stay, no transport)
 };
 
-function fmtWindowDate(d){
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' });
-}
-
-function tierState(win, now){
-  const opens = new Date(win.opens), closes = new Date(win.closes);
-  if(now < opens)   return { state: 'upcoming', label: 'Opens ' + fmtWindowDate(opens) };
-  if(now >= closes) return { state: 'closed', label: 'Closed' };
-  const lastDay = new Date(closes.getTime() - 86400000);
-  return { state: 'open', label: 'Open · until ' + fmtWindowDate(lastDay) };
-}
+function isTierOpen(tier){ return TICKET_OPEN[tier] === true; }
 
 function initTicketAvailability(){
   const cards = qsa('.price-card[data-tier]');
   if(!cards.length) return;
-  const now = new Date();
   const ticketSelect = qs('#ticketType');
   let anyOpen = false;
 
   cards.forEach(card => {
-    const win = TICKET_WINDOWS[card.dataset.tier];
-    if(!win) return;
-    const state = tierState(win, now).state;
-    if(state === 'open') anyOpen = true;
+    const open = isTierOpen(card.dataset.tier);
+    if(open) anyOpen = true;
+    card.classList.toggle('tier-closed', !open);
 
     const btn = qs('.btn[data-ticket]', card);
     if(btn){
-      if(state === 'open'){
+      if(open){
         btn.classList.remove('is-disabled');
         btn.removeAttribute('aria-disabled');
         btn.dataset.locked = 'false';
+        btn.textContent = 'Select';
       } else {
         btn.classList.add('is-disabled');
         btn.setAttribute('aria-disabled', 'true');
         btn.dataset.locked = 'true';
+        btn.textContent = 'Currently closed';
       }
     }
   });
 
-  // Match the dropdown options to the same windows.
+  // Match the dropdown options to the same settings.
   if(ticketSelect){
     Array.from(ticketSelect.options).forEach(opt => {
       if(!opt.dataset.tier) return;
-      const win = TICKET_WINDOWS[opt.dataset.tier];
-      opt.disabled = !(win && tierState(win, now).state === 'open');
+      opt.disabled = !isTierOpen(opt.dataset.tier);
     });
     const sel = ticketSelect.selectedOptions[0];
     if(sel && sel.disabled) ticketSelect.value = '';
@@ -359,11 +349,9 @@ function initTicketAvailability(){
   const form = qs('form[data-form="registration"]');
   const closedNote = qs('#regClosedNote');
   if(!anyOpen){
-    const opensAll = new Date(TICKET_WINDOWS.early.opens);
-    const msg = now < opensAll ? 'Registration is not open yet.' : 'Registration is now closed.';
     if(ticketSelect) ticketSelect.disabled = true;
     if(form){ const s = qs('button[type="submit"]', form); if(s) s.disabled = true; }
-    if(closedNote){ closedNote.textContent = msg; closedNote.hidden = false; }
+    if(closedNote){ closedNote.textContent = 'Registration is currently closed.'; closedNote.hidden = false; }
   } else if(closedNote){
     closedNote.hidden = true;
   }
