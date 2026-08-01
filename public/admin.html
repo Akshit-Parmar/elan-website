@@ -94,7 +94,7 @@
 
     <!-- PARTICIPANTS -->
     <section class="apanel" id="tab-parts" style="display:none">
-      <p class="note">Issued participants and their UIDs. To re-send someone a fresh set-password link, use the Issue links tab with their name.</p>
+      <p class="note">All participant records. Rows marked <span class="pill-pending">admin</span> are organiser accounts — they are excluded from participant counts, check-in and cabinet assignment. To re-send a fresh set-password link, use the Issue links tab.</p>
       <div style="margin:10px 0"><button class="btn btn-ghost" id="syncFlag">Sync flagship &amp; theme from registrations</button>
       <button class="btn btn-ghost" id="assignCC">Auto-assign Crisis Command posts</button>
       <span class="note" id="partMsg" style="margin-left:10px"></span></div>
@@ -448,9 +448,9 @@
 
   function renderParts(){
     var el=document.getElementById('partTable');
-    if(!realParts().length){ el.innerHTML='<p class="note">No participants issued yet (or reads are blocked).</p>'; return; }
+    if(!PARTS.length){ el.innerHTML='<p class="note">No participant records found. If you have issued participants, this means the database is returning zero rows \u2014 check the admin banner above.</p>'; return; }
     var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
-    var LIST=realParts();
+    var LIST=PARTS;
     el.innerHTML='<table><tr><th>UID</th><th>Name</th><th>Flagship</th><th>Role / Theme</th><th>Cents</th><th>Contact</th><th></th></tr>'+
       LIST.map(function(p){
         var mid='';
@@ -458,7 +458,7 @@
           mid='<select class="mini-btn" data-role="'+esc(p.id)+'"><option value="">\u2014 assign post \u2014</option>'+ROLES.map(function(r){return '<option'+(p.cc_role===r?' selected':'')+'>'+r+'</option>';}).join('')+'</select>';
         } else if(p.flagship==='Cent$ible'){ mid=esc(p.centsible_theme||'\u2014'); }
         var cents=(p.flagship==='Cent$ible')?((p.cents_balance!=null?Number(p.cents_balance).toLocaleString('en-IN'):'\u2014')+' <button class="mini-btn" data-cents="'+esc(p.id)+'">\u00B1</button>'):'\u2014';
-        return '<tr><td class="mono"><strong>'+esc(p.participant_uid||'')+'</strong></td><td>'+esc(p.full_name||'')+'<br><span class="note">'+esc((p.ticket_type||'').split('\u00B7')[0])+'</span></td>'+
+        return '<tr'+(p.is_admin?' style="background:#faf7f2"':'')+'><td class="mono"><strong>'+esc(p.participant_uid||'')+'</strong></td><td>'+esc(p.full_name||'')+(p.is_admin?' <span class="pill-pending">admin</span>':'')+'<br><span class="note">'+esc((p.ticket_type||'').split('\u00B7')[0])+'</span></td>'+
         '<td>'+esc(p.flagship||'\u2014')+'</td><td>'+mid+'</td><td>'+cents+'</td>'+
         '<td>'+esc(p.email||'')+'<br><span class="note">'+esc(p.phone||'')+'</span></td>'+
         '<td><button class="mini-btn danger" data-del="'+esc(p.id)+'" data-uid="'+esc(p.participant_uid||'')+'">Remove</button></td></tr>';
