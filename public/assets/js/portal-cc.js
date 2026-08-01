@@ -101,7 +101,7 @@
   function tick() {
     document.querySelectorAll(".cc-count").forEach(function (el) {
       var ms = new Date(el.dataset.due) - new Date();
-      if (ms <= 0) { el.textContent = "Deadline passed \u2014 speak to an organiser."; el.className = "cc-count is-over"; return; }
+      if (ms <= 0) { el.textContent = "Deadline passed. Speak to an organiser."; el.className = "cc-count is-over"; return; }
       var h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000);
       var d = Math.floor(h / 24);
       el.textContent = d > 0

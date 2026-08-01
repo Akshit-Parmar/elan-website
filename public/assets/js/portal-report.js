@@ -45,7 +45,7 @@
       main.innerHTML = shell("Team Report",
         '<article class="white-card"><h3 class="card-title">Your cabinet has not been formed yet</h3>' +
         '<p class="card-copy">Teams are formed on the day of the event. Once the Organising Committee assigns your cabinet, ' +
-        'this page becomes your shared report \u2014 each post writes its own section, and everyone sees the others update live.</p>' +
+        'this page becomes your shared report. Each post writes its own section, and everyone sees the others update live.</p>' +
         '<p class="card-copy">Your post: <strong>' + esc(P.cc_role || "to be assigned") + '</strong></p></article>');
       return;
     }
@@ -115,7 +115,7 @@
           esc(String(sub.data.submitted_at).slice(0, 16).replace("T", " ")) +
           " and can no longer be edited. Speak to an organiser if something is wrong.</p>"
         : '<p class="card-copy">' + esc(rd.when) + ". Everything saves automatically as you type. " +
-          "Each post writes its own section \u2014 you can read everyone else\u2019s live, but only edit your own.</p>") +
+          "Each post writes its own section. You can read everyone else\u2019s live, but only edit your own.</p>") +
       "</article>";
 
     html += ROLES.map(function (role) {
@@ -199,7 +199,7 @@
     var row = { team_id: P.team_id, round: round, role: role, body: body,
                 updated_at: new Date().toISOString(), updated_by: P.auth_user_id || null };
     var r = await sb.from("cc_sections").upsert(row, { onConflict: "team_id,round,role" });
-    if (r.error) { mark(role, "not saved \u2014 retrying"); setTimeout(function () { save(role, body); }, 4000); return; }
+    if (r.error) { mark(role, "not saved, retrying"); setTimeout(function () { save(role, body); }, 4000); return; }
     lastSaved[round] = body;
     try { localStorage.removeItem(lsKey(round, role)); } catch (e) {}
     mark(role, "saved " + new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }));
