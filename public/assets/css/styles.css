@@ -1116,3 +1116,26 @@ a:focus-visible,button:focus-visible,.btn:focus-visible,.nav-link:focus-visible,
   border-bottom:1px solid var(--border,#d9d6cf);font-size:14px}
 .rp-file:last-child{border-bottom:0}
 @media(max-width:640px){.rp-sec-head{flex-direction:column;gap:6px}}
+
+
+/* ============================================================================
+   CRISIS COMMAND portal — rounds, countdown, phase guide
+   ============================================================================ */
+.cc-rounds{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.cc-round.is-done{border-left:4px solid #166534}
+.cc-count{margin-top:8px;font-size:15px;font-weight:800;color:var(--midnight,#13273F);
+  font-variant-numeric:tabular-nums}
+.cc-count.is-urgent{color:var(--red-2,#790005)}
+.cc-count.is-over{color:#6b7280;font-weight:600}
+
+.cc-phases{display:grid;gap:0;margin-top:8px}
+.cc-phase{position:relative;padding:14px 0 14px 128px;border-bottom:1px solid var(--border,#d9d6cf)}
+.cc-phase:last-child{border-bottom:0}
+.cc-phase-time{position:absolute;left:0;top:16px;font-size:12px;font-weight:800;
+  letter-spacing:.04em;color:var(--red,#4E0000);font-variant-numeric:tabular-nums}
+.cc-phase strong{display:block;font-size:17px;color:var(--midnight,#13273F);margin-bottom:4px}
+.cc-phase p{margin:0;line-height:1.65;color:#51443d;font-size:14.5px;max-width:68ch}
+@media(max-width:640px){
+  .cc-phase{padding:12px 0 12px 0}
+  .cc-phase-time{position:static;display:block;margin-bottom:4px}
+}
