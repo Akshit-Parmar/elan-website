@@ -12,7 +12,7 @@
   var NAV = [
     ["Dashboard", "dashboard.html"], ["My Ticket", "ticket.html"],
     ["Schedule", "portal-schedule.html"], ["Participant Guide", "participant-guide.html"],
-    ["Crisis Command", "flagship.html"], ["Cent$ible", "centsible.html"], ["Announcements", "announcements.html"],
+    ["Crisis Command", "flagship.html"], ["Team Report", "report.html"], ["Cent$ible", "centsible.html"], ["Announcements", "announcements.html"],
     ["Help Desk", "help-desk.html"], ["Profile", "profile.html"],
   ];
   var here = (location.pathname.split("/").pop() || "").replace(/\.html$/, "") || "dashboard";
@@ -362,11 +362,15 @@
       }
     }
 
+    window.__elanSb = sb;
     window.__elanParticipant = p;
     // Personalized nav: each participant sees only their flagship.
     if (p.flagship === "Crisis Command" || p.flagship === "Cent$ible") {
       var hideHref = p.flagship === "Crisis Command" ? "centsible.html" : "flagship.html";
       document.querySelectorAll('.nav-link[href="' + hideHref + '"]').forEach(function (el) { el.remove(); });
+      if (p.flagship !== "Crisis Command") {
+        document.querySelectorAll('.nav-link[href="report.html"]').forEach(function (el) { el.remove(); });
+      }
     }
     if (pages[page]) await pages[page](p, main);   // data pages
     else main.querySelectorAll("[data-uid]").forEach(function (el) { el.textContent = p.participant_uid; }); // static pages

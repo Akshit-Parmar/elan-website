@@ -62,6 +62,7 @@
       <button class="atab" data-tab="ann">Announcements</button>
       <button class="atab" data-tab="sched">Portal schedule</button>
       <button class="atab" data-tab="admins">Admins</button>
+      <button class="atab" data-tab="teams">CC Teams</button>
       <button class="atab" data-tab="checkin">Check-in</button>
       <button class="atab" data-tab="prev">Portal previews</button>
       <button class="atab" data-tab="issue">Issue links</button>
@@ -150,6 +151,23 @@
         <p class="note" style="margin-top:10px">The password is shown in plain text here only so you can pass it on. Ask them to change it after their first sign-in.</p>
       </div>
       <div id="adTable" class="rep"></div>
+    </section>
+
+    <!-- CRISIS COMMAND TEAMS -->
+    <section class="apanel" id="tab-teams" style="display:none">
+      <p class="note">Form Crisis Command cabinets on the day, then read each team’s report. A cabinet is five participants — one per post.</p>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px">
+        <div class="row" style="grid-template-columns:1fr 1fr auto">
+          <div><label>New team name</label><input id="tmName" placeholder="e.g. Cabinet Alpha"/></div>
+          <div><label>Nation (optional)</label><input id="tmNation" placeholder="e.g. Republic of Aravind"/></div>
+          <div><label>&nbsp;</label><button class="btn btn-ghost" id="tmCreate" style="width:100%">Create team</button></div>
+        </div>
+        <div style="margin-top:12px"><button class="btn btn-gold" id="tmAuto">Auto-form cabinets from unassigned participants</button>
+        <span class="note" id="tmMsg" style="margin-left:10px"></span></div>
+        <p class="note" style="margin-top:8px">Auto-form groups unassigned Crisis Command participants in registration order into cabinets of five, one per cabinet post.</p>
+      </div>
+      <div id="tmTable" class="rep"></div>
+      <div id="tmReport" class="rep"></div>
     </section>
 
     <!-- EVENT-DAY CHECK-IN -->
@@ -280,7 +298,7 @@
   document.querySelectorAll('.atab').forEach(function(t){ t.addEventListener('click', function(){
     document.querySelectorAll('.atab').forEach(function(x){x.classList.remove('active');});
     t.classList.add('active');
-    ['overview','regs','pays','parts','ann','sched','admins','checkin','prev','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
+    ['overview','regs','pays','parts','ann','sched','admins','teams','checkin','prev','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
   });});
 
   // ---- data loading (graceful if RLS blocks) ----
@@ -301,7 +319,7 @@
     if(blocked.length){
       note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load</strong> — your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase — ask and I\u2019ll provide it.</span></div>';
     }
-    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin();
+    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin(); loadTeams();
     autoPilot();
   }
 
@@ -539,6 +557,98 @@
     m.textContent='Admin created \u2713  '+newUid+' \u2014 send them the email and password.';
     ['adName','adEmail','adPw'].forEach(function(id){document.getElementById(id).value='';});
     loadAll();
+  });
+
+  // ---- Crisis Command teams ----
+  var TEAMS=[], SUBS=[];
+  async function loadTeams(){
+    var a=await sb.from('cc_teams').select('*').order('name');
+    TEAMS=a.error?[]:(a.data||[]);
+    var b=await sb.from('cc_submissions').select('*');
+    SUBS=b.error?[]:(b.data||[]);
+    renderTeams();
+  }
+  function renderTeams(){
+    var el=document.getElementById('tmTable'); if(!el) return;
+    var cc=realParts().filter(function(p){return p.flagship==='Crisis Command';});
+    var unassigned=cc.filter(function(p){return !p.team_id;});
+    if(!TEAMS.length){ el.innerHTML='<p class="note" style="margin-top:14px">No cabinets yet. '+unassigned.length+' Crisis Command participant(s) waiting to be grouped.</p>'; return; }
+    el.innerHTML='<h3 style="margin:22px 0 8px">Cabinets ('+TEAMS.length+') \u00B7 '+unassigned.length+' unassigned</h3>'+
+      '<table><tr><th>Team</th><th>Members</th><th>Day 1</th><th>Day 2</th><th></th></tr>'+
+      TEAMS.map(function(t){
+        var mem=cc.filter(function(p){return String(p.team_id)===String(t.id);});
+        var d1=SUBS.some(function(x){return String(x.team_id)===String(t.id)&&x.round==='day1';});
+        var d2=SUBS.some(function(x){return String(x.team_id)===String(t.id)&&x.round==='day2';});
+        return '<tr><td><strong>'+esc(t.name)+'</strong>'+(t.nation?'<br><span class="note">'+esc(t.nation)+'</span>':'')+'</td>'+
+        '<td>'+(mem.length?mem.map(function(m){return '<span class="note">'+esc(m.cc_role||'\u2014')+'</span> '+esc(m.full_name);}).join('<br>'):'<span class="note">empty</span>')+'</td>'+
+        '<td>'+(d1?'<span class="pill-paid">submitted</span>':'<span class="pill-pending">open</span>')+'</td>'+
+        '<td>'+(d2?'<span class="pill-paid">submitted</span>':'<span class="pill-pending">open</span>')+'</td>'+
+        '<td><button class="mini-btn" data-view="'+esc(t.id)+'" data-nm="'+esc(t.name)+'">View report</button> '+
+        '<button class="mini-btn danger" data-tmdel="'+esc(t.id)+'" data-nm="'+esc(t.name)+'">Delete</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-view]').forEach(function(b){ b.addEventListener('click',function(){ viewReport(b.dataset.view,b.dataset.nm); });});
+    el.querySelectorAll('[data-tmdel]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Delete cabinet '+b.dataset.nm+'? Members become unassigned and the team\u2019s report is removed.')) return;
+      await sb.from('participants').update({team_id:null}).eq('team_id', b.dataset.tmdel);
+      var r=await sb.from('cc_teams').delete().eq('id', b.dataset.tmdel);
+      if(r.error){ alert('Blocked: '+r.error.message); return; }
+      loadAll(); loadTeams();
+    });});
+  }
+  async function viewReport(teamId, name){
+    var box=document.getElementById('tmReport');
+    box.innerHTML='<p class="note">Loading report\u2026</p>';
+    var secs=await sb.from('cc_sections').select('*').eq('team_id',teamId).order('round');
+    var files=await sb.from('cc_files').select('*').eq('team_id',teamId);
+    if(secs.error){ box.innerHTML='<p class="note">Blocked: '+esc(secs.error.message)+'</p>'; return; }
+    var rounds=[['day1','Day 1 \u2014 Final Submission'],['day2','Day 2 \u2014 Final Response']];
+    box.innerHTML='<h3 style="margin:26px 0 10px">'+esc(name)+' \u2014 report</h3>'+
+      rounds.map(function(r){
+        var rs=(secs.data||[]).filter(function(x){return x.round===r[0];});
+        var fs=(files.data||[]).filter(function(x){return x.round===r[0];});
+        var sub=SUBS.filter(function(x){return String(x.team_id)===String(teamId)&&x.round===r[0];})[0];
+        return '<div style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;margin-bottom:14px">'+
+          '<strong>'+r[1]+'</strong> '+(sub?'<span class="pill-paid">submitted '+esc(String(sub.submitted_at).slice(0,16).replace('T',' '))+'</span>':'<span class="pill-pending">not submitted</span>')+
+          (rs.length?rs.map(function(x){return '<div style="margin-top:12px"><span class="note" style="font-weight:800;text-transform:uppercase;letter-spacing:.08em">'+esc(x.role)+'</span>'+
+            '<div style="white-space:pre-wrap;line-height:1.65;margin-top:4px">'+esc(x.body||'(empty)')+'</div></div>';}).join(''):'<p class="note" style="margin-top:8px">Nothing written.</p>')+
+          (fs.length?'<div style="margin-top:12px"><span class="note">Attachments:</span> '+fs.map(function(f){return '<button class="mini-btn" data-adl="'+esc(f.file_path)+'">'+esc(f.file_name)+'</button>';}).join(' '):'')+
+          '</div>';
+      }).join('');
+    box.querySelectorAll('[data-adl]').forEach(function(b){ b.addEventListener('click', async function(){
+      var r=await sb.storage.from('cc-uploads').createSignedUrl(b.dataset.adl,120);
+      if(r.data&&r.data.signedUrl) window.open(r.data.signedUrl,'_blank'); else alert('Could not open file.');
+    });});
+    box.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  document.getElementById('tmCreate').addEventListener('click', async function(){
+    var n=document.getElementById('tmName').value.trim();
+    var m=document.getElementById('tmMsg');
+    if(!n){ m.textContent='Give the team a name.'; return; }
+    var r=await sb.from('cc_teams').insert({name:n, nation:document.getElementById('tmNation').value.trim()||null});
+    if(r.error){ m.textContent='Blocked: '+r.error.message; return; }
+    document.getElementById('tmName').value=''; document.getElementById('tmNation').value='';
+    m.textContent='Created \u2713'; loadTeams();
+  });
+  document.getElementById('tmAuto').addEventListener('click', async function(){
+    var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
+    var m=document.getElementById('tmMsg');
+    var pool=realParts().filter(function(p){return p.flagship==='Crisis Command' && !p.team_id;})
+                        .sort(function(a,b){return String(a.participant_uid).localeCompare(String(b.participant_uid));});
+    if(pool.length<5){ m.textContent='Need at least 5 unassigned Crisis Command participants (have '+pool.length+').'; return; }
+    if(!confirm('Form '+Math.floor(pool.length/5)+' cabinet(s) from '+pool.length+' unassigned participants?')) return;
+    m.textContent='Forming\u2026';
+    var made=0, n=TEAMS.length;
+    for(var i=0;i+4<pool.length;i+=5){
+      n++;
+      var t=await sb.from('cc_teams').insert({name:'Cabinet '+n}).select().maybeSingle();
+      if(t.error||!t.data) continue;
+      for(var j=0;j<5;j++){
+        await sb.from('participants').update({team_id:t.data.id, cc_role:ROLES[j]}).eq('id', pool[i+j].id);
+      }
+      made++;
+    }
+    m.textContent='Formed '+made+' cabinet(s) \u2713';
+    loadAll(); loadTeams();
   });
 
   // ---- event-day check-in ----
