@@ -305,6 +305,28 @@
   async function loadAll(){
     var note=document.getElementById('rlsNote'); note.innerHTML='';
     var blocked=[];
+
+    // ---- Admin identity check -------------------------------------------------
+    // RLS does NOT error when it blocks you - it silently returns zero rows.
+    // So ask the database directly whether it recognises this account as an admin.
+    var adminOk=null, adminErr='';
+    try{
+      var chk=await sb.rpc('is_elan_admin');
+      if(chk.error){ adminErr=chk.error.message; } else { adminOk = chk.data===true; }
+    }catch(e){ adminErr=String(e && e.message || e); }
+
+    if(adminErr){
+      note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px;margin-bottom:14px">'+
+        '<strong>Admin check could not run.</strong> '+esc(adminErr)+
+        '<br><span class="note">If this says the function does not exist, the admin SQL has not been run yet in Supabase.</span></div>';
+    } else if(adminOk===false){
+      note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px;margin-bottom:14px">'+
+        '<strong>This account is not recognised as an Élan admin.</strong> Your database is returning zero rows for every table, which is why the tabs look empty.'+
+        '<br><span class="note">Your participant record needs <code>is_admin = true</code> AND its <code>auth_user_id</code> must match this login. Run this in Supabase → SQL Editor:</span>'+
+        '<pre style="white-space:pre-wrap;font-size:12px;margin-top:8px;background:#fff;padding:10px;border-radius:8px;border:1px solid #fecaca">'+
+        'update public.participants p\nset auth_user_id = u.id, is_admin = true\nfrom auth.users u\nwhere lower(u.email) = lower(p.email)\n  and lower(u.email) = \''+esc((await sb.auth.getSession()).data.session.user.email||'')+'\';'+
+        '</pre></div>';
+    }
     var r1=await sb.from('registrations').select('*').order('created_at',{ascending:false});
     if(r1.error){ blocked.push('registrations ('+r1.error.message+')'); REGS=[]; } else REGS=r1.data||[];
     var r2=await sb.from('contact_messages').select('*').eq('inquiry_type','Payment UTR').order('created_at',{ascending:false});
