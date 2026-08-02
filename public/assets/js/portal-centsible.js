@@ -19,10 +19,39 @@
         : '<input class="pd-in" id="pf-' + key + '" data-k="' + key + '" placeholder="' + esc(hint) + '" value="' + esc(val || "") + '"/>');
   }
 
-  document.addEventListener("elan:participant", async function (ev) {
-    var p = ev.detail || {}, sb = window.__elanSb;
+  var ranFor = null;
+
+  function start(p) {
+    var sb = window.__elanSb;
+    if (!p || !sb) return;
+    if (p.flagship !== "Cent$ible") return;
+    if (ranFor === p.participant_uid) return;      // don't run twice
+    ranFor = p.participant_uid;
+
+    // Create the mount point ourselves if the page did not provide one.
     var mount = document.getElementById("centWorkspace");
-    if (!mount || p.flagship !== "Cent$ible" || !sb) return;
+    if (!mount) {
+      mount = document.createElement("div");
+      mount.id = "centWorkspace";
+      mount.className = "ep-flag-strip";
+      var anchor = document.querySelector(".ep-flag-strip") || document.querySelector(".page-hero");
+      if (anchor && anchor.parentNode) anchor.insertAdjacentElement("afterend", mount);
+      else (document.getElementById("ep-main") || document.body).appendChild(mount);
+    }
+    build(p, sb, mount);
+  }
+
+  document.addEventListener("elan:participant", function (ev) { start(ev.detail || {}); });
+
+  // Fallback: if the inline script errored before dispatching the event, pick the
+  // participant straight off the window once portal.js has set it.
+  var tries = 0;
+  var poll = setInterval(function () {
+    if (window.__elanParticipant && window.__elanSb) { clearInterval(poll); start(window.__elanParticipant); }
+    else if (++tries > 40) clearInterval(poll);
+  }, 250);
+
+  async function build(p, sb, mount) {
 
     var theme = p.centsible_theme || "";
     var html = "";
@@ -131,5 +160,5 @@
       msg.textContent = "Uploaded \u2713 " + f.name + " (" + (f.size/1048576).toFixed(1) + " MB) received.";
       setTimeout(function () { location.reload(); }, 1200);
     });
-  });
+  }
 })();

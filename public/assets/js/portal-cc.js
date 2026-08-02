@@ -33,8 +33,22 @@
   function esc(x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
-  document.addEventListener("elan:participant", async function (ev) {
-    var p = ev.detail || {}, sb = window.__elanSb;
+  var ranFor = null;
+  function start(p) {
+    if (!p) return;
+    if (ranFor === p.participant_uid) return;
+    ranFor = p.participant_uid;
+    build(p);
+  }
+  document.addEventListener("elan:participant", function (ev) { start(ev.detail || {}); });
+  var tries = 0;
+  var poll = setInterval(function () {
+    if (window.__elanParticipant && window.__elanSb) { clearInterval(poll); start(window.__elanParticipant); }
+    else if (++tries > 40) clearInterval(poll);
+  }, 250);
+
+  async function build(p) {
+    var sb = window.__elanSb;
     var live = document.getElementById("ccLive"), phases = document.getElementById("ccPhases");
     if (!live) return;
 
@@ -96,7 +110,7 @@
       '<div class="cc-rounds" style="margin-top:16px">' + cards + "</div>";
 
     tick(); setInterval(tick, 1000);
-  });
+  }
 
   function tick() {
     document.querySelectorAll(".cc-count").forEach(function (el) {
