@@ -62,7 +62,7 @@
       <button class="atab" data-tab="ann">Announcements</button>
       <button class="atab" data-tab="sched">Portal schedule</button>
       <button class="atab" data-tab="admins">Admins</button>
-      <button class="atab" data-tab="teams">CC Teams</button>
+      <button class="atab" data-tab="teams">Teams</button>
       <button class="atab" data-tab="checkin">Check-in</button>
       <button class="atab" data-tab="prev">Portal previews</button>
       <button class="atab" data-tab="issue">Issue links</button>
@@ -155,7 +155,7 @@
 
     <!-- CRISIS COMMAND TEAMS -->
     <section class="apanel" id="tab-teams" style="display:none">
-      <p class="note">Form Crisis Command cabinets on the day, then read each team’s report. A cabinet is five participants — one per post.</p>
+      <p class="note">Crisis Command cabinets are formed on the day (five participants, one per post). Cent$ible BRAND बनाओ teams are pairs and can be linked now, so partners can upload their pitch deck before the event.</p>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px">
         <div class="row" style="grid-template-columns:1fr 1fr auto">
           <div><label>New team name</label><input id="tmName" placeholder="e.g. Cabinet Alpha"/></div>
@@ -166,6 +166,20 @@
         <span class="note" id="tmMsg" style="margin-left:10px"></span></div>
         <p class="note" style="margin-top:8px">Auto-form groups unassigned Crisis Command participants in registration order into cabinets of five, one per cabinet post.</p>
       </div>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px;margin-top:14px">
+        <strong>Cent$ible teams (pairs)</strong>
+        <p class="note" style="margin:4px 0 10px">Select two Cent$ible participants who registered together, give the team a name, and link them. Either partner can then upload the pitch deck.</p>
+        <div class="row" style="grid-template-columns:1fr 1fr">
+          <div><label>Partner 1</label><select id="cbA"></select></div>
+          <div><label>Partner 2</label><select id="cbB"></select></div>
+        </div>
+        <div class="row" style="grid-template-columns:2fr 1fr;margin-top:8px">
+          <div><label>Team name</label><input id="cbName" placeholder="e.g. Team Nova"/></div>
+          <div><label>&nbsp;</label><button class="btn btn-ghost" id="cbLink" style="width:100%">Link pair</button></div>
+        </div>
+        <span class="note" id="cbMsg"></span>
+      </div>
+      <div id="cbTable" class="rep"></div>
       <div id="tmTable" class="rep"></div>
       <div id="tmReport" class="rep"></div>
     </section>
@@ -341,7 +355,7 @@
     if(blocked.length){
       note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load</strong> — your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase — ask and I\u2019ll provide it.</span></div>';
     }
-    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin(); loadTeams();
+    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin(); loadTeams(); loadCent();
     autoPilot();
   }
 
@@ -671,6 +685,69 @@
     }
     m.textContent='Formed '+made+' cabinet(s) \u2713';
     loadAll(); loadTeams();
+  });
+
+  // ---- Cent$ible pairs ----
+  var CFILES=[];
+  async function loadCent(){
+    var f=await sb.from('cc_files').select('*').eq('round','pitch');
+    CFILES=f.error?[]:(f.data||[]);
+    renderCent();
+  }
+  function renderCent(){
+    var selA=document.getElementById('cbA'), selB=document.getElementById('cbB');
+    if(!selA) return;
+    var free=realParts().filter(function(p){return p.flagship==='Cent$ible' && !p.team_id;})
+                        .sort(function(a,b){return String(a.full_name).localeCompare(String(b.full_name));});
+    var opts='<option value="">Select participant</option>'+free.map(function(p){
+      return '<option value="'+esc(p.id)+'">'+esc(p.full_name)+' \u00B7 '+esc(p.centsible_theme||'no theme')+'</option>';
+    }).join('');
+    selA.innerHTML=opts; selB.innerHTML=opts;
+
+    var el=document.getElementById('cbTable');
+    var cent=realParts().filter(function(p){return p.flagship==='Cent$ible' && p.team_id;});
+    var ids={}; cent.forEach(function(p){ ids[p.team_id]=true; });
+    var teamIds=Object.keys(ids);
+    if(!teamIds.length){ el.innerHTML='<p class="note" style="margin-top:14px">No Cent$ible pairs linked yet. '+free.length+' participant(s) unlinked.</p>'; return; }
+    el.innerHTML='<h3 style="margin:22px 0 8px">Cent$ible teams ('+teamIds.length+') \u00B7 '+free.length+' unlinked</h3>'+
+      '<table><tr><th>Team</th><th>Members</th><th>Theme</th><th>Pitch deck</th><th></th></tr>'+
+      teamIds.map(function(tid){
+        var mem=cent.filter(function(p){return String(p.team_id)===String(tid);});
+        var t=TEAMS.filter(function(x){return String(x.id)===String(tid);})[0]||{};
+        var decks=CFILES.filter(function(f){return String(f.team_id)===String(tid);})
+                        .sort(function(a,b){return String(b.uploaded_at).localeCompare(String(a.uploaded_at));});
+        var d=decks[0];
+        return '<tr><td><strong>'+esc(t.name||'Team')+'</strong></td>'+
+        '<td>'+mem.map(function(m){return esc(m.full_name)+'<br><span class="note">'+esc(m.school||'')+'</span>';}).join('<br>')+'</td>'+
+        '<td>'+esc(mem[0]&&mem[0].centsible_theme||'\u2014')+'</td>'+
+        '<td>'+(d?'<span class="pill-paid">received</span><br><button class="mini-btn" data-cdl="'+esc(d.file_path)+'">'+esc(d.file_name)+'</button>':'<span class="pill-pending">not uploaded</span>')+'</td>'+
+        '<td><button class="mini-btn danger" data-cbunlink="'+esc(tid)+'">Unlink</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-cdl]').forEach(function(b){ b.addEventListener('click', async function(){
+      var r=await sb.storage.from('cc-uploads').createSignedUrl(b.dataset.cdl,120);
+      if(r.data&&r.data.signedUrl) window.open(r.data.signedUrl,'_blank'); else alert('Could not open file.');
+    });});
+    el.querySelectorAll('[data-cbunlink]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Unlink this team? Both participants become unassigned and lose access to the uploaded deck.')) return;
+      await sb.from('participants').update({team_id:null}).eq('team_id', b.dataset.cbunlink);
+      await sb.from('cc_teams').delete().eq('id', b.dataset.cbunlink);
+      loadAll(); loadTeams(); loadCent();
+    });});
+  }
+  document.getElementById('cbLink').addEventListener('click', async function(){
+    var a=document.getElementById('cbA').value, b=document.getElementById('cbB').value;
+    var nm=document.getElementById('cbName').value.trim(), m=document.getElementById('cbMsg');
+    if(!a||!b){ m.textContent='Select both partners.'; return; }
+    if(a===b){ m.textContent='Select two different participants.'; return; }
+    if(!nm){ m.textContent='Give the team a name.'; return; }
+    m.textContent='Linking\u2026';
+    var t=await sb.from('cc_teams').insert({name:nm}).select().maybeSingle();
+    if(t.error||!t.data){ m.textContent='Blocked: '+(t.error&&t.error.message||'no team created'); return; }
+    var r1=await sb.from('participants').update({team_id:t.data.id}).eq('id',a);
+    var r2=await sb.from('participants').update({team_id:t.data.id}).eq('id',b);
+    if(r1.error||r2.error){ m.textContent='Blocked: '+((r1.error||r2.error).message); return; }
+    m.textContent='Linked \u2713'; document.getElementById('cbName').value='';
+    loadAll(); loadTeams(); loadCent();
   });
 
   // ---- event-day check-in ----
