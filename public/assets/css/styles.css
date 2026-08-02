@@ -1153,3 +1153,40 @@ a:focus-visible,button:focus-visible,.btn:focus-visible,.nav-link:focus-visible,
   font:inherit;font-size:15px;line-height:1.6;background:#fff;resize:vertical}
 .pd-in:focus{outline:2px solid var(--red,#4E0000);outline-offset:1px}
 #pdSaved{display:block;margin-top:10px}
+
+
+/* ============================================================================
+   CENT$IBLE workspace — single card, generous spacing
+   ============================================================================ */
+.ws{padding:34px 34px 30px}
+.ws-h{font-family:"Cormorant Garamond",serif;font-size:34px;line-height:1.1;
+  margin:8px 0 14px;color:var(--midnight,#13273F)}
+.ws-h3{font-family:"Cormorant Garamond",serif;font-size:24px;margin:0 0 4px;
+  color:var(--midnight,#13273F)}
+.ws-note{color:#6b7280;font-size:14px;line-height:1.65;margin:0 0 16px;max-width:70ch}
+.ws-sep{height:1px;background:var(--border,#d9d6cf);margin:30px 0 24px}
+
+.ws-wait{display:grid;gap:8px;padding:18px;border-radius:14px;background:#faf7f2;
+  border:1px solid var(--border,#d9d6cf);margin-bottom:4px}
+.ws-wait strong{color:var(--midnight,#13273F);font-size:16px}
+.ws-wait span{color:#6b7280;font-size:14px;line-height:1.65}
+
+.ws-fields{display:grid;gap:2px}
+.ws-fields.is-locked{opacity:.55}
+.ws-saved{display:block;margin-top:10px;font-size:13px;color:#6b7280;min-height:18px}
+
+.ws-files{display:grid;gap:2px;margin-bottom:16px}
+
+.ws-upload{padding:20px;border-radius:14px;border:1.5px dashed var(--border,#d9d6cf);
+  background:#fff;display:grid;gap:8px;justify-items:start}
+.ws-upload label{display:grid;gap:3px;cursor:pointer}
+.ws-upload strong{color:var(--midnight,#13273F);font-size:16px}
+.ws-upload span{color:#6b7280;font-size:13.5px;line-height:1.6}
+.ws-upload input[type=file]{font-size:14px}
+.ws-upload.is-locked{border-style:solid;background:#faf7f2;opacity:.75}
+
+@media(max-width:640px){
+  .ws{padding:24px 20px 22px}
+  .ws-h{font-size:27px}
+  .ws-sep{margin:24px 0 20px}
+}

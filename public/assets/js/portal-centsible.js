@@ -12,11 +12,12 @@
   function esc(x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
-  function field(key, label, val, hint, big) {
+  function field(key, label, val, hint, big, off) {
+    var d = off ? " disabled" : "";
     return '<label class="pd-lab" for="pf-' + key + '">' + esc(label) + "</label>" +
       (big
-        ? '<textarea class="pd-in" id="pf-' + key + '" data-k="' + key + '" rows="3" placeholder="' + esc(hint) + '">' + esc(val || "") + "</textarea>"
-        : '<input class="pd-in" id="pf-' + key + '" data-k="' + key + '" placeholder="' + esc(hint) + '" value="' + esc(val || "") + '"/>');
+        ? '<textarea class="pd-in" id="pf-' + key + '" data-k="' + key + '" rows="3"' + d + ' placeholder="' + esc(hint) + '">' + esc(val || "") + "</textarea>"
+        : '<input class="pd-in" id="pf-' + key + '" data-k="' + key + '"' + d + ' placeholder="' + esc(hint) + '" value="' + esc(val || "") + '"/>');
   }
 
   var ranFor = null;
@@ -56,67 +57,99 @@
     var theme = p.centsible_theme || "";
     var html = "";
 
-    // ---- your team ---------------------------------------------------------
-    if (p.team_id) {
+    // ---- team ---------------------------------------------------------------
+    var teamName = "", mates = [], linked = !!p.team_id;
+    if (linked) {
       var t = await sb.from("cc_teams").select("*").eq("id", p.team_id).maybeSingle();
-      var mates = await sb.from("participants").select("full_name,participant_uid,school")
-                          .eq("team_id", p.team_id).order("full_name");
-      var team = t.data || {};
-      html += '<article class="white-card"><span class="section-label">Your team</span>' +
-        '<h3 class="card-title" style="margin:6px 0 2px">' + esc(team.name || "Your team") + "</h3>" +
-        '<div class="rp-mates">' + (mates.data || []).map(function (m) {
-          var me = m.participant_uid === p.participant_uid;
-          return '<span class="rp-mate' + (me ? " is-me" : "") + '"><strong>' +
-                 esc(m.school || "") + "</strong>" + esc(m.full_name) + (me ? " (you)" : "") + "</span>";
-        }).join("") + "</div></article>";
+      var mm = await sb.from("participants").select("full_name,participant_uid,school")
+                       .eq("team_id", p.team_id).order("full_name");
+      teamName = (t.data && t.data.name) || "Your team";
+      mates = mm.error ? [] : (mm.data || []);
+    }
+
+    if (theme !== BRAND) {
+      // other themes: simple team panel only
+      html = '<article class="white-card"><span class="section-label">Your team</span>' +
+        (linked
+          ? '<h3 class="card-title" style="margin:6px 0 10px">' + esc(teamName) + "</h3>" +
+            '<div class="rp-mates">' + mates.map(function (m) {
+              var me = m.participant_uid === p.participant_uid;
+              return '<span class="rp-mate' + (me ? " is-me" : "") + '"><strong>' +
+                     esc(m.school || "") + "</strong>" + esc(m.full_name) + (me ? " (you)" : "") + "</span>";
+            }).join("") + "</div>"
+          : '<h3 class="card-title" style="margin:6px 0 6px">Being confirmed</h3>' +
+            '<p class="card-copy">Your team will appear here once the Organising Committee confirms it.</p>') +
+        "</article>";
+      mount.innerHTML = html;
+      return;
+    }
+
+    // ---- BRAND बनाओ: one workspace card -------------------------------------
+    var files = linked
+      ? await sb.from("cc_files").select("*").eq("team_id", p.team_id).eq("round", "pitch")
+                .order("uploaded_at", { ascending: false })
+      : { data: [] };
+    var list = (files.error ? [] : (files.data || []));
+
+    var S = {};
+    if (linked) {
+      var secs = await sb.from("cc_sections").select("*").eq("team_id", p.team_id).eq("round", "pitch");
+      (secs.error ? [] : (secs.data || [])).forEach(function (x) { S[x.role] = x.body || ""; });
+    }
+
+    html = '<article class="white-card ws">' +
+      '<span class="section-label">Your workspace</span>' +
+      '<h2 class="ws-h">' + (linked ? esc(teamName) : "Waiting for your team") + "</h2>";
+
+    if (linked) {
+      html += '<div class="rp-mates" style="margin-bottom:6px">' + mates.map(function (m) {
+        var me = m.participant_uid === p.participant_uid;
+        return '<span class="rp-mate' + (me ? " is-me" : "") + '"><strong>' +
+               esc(m.school || "") + "</strong>" + esc(m.full_name) + (me ? " (you)" : "") + "</span>";
+      }).join("") + "</div>";
     } else {
-      html += '<article class="white-card"><span class="section-label">Your team</span>' +
-        '<h3 class="card-title" style="margin:6px 0 6px">Being confirmed</h3>' +
-        '<p class="card-copy">You registered with a partner. Once the Organising Committee links your team, ' +
-        "both of you will see it here and either of you can upload your pitch deck.</p></article>";
+      html += '<div class="ws-wait"><strong>Your partner is not linked yet.</strong>' +
+        "<span>You and your partner registered separately, so the \u00c9lan team needs to link you before you can work here. " +
+        "This usually happens within a day or two of registering. Nothing is required from you right now.</span>" +
+        '<span>If it has been longer than that, email <a href="mailto:elan@sgischool.in">elan@sgischool.in</a> with both names.</span></div>';
     }
 
-    // ---- BRAND बनाओ: pitch deck --------------------------------------------
-    if (theme === BRAND) {
-      var files = await sb.from("cc_files").select("*").eq("team_id", p.team_id || "00000000-0000-0000-0000-000000000000")
-                          .eq("round", "pitch").order("uploaded_at", { ascending: false });
-      var list = (files.error ? [] : (files.data || []));
+    html += '<div class="ws-sep"></div>' +
+      '<h3 class="ws-h3">Your pitch in short</h3>' +
+      '<p class="ws-note">Judges read this before Startup Launchpad. Either partner can edit it, and it saves as you type.</p>' +
+      '<div class="ws-fields' + (linked ? "" : " is-locked") + '">' +
+        field("startup", "Startup name", S["startup"], "e.g. Kirana Connect", false, !linked) +
+        field("oneline", "One-line pitch", S["oneline"], "What you do, in one sentence.", false, !linked) +
+        field("problem", "The problem, and who has it", S["problem"], "Who struggles today, and why it matters.", true, !linked) +
+        field("ask", "Your ask", S["ask"], "How much funding, and what you would spend it on.", true, !linked) +
+        '<span class="ws-saved" id="pdSaved"></span>' +
+      "</div>";
 
-      html += '<article class="white-card" style="margin-top:14px"><span class="section-label">Your pitch deck</span>' +
-        '<h3 class="card-title" style="margin:6px 0 6px">Submit before the event</h3>' +
-        '<p class="card-copy">BRAND \u092C\u0928\u093E\u0913 teams prepare a pitch deck in advance and bring it into Startup Launchpad on Day 1. ' +
-        'Upload it here before you travel, so the judging panel has it ready. Either partner can upload, and you can replace it any time before the event.</p>' +
-        '<p class="card-copy" style="margin-top:10px"><strong>What a strong deck usually covers:</strong> the problem and who has it, ' +
-        "your solution and what makes it different, your target customer and market, how the business makes money, " +
-        "what you are asking investors for and what you would spend it on.</p>";
+    html += '<div class="ws-sep"></div>' +
+      '<h3 class="ws-h3">Your pitch deck</h3>' +
+      '<p class="ws-note">Prepare your deck in advance and bring it into Startup Launchpad on Day 1. ' +
+      "Upload it before you travel so the judging panel has it ready. Either partner can upload, and you can replace it any time before the event.</p>";
 
-      if (!p.team_id) {
-        html += '<p class="note" style="margin-top:12px">Upload opens once your team is linked.</p>';
-      } else {
-        var secs = await sb.from("cc_sections").select("*").eq("team_id", p.team_id).eq("round", "pitch");
-        var S = {};
-        (secs.error ? [] : (secs.data || [])).forEach(function (x) { S[x.role] = x.body || ""; });
-        html += '<div class="pd-summary"><strong>Your pitch in short</strong>' +
-          '<p class="note" style="margin:4px 0 12px">Judges read this before your Startup Launchpad round. Either partner can edit it, and it saves as you type.</p>' +
-          field("startup", "Startup name", S["startup"], "e.g. Kirana Connect", false) +
-          field("oneline", "One-line pitch", S["oneline"], "What you do, in a single sentence.", false) +
-          field("problem", "The problem, and who has it", S["problem"], "Who struggles today, and why it matters.", true) +
-          field("ask", "Your ask", S["ask"], "How much funding you want, and what you would spend it on.", true) +
-          '<span class="note" id="pdSaved"></span></div>';
-        html += '<div id="pdList" style="margin-top:14px">' + (list.length
-          ? list.map(function (f, i) {
-              return '<div class="rp-file"><span>' + esc(f.file_name) +
-                     (i === 0 ? ' <span class="pill-paid">current</span>' : ' <span class="note">earlier version</span>') +
-                     "</span><button class=\"mini-btn\" data-pdl=\"" + esc(f.file_path) + "\">Download</button></div>";
-            }).join("")
-          : '<p class="note">No deck uploaded yet.</p>') + "</div>" +
-          '<div style="margin-top:12px"><label class="note" for="pdUp" style="display:block;margin-bottom:6px">' +
-          "Upload your deck (PDF or PowerPoint, up to 25 MB)</label>" +
-          '<input type="file" id="pdUp" accept=".pdf,.ppt,.pptx,.key,application/pdf"/> ' +
-          '<span class="note" id="pdMsg"></span></div>';
-      }
-      html += "</article>";
+    if (list.length) {
+      html += '<div class="ws-files">' + list.map(function (f, i) {
+        return '<div class="rp-file"><span>' + esc(f.file_name) +
+               (i === 0 ? ' <span class="pill-paid">current</span>' : ' <span class="note">earlier version</span>') +
+               '</span><button class="mini-btn" data-pdl="' + esc(f.file_path) + '">Download</button></div>';
+      }).join("") + "</div>";
     }
+
+    if (linked) {
+      html += '<div class="ws-upload"><label for="pdUp"><strong>' +
+        (list.length ? "Replace your deck" : "Upload your deck") +
+        "</strong><span>PDF or PowerPoint, up to 25 MB</span></label>" +
+        '<input type="file" id="pdUp" accept=".pdf,.ppt,.pptx,.key,application/pdf"/>' +
+        '<span class="ws-saved" id="pdMsg"></span></div>';
+    } else {
+      html += '<div class="ws-upload is-locked"><strong>Upload opens once your team is linked.</strong>' +
+        "<span>You can start writing your deck now. Nothing is lost by waiting.</span></div>";
+    }
+
+    html += "</article>";
 
     mount.innerHTML = html;
 

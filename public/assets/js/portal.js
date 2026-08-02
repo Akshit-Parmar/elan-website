@@ -103,7 +103,7 @@
                            : '<p class="card-copy">Your cabinet post will appear here once teams are formed.</p>') +
                 '<div class="cta-row" style="margin-top:10px"><a class="btn btn-link" href="flagship.html">Crisis Command briefing →</a></div>'
               : '<h3 class="card-title" style="font-size:26px">Cent$ible' + (p.centsible_theme ? ' — ' + esc(p.centsible_theme) : '') + '</h3>' +
-                (p.cents_balance != null ? '<p class="card-copy">Cents balance: <strong>' + Number(p.cents_balance).toLocaleString("en-IN") + ' ¢</strong></p>' : '') +
+                ((p.centsible_theme && p.centsible_theme.indexOf("NOTE") !== -1 && p.cents_balance != null) ? '<p class="card-copy">Cents balance: <strong>' + Number(p.cents_balance).toLocaleString("en-IN") + ' ¢</strong></p>' : '') +
                 '<p class="card-copy">All three theme rounds run on Day 1; the Boardroom Finale is on Day 2.</p>' +
                 '<div class="cta-row" style="margin-top:10px"><a class="btn btn-link" href="centsible.html">Your Cent$ible arena →</a></div>') +
             '</article>') : '') +
