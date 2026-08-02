@@ -12,6 +12,13 @@
   function esc(x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
+  function field(key, label, val, hint, big) {
+    return '<label class="pd-lab" for="pf-' + key + '">' + esc(label) + "</label>" +
+      (big
+        ? '<textarea class="pd-in" id="pf-' + key + '" data-k="' + key + '" rows="3" placeholder="' + esc(hint) + '">' + esc(val || "") + "</textarea>"
+        : '<input class="pd-in" id="pf-' + key + '" data-k="' + key + '" placeholder="' + esc(hint) + '" value="' + esc(val || "") + '"/>');
+  }
+
   document.addEventListener("elan:participant", async function (ev) {
     var p = ev.detail || {}, sb = window.__elanSb;
     var mount = document.getElementById("centWorkspace");
@@ -57,6 +64,16 @@
       if (!p.team_id) {
         html += '<p class="note" style="margin-top:12px">Upload opens once your team is linked.</p>';
       } else {
+        var secs = await sb.from("cc_sections").select("*").eq("team_id", p.team_id).eq("round", "pitch");
+        var S = {};
+        (secs.error ? [] : (secs.data || [])).forEach(function (x) { S[x.role] = x.body || ""; });
+        html += '<div class="pd-summary"><strong>Your pitch in short</strong>' +
+          '<p class="note" style="margin:4px 0 12px">Judges read this before your Startup Launchpad round. Either partner can edit it, and it saves as you type.</p>' +
+          field("startup", "Startup name", S["startup"], "e.g. Kirana Connect", false) +
+          field("oneline", "One-line pitch", S["oneline"], "What you do, in a single sentence.", false) +
+          field("problem", "The problem, and who has it", S["problem"], "Who struggles today, and why it matters.", true) +
+          field("ask", "Your ask", S["ask"], "How much funding you want, and what you would spend it on.", true) +
+          '<span class="note" id="pdSaved"></span></div>';
         html += '<div id="pdList" style="margin-top:14px">' + (list.length
           ? list.map(function (f, i) {
               return '<div class="rp-file"><span>' + esc(f.file_name) +
@@ -83,6 +100,21 @@
       });
     });
 
+    var tmr = {};
+    mount.querySelectorAll(".pd-in").forEach(function (inp) {
+      inp.addEventListener("input", function () {
+        var k = inp.dataset.k, saved = document.getElementById("pdSaved");
+        if (saved) saved.textContent = "saving\u2026";
+        clearTimeout(tmr[k]);
+        tmr[k] = setTimeout(async function () {
+          var r = await sb.from("cc_sections").upsert({ team_id: p.team_id, round: "pitch", role: k,
+            body: inp.value, updated_at: new Date().toISOString(), updated_by: p.auth_user_id || null },
+            { onConflict: "team_id,round,role" });
+          if (saved) saved.textContent = r.error ? "not saved, retrying" : "saved";
+        }, 800);
+      });
+    });
+
     var up = document.getElementById("pdUp");
     if (up) up.addEventListener("change", async function (e) {
       var f = e.target.files && e.target.files[0];
@@ -96,7 +128,7 @@
       var ins = await sb.from("cc_files").insert({ team_id: p.team_id, round: "pitch",
         file_path: path, file_name: f.name, uploaded_by: p.auth_user_id || null });
       if (ins.error) { msg.textContent = "Uploaded, but not recorded: " + ins.error.message; return; }
-      msg.textContent = "Uploaded \u2713 Your deck is with the Élan team.";
+      msg.textContent = "Uploaded \u2713 " + f.name + " (" + (f.size/1048576).toFixed(1) + " MB) received.";
       setTimeout(function () { location.reload(); }, 1200);
     });
   });

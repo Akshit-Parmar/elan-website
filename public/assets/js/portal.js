@@ -90,6 +90,12 @@
             '<article class="white-card"><span class="section-label">Ticket</span><h3 class="card-title" style="font-size:26px">' + esc(p.ticket_type || "—") + '</h3><span class="tag ep-good">Access active</span></article>' +
             '<article class="white-card"><span class="section-label">Élan begins in</span><h3 class="ep-count ep-mono"><span id="days">00</span>d <span id="hours">00</span>h <span id="minutes">00</span>m <span id="seconds">00</span>s</h3><p class="card-copy">5–6 September 2026 · SGI Campus</p></article>' +
           "</div>" +
+          (p.centsible_theme && p.centsible_theme.indexOf("BRAND") !== -1
+            ? '<article class="white-card" id="dashDeck" style="margin-top:16px"><span class="section-label">Before the event</span>' +
+              '<h3 class="card-title" style="font-size:22px;margin:6px 0 4px">Your pitch deck</h3>' +
+              '<p class="card-copy" id="dashDeckMsg">Checking\u2026</p>' +
+              '<div class="cta-row" style="margin-top:10px"><a class="btn btn-gold" href="centsible.html">Open your workspace</a></div></article>'
+            : '') +
           (p.flagship ? ('<article class="white-card" style="margin-top:16px"><span class="section-label">Your flagship</span>' +
             (p.flagship === "Crisis Command"
               ? '<h3 class="card-title" style="font-size:26px">Crisis Command</h3>' +
@@ -375,6 +381,23 @@
     if (pages[page]) await pages[page](p, main);   // data pages
     else main.querySelectorAll("[data-uid]").forEach(function (el) { el.textContent = p.participant_uid; }); // static pages
     document.dispatchEvent(new CustomEvent("elan:participant", { detail: p }));
+
+    // BRAND बनाओ: show pitch-deck status on the dashboard
+    (async function () {
+      var box = document.getElementById("dashDeckMsg");
+      if (!box) return;
+      if (!p.team_id) { box.textContent = "Your team is being confirmed. Once you and your partner are linked, you can upload your pitch deck here."; return; }
+      var f = await sb.from("cc_files").select("file_name,uploaded_at").eq("team_id", p.team_id)
+                      .eq("round", "pitch").order("uploaded_at", { ascending: false }).limit(1);
+      var got = !f.error && f.data && f.data.length;
+      var card = document.getElementById("dashDeck");
+      if (got) {
+        box.innerHTML = "Received: <strong>" + esc(f.data[0].file_name) + "</strong>. You can replace it any time before the event.";
+      } else {
+        if (card) card.style.borderLeft = "4px solid var(--red, #4E0000)";
+        box.innerHTML = "<strong>Not uploaded yet.</strong> BRAND \u092C\u0928\u093E\u0913 teams prepare a pitch deck in advance and upload it before travelling to \u00c9lan.";
+      }
+    })();
     document.body.insertAdjacentHTML("beforeend", footHTML());
     var out = document.getElementById("epLogout");
     if (out) out.addEventListener("click", function (e) { e.preventDefault(); window.elanAuth.signOut(); });

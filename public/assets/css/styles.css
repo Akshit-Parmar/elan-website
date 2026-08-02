@@ -1139,3 +1139,17 @@ a:focus-visible,button:focus-visible,.btn:focus-visible,.nav-link:focus-visible,
   .cc-phase{padding:12px 0 12px 0}
   .cc-phase-time{position:static;display:block;margin-bottom:4px}
 }
+
+
+/* ============================================================================
+   BRAND बनाओ — pitch summary fields
+   ============================================================================ */
+.pd-summary{margin-top:18px;padding:18px;border-radius:16px;background:#faf7f2;
+  border:1px solid var(--border,#d9d6cf)}
+.pd-summary strong{color:var(--midnight,#13273F);font-size:16px}
+.pd-lab{display:block;margin:12px 0 5px;font-size:11px;font-weight:900;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--red,#4E0000)}
+.pd-in{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--border,#d9d6cf);
+  font:inherit;font-size:15px;line-height:1.6;background:#fff;resize:vertical}
+.pd-in:focus{outline:2px solid var(--red,#4E0000);outline-offset:1px}
+#pdSaved{display:block;margin-top:10px}

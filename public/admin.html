@@ -717,7 +717,8 @@
         var decks=CFILES.filter(function(f){return String(f.team_id)===String(tid);})
                         .sort(function(a,b){return String(b.uploaded_at).localeCompare(String(a.uploaded_at));});
         var d=decks[0];
-        return '<tr><td><strong>'+esc(t.name||'Team')+'</strong></td>'+
+        return '<tr><td><strong>'+esc(t.name||'Team')+'</strong>'+
+        '<br><button class="mini-btn" data-cbsum="'+esc(tid)+'" data-nm="'+esc(t.name||'Team')+'">Pitch summary</button></td>'+
         '<td>'+mem.map(function(m){return esc(m.full_name)+'<br><span class="note">'+esc(m.school||'')+'</span>';}).join('<br>')+'</td>'+
         '<td>'+esc(mem[0]&&mem[0].centsible_theme||'\u2014')+'</td>'+
         '<td>'+(d?'<span class="pill-paid">received</span><br><button class="mini-btn" data-cdl="'+esc(d.file_path)+'">'+esc(d.file_name)+'</button>':'<span class="pill-pending">not uploaded</span>')+'</td>'+
@@ -726,6 +727,20 @@
     el.querySelectorAll('[data-cdl]').forEach(function(b){ b.addEventListener('click', async function(){
       var r=await sb.storage.from('cc-uploads').createSignedUrl(b.dataset.cdl,120);
       if(r.data&&r.data.signedUrl) window.open(r.data.signedUrl,'_blank'); else alert('Could not open file.');
+    });});
+    el.querySelectorAll('[data-cbsum]').forEach(function(b){ b.addEventListener('click', async function(){
+      var box=document.getElementById('tmReport');
+      box.innerHTML='<p class="note">Loading pitch summary\u2026</p>';
+      var r=await sb.from('cc_sections').select('*').eq('team_id',b.dataset.cbsum).eq('round','pitch');
+      if(r.error){ box.innerHTML='<p class="note">Blocked: '+esc(r.error.message)+'</p>'; return; }
+      var S={}; (r.data||[]).forEach(function(x){ S[x.role]=x.body||''; });
+      var L=[['startup','Startup name'],['oneline','One-line pitch'],['problem','The problem'],['ask','Their ask']];
+      box.innerHTML='<h3 style="margin:26px 0 10px">'+esc(b.dataset.nm)+' \u2014 pitch summary</h3>'+
+        '<div style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px">'+
+        L.map(function(k){ return '<div style="margin-bottom:12px"><span class="note" style="font-weight:800;text-transform:uppercase;letter-spacing:.08em">'+k[1]+'</span>'+
+          '<div style="white-space:pre-wrap;line-height:1.6;margin-top:3px">'+esc(S[k[0]]||'(not filled in)')+'</div></div>'; }).join('')+
+        '</div>';
+      box.scrollIntoView({behavior:'smooth',block:'start'});
     });});
     el.querySelectorAll('[data-cbunlink]').forEach(function(b){ b.addEventListener('click', async function(){
       if(!confirm('Unlink this team? Both participants become unassigned and lose access to the uploaded deck.')) return;
