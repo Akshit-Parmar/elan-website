@@ -8,6 +8,56 @@
   "use strict";
 
   var BRAND = "BRAND \u092C\u0928\u093E\u0913";
+  var VIRAL = "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930";
+
+  // Live-format themes: no pre-event submission, so the portal briefs rather than collects.
+  var BRIEF = {};
+  BRIEF[VIRAL] = {
+    intro: "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930 is judged live in the room. There is nothing to submit before the event and nothing to upload here. " +
+           "What decides your result is how quickly you think on your feet, how sharply you position a brand, and how convincingly you sell.",
+    rounds: [
+      ["11:15", "Brand Launch Expo",
+       "You are given a product or category and must launch a brand around it. Name, positioning, audience, and the campaign that carries it, presented to the room."],
+      ["12:15", "Brand from Chaos",
+       "A live twist lands mid-round. A market shift, a controversy, a new competitor. Rebuild your brand around it under time pressure without losing what made it work."],
+      ["14:00", "Sell the Unsold",
+       "You are handed something nobody wants and have to make the room want it. Pure persuasion, and the round where confidence counts most."]
+    ],
+    judged: [
+      "Creativity and originality of the brand idea",
+      "How fast and how well you adapt when the brief changes",
+      "Clarity of your positioning: who it is for, and why they would care",
+      "Presentation and persuasion, including how you handle questions",
+      "Working as a pair, and using both partners rather than one carrying it"
+    ],
+    prep: [
+      "Look at brands you admire and be able to say why they work in one sentence.",
+      "Practise pitching to each other with a two-minute limit.",
+      "Agree how you will split speaking time before Day 1.",
+      "Bring a pen and notebook. Rounds move fast and you will want to sketch ideas.",
+      "Nothing is submitted in advance, so arrive rested rather than over-prepared."
+    ],
+    practice: [
+      ["Brand Launch Expo", "Launch a brand for a reusable water bottle aimed at students who think reusable bottles are boring. Two minutes."],
+      ["Brand Launch Expo", "You are launching a tuition centre in a town that already has six. Give it a name, a position, and one reason a parent picks you."],
+      ["Brand Launch Expo", "Build a brand around a product that solves a problem nobody admits to having. Two minutes to name it and sell the idea."],
+      ["Brand from Chaos", "Your brand is thirty seconds from launch when a popular creator calls it overpriced. Respond without dropping your price."],
+      ["Brand from Chaos", "A competitor launches the same idea, cheaper, on the morning of your launch. Change one thing about your brand and defend it."],
+      ["Brand from Chaos", "Your target audience turns out to be the wrong one. Re-aim the brand at a new audience in ninety seconds."],
+      ["Sell the Unsold", "Sell a single mismatched sock."],
+      ["Sell the Unsold", "Sell an umbrella to someone who lives where it never rains."],
+      ["Sell the Unsold", "Sell last year\u2019s calendar, today."],
+      ["Sell the Unsold", "Sell a pen that runs out after fifty words."]
+    ],
+    mistakes: [
+      "Spending the round perfecting a name instead of explaining who the brand is for.",
+      "Ignoring the twist and carrying on with the pitch you had already planned.",
+      "One partner doing all the talking while the other stands silent.",
+      "Describing features when the room is waiting to hear the benefit.",
+      "Running long. A sharp ninety seconds beats a rambling three minutes.",
+      "Going quiet when questioned. Judges are testing composure as much as the answer."
+    ]
+  };
 
   function esc(x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -67,8 +117,54 @@
       mates = mm.error ? [] : (mm.data || []);
     }
 
+    if (BRIEF[theme]) {
+      var B = BRIEF[theme];
+      html = '<article class="white-card ws">' +
+        '<span class="section-label">Your pair</span>' +
+        '<h2 class="ws-h">' + (linked ? esc(teamName) : "Being confirmed") + "</h2>" +
+        (linked
+          ? '<div class="rp-mates">' + mates.map(function (m) {
+              var me = m.participant_uid === p.participant_uid;
+              return '<span class="rp-mate' + (me ? " is-me" : "") + '"><strong>' +
+                     esc(m.school || "") + "</strong>" + esc(m.full_name) + (me ? " (you)" : "") + "</span>";
+            }).join("") + "</div>"
+          : '<p class="ws-note" style="margin:0">You registered with a partner. Once the \u00c9lan team links you, both names will appear here. Nothing is required from you in the meantime.</p>') +
+
+        '<div class="ws-sep"></div>' +
+        '<h3 class="ws-h3">How your theme is run</h3>' +
+        '<p class="ws-note">' + esc(B.intro) + "</p>" +
+        '<div class="cc-phases">' + B.rounds.map(function (r) {
+          return '<div class="cc-phase"><span class="cc-phase-time">' + esc(r[0]) + "</span>" +
+                 "<strong>" + esc(r[1]) + "</strong><p>" + esc(r[2]) + "</p></div>";
+        }).join("") + "</div>" +
+
+        '<div class="ws-sep"></div>' +
+        '<h3 class="ws-h3">What the judges reward</h3>' +
+        '<ul class="ws-list">' + B.judged.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" +
+
+        '<div class="ws-sep"></div>' +
+        '<h3 class="ws-h3">How to prepare</h3>' +
+        '<p class="ws-note">Nothing is submitted before the event. Preparation is about being ready to think quickly, not about producing a document.</p>' +
+        '<ul class="ws-list">' + B.prep.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" +
+
+        (B.practice ? '<div class="ws-sep"></div>' +
+          '<h3 class="ws-h3">Practise before you come</h3>' +
+          '<p class="ws-note">Nothing here is scored or submitted. Set a timer, give each other a prompt, and pitch. ' +
+          "Doing this five or six times before Day 1 is the single best preparation for this theme.</p>" +
+          '<div class="vp-list">' + B.practice.map(function (x) {
+            return '<div class="vp-item"><span class="vp-tag">' + esc(x[0]) + "</span><p>" + esc(x[1]) + "</p></div>";
+          }).join("") + "</div>" : "") +
+
+        (B.mistakes ? '<div class="ws-sep"></div>' +
+          '<h3 class="ws-h3">What costs teams marks</h3>' +
+          '<ul class="ws-list">' + B.mistakes.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "") +
+        "</article>";
+      mount.innerHTML = html;
+      return;
+    }
+
     if (theme !== BRAND) {
-      // other themes: simple team panel only
+      // remaining themes: simple team panel until their format is confirmed
       html = '<article class="white-card"><span class="section-label">Your team</span>' +
         (linked
           ? '<h3 class="card-title" style="margin:6px 0 10px">' + esc(teamName) + "</h3>" +

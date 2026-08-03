@@ -1190,3 +1190,17 @@ a:focus-visible,button:focus-visible,.btn:focus-visible,.nav-link:focus-visible,
   .ws-h{font-size:27px}
   .ws-sep{margin:24px 0 20px}
 }
+
+/* Cent$ible briefing lists */
+.ws-list{list-style:none;padding:0;margin:10px 0 0;display:block}
+.ws-list li{position:relative;padding-left:22px;margin:0 0 10px;line-height:1.7;max-width:70ch;color:#51443d}
+.ws-list li::before{content:"";position:absolute;left:2px;top:.68em;width:7px;height:7px;
+  border-radius:50%;background:var(--red,#4E0000)}
+
+/* VIRAL व्यापार practice prompts */
+.vp-list{display:grid;gap:10px;margin-top:14px}
+.vp-item{padding:14px 16px;border-radius:14px;background:#faf7f2;
+  border:1px solid var(--border,#d9d6cf)}
+.vp-tag{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--red,#4E0000);margin-bottom:6px}
+.vp-item p{margin:0;line-height:1.65;color:#51443d;font-size:15px;max-width:70ch}
