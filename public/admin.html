@@ -166,6 +166,7 @@
         <span class="note" id="tmMsg" style="margin-left:10px"></span></div>
         <p class="note" style="margin-top:8px">Auto-form groups unassigned Crisis Command participants in registration order into cabinets of five, one per cabinet post.</p>
       </div>
+      <div id="stgNote" class="rep" style="margin-top:14px"></div>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px;margin-top:14px">
         <strong>Cent$ible teams (pairs)</strong>
         <p class="note" style="margin:4px 0 10px">Select two Cent$ible participants who registered together, give the team a name, and link them. Either partner can then upload the pitch deck.</p>
@@ -693,6 +694,35 @@
     var f=await sb.from('cc_files').select('*').eq('round','pitch');
     CFILES=f.error?[]:(f.data||[]);
     renderCent();
+    renderStorage();
+  }
+
+  async function renderStorage(){
+    var box=document.getElementById('stgNote'); if(!box) return;
+    var all=await sb.from('cc_files').select('team_id,round,file_path');
+    var rows=all.error?[]:(all.data||[]);
+    // measure actual bytes from the storage API (per team folder)
+    var bytes=0, counted=0;
+    var teams={}; rows.forEach(function(r){ teams[r.team_id]=true; });
+    for(var id in teams){
+      for(var i=0;i<2;i++){
+        var folder=id+'/'+(i===0?'pitch':'day1');
+        var l=await sb.storage.from('cc-uploads').list(folder,{limit:100});
+        if(!l.error&&l.data) l.data.forEach(function(o){
+          var sz=o.metadata&&o.metadata.size; if(sz){ bytes+=sz; counted++; }
+        });
+      }
+    }
+    var mb=bytes/1048576, pct=Math.min(100, mb/1024*100);
+    var warn = pct>70;
+    box.innerHTML='<div style="background:'+(warn?'#fff7ed':'#fff')+';border:1px solid '+(warn?'#fed7aa':'var(--border,#d9d6cf)')+
+      ';border-radius:14px;padding:14px 16px;max-width:720px">'+
+      '<strong>Storage used by uploads: '+mb.toFixed(1)+' MB</strong> <span class="note">across '+counted+' file(s)</span>'+
+      '<div style="height:8px;border-radius:99px;background:#eee;margin:10px 0 6px;overflow:hidden">'+
+      '<div style="height:100%;width:'+pct.toFixed(1)+'%;background:'+(warn?'#b45309':'var(--navy,#13273F)')+'"></div></div>'+
+      '<span class="note">Supabase free tier includes 1 GB in total. '+
+      (warn?'<strong>You are approaching the limit</strong> \u2014 consider upgrading to Pro before the event.':'Check Supabase \u2192 Settings \u2192 Usage for the authoritative figure.')+
+      '</span></div>';
   }
   function renderCent(){
     var selA=document.getElementById('cbA'), selB=document.getElementById('cbB');

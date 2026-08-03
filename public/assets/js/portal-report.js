@@ -209,7 +209,7 @@
     var f = e.target.files && e.target.files[0];
     if (!f) return;
     var msg = el("rpUpMsg");
-    if (f.size > 20 * 1024 * 1024) { msg.textContent = "File is larger than 20 MB."; return; }
+    if (f.size > 10 * 1024 * 1024) { msg.textContent = "That file is " + (f.size/1048576).toFixed(1) + " MB. The limit is 10 MB."; return; }
     msg.textContent = "Uploading\u2026";
     var path = P.team_id + "/" + round + "/" + Date.now() + "-" + f.name.replace(/[^\w.\-]+/g, "_");
     var up = await sb.storage.from("cc-uploads").upload(path, f);

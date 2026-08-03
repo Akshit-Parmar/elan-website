@@ -182,7 +182,7 @@
       var f = e.target.files && e.target.files[0];
       if (!f) return;
       var msg = document.getElementById("pdMsg");
-      if (f.size > 25 * 1024 * 1024) { msg.textContent = "That file is larger than 25 MB."; return; }
+      if (f.size > 10 * 1024 * 1024) { msg.textContent = "That file is " + (f.size/1048576).toFixed(1) + " MB. The limit is 10 MB \u2014 try exporting your deck as a PDF, or compressing the images."; return; }
       msg.textContent = "Uploading\u2026";
       var path = p.team_id + "/pitch/" + Date.now() + "-" + f.name.replace(/[^\w.\-]+/g, "_");
       var res = await sb.storage.from("cc-uploads").upload(path, f);
