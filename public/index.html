@@ -4,10 +4,16 @@
 <head>
 <meta charset="utf-8"/>
 <script>/* Supabase auth links land on the Site URL root with the token in the
-   hash. Forward them to the portal set-password page, token intact. */
-if(location.hash && location.hash.indexOf("access_token=")!==-1){
-  location.replace("portal/set-password.html"+location.hash);
-}</script>
+   hash. Forward valid ones to the set-password page; send expired or used
+   links to a page that explains what happened in plain language. */
+(function(){
+  var h = location.hash || "";
+  if (h.indexOf("access_token=") !== -1) {
+    location.replace("portal/set-password.html" + h);
+  } else if (h.indexOf("error") !== -1 || h.indexOf("otp_expired") !== -1) {
+    location.replace("portal/link-expired.html");
+  }
+})();</script>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Élan Summit — Inter-School Student Event in Pune | Crisis Command &amp; Cent$ible</title>
 <meta content="Élan Summit is a premium inter-school student event in Pune on 5–6 September 2026, with two flagship competitions — Crisis Command (crisis leadership) and Cent$ible (business arena) — for ages 14–19. Register now." name="description"/>
