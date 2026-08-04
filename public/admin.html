@@ -76,10 +76,12 @@
 
     <!-- REGISTRATIONS -->
     <section class="apanel" id="tab-regs" style="display:none">
-      <div class="row" style="grid-template-columns:2fr 1fr 1fr 1fr">
+      <div class="row" style="grid-template-columns:2fr 1fr 1fr 1fr 1.2fr 1fr">
         <div><label>Search</label><input id="rSearch" placeholder="name / email / school / phone"/></div>
         <div><label>Status</label><select id="rStatus"><option value="">All</option><option>pending</option><option>paid</option></select></div>
         <div><label>Ticket</label><select id="rTier"><option value="">All</option><option>Early Bird</option><option>Standard</option><option>Late Registration</option><option>Day Delegate</option></select></div>
+        <div><label>Flagship</label><select id="rFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option><option value="__none">Not chosen</option></select></div>
+        <div><label>Cent$ible theme</label><select id="rTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>VIRAL व्यापार</option><option>NOTE नीति</option><option>प्रश्न PRODIGY</option></select></div>
         <div><label>&nbsp;</label><button class="btn btn-ghost" id="rCsv" style="width:100%">Export CSV</button></div>
       </div>
       <div id="regTable" class="rep"></div>
@@ -95,6 +97,11 @@
     <!-- PARTICIPANTS -->
     <section class="apanel" id="tab-parts" style="display:none">
       <p class="note">All participant records. Rows marked <span class="pill-pending">admin</span> are organiser accounts — they are excluded from participant counts, check-in and cabinet assignment. To re-send a fresh set-password link, use the Issue links tab.</p>
+      <div class="row" style="grid-template-columns:2fr 1fr 1.2fr;margin-top:10px">
+        <div><label>Search</label><input id="pSearch" placeholder="name, UID, email or school" autocomplete="off"/></div>
+        <div><label>Flagship</label><select id="pFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option><option value="__none">Not set</option></select></div>
+        <div><label>Cent$ible theme</label><select id="pTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>VIRAL व्यापार</option><option>NOTE नीति</option><option>प्रश्न PRODIGY</option></select></div>
+      </div>
       <div style="margin:10px 0"><button class="btn btn-ghost" id="syncFlag">Sync flagship &amp; theme from registrations</button>
       <button class="btn btn-ghost" id="assignCC">Auto-assign Crisis Command posts</button>
       <span class="note" id="partMsg" style="margin-left:10px"></span></div>
@@ -423,15 +430,23 @@
   function renderRegs(){
     var q=(document.getElementById('rSearch').value||'').toLowerCase();
     var st=document.getElementById('rStatus').value, tr=document.getElementById('rTier').value;
+    var fl=document.getElementById('rFlag').value, th=document.getElementById('rTheme').value;
     var rows=REGS.filter(function(r){
       if(q && ((r.full_name||'')+' '+(r.email||'')+' '+(r.school||'')+' '+(r.phone||'')).toLowerCase().indexOf(q)===-1) return false;
       if(st && STATUS_COL && String(r[STATUS_COL]).toLowerCase()!==st) return false;
       if(tr && (r.ticket_type||'').indexOf(tr)===-1) return false;
+      var notes=r.notes||'';
+      if(fl==='__none'){ if(notes.indexOf('[Flagship:')!==-1) return false; }
+      else if(fl){ if(notes.indexOf('[Flagship: '+fl)===-1) return false; }
+      if(th && notes.indexOf(th)===-1) return false;
       return true;
     });
+    // theme filter only makes sense for Cent$ible
+    document.getElementById('rTheme').disabled = (fl==='Crisis Command' || fl==='__none');
     var el=document.getElementById('regTable');
-    if(!rows.length){ el.innerHTML='<p class="note">No registrations match.</p>'; return; }
-    el.innerHTML='<table><tr><th>Name</th><th>Contact</th><th>School</th><th>Ticket</th><th>Amount</th><th>Flagship</th><th>Status</th><th></th></tr>'+
+    if(!rows.length){ el.innerHTML='<p class="note">No registrations match these filters.</p>'; return; }
+    el.innerHTML='<p class="note" style="margin:6px 0 10px">Showing <strong>'+rows.length+'</strong> of '+REGS.length+' registration(s).</p>'+
+      '<table><tr><th>Name</th><th>Contact</th><th>School</th><th>Ticket</th><th>Amount</th><th>Flagship</th><th>Status</th><th></th></tr>'+
       rows.map(function(r){
         var fl=(r.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/);
         var paid=isPaid(r);
@@ -450,7 +465,7 @@
       loadAll();
     });});
   }
-  ['rSearch','rStatus','rTier'].forEach(function(id){ document.getElementById(id).addEventListener('input', renderRegs); });
+  ['rSearch','rStatus','rTier','rFlag','rTheme'].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', renderRegs); });
 
   document.getElementById('rCsv').addEventListener('click', function(){
     var head=['full_name','email','phone','school','ticket_type','quantity','amount','status','notes','created_at'];
@@ -463,10 +478,22 @@
 
   function renderParts(){
     var el=document.getElementById('partTable');
+    if(!LIST.length){ el.innerHTML='<p class="note">No participants match these filters.</p>'; return; }
     if(!PARTS.length){ el.innerHTML='<p class="note">No participant records found. If you have issued participants, this means the database is returning zero rows \u2014 check the admin banner above.</p>'; return; }
     var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
-    var LIST=PARTS;
-    el.innerHTML='<table><tr><th>UID</th><th>Name</th><th>Flagship</th><th>Role / Theme</th><th>Cents</th><th>Contact</th><th></th></tr>'+
+    var pq=((document.getElementById('pSearch')||{}).value||'').toLowerCase().trim();
+    var pf=((document.getElementById('pFlag')||{}).value||'');
+    var pt=((document.getElementById('pTheme')||{}).value||'');
+    var LIST=PARTS.filter(function(p){
+      if(pq && ((p.full_name||'')+' '+(p.participant_uid||'')+' '+(p.email||'')+' '+(p.school||'')).toLowerCase().indexOf(pq)===-1) return false;
+      if(pf==='__none'){ if(p.flagship) return false; }
+      else if(pf){ if(p.flagship!==pf) return false; }
+      if(pt && p.centsible_theme!==pt) return false;
+      return true;
+    });
+    var themeSel=document.getElementById('pTheme');
+    if(themeSel) themeSel.disabled = (pf==='Crisis Command' || pf==='__none');
+    el.innerHTML='<p class="note" style="margin:6px 0 10px">Showing <strong>'+LIST.length+'</strong> of '+PARTS.length+' participant(s).</p>'+'<table><tr><th>UID</th><th>Name</th><th>Flagship</th><th>Role / Theme</th><th>Cents</th><th>Contact</th><th></th></tr>'+
       LIST.map(function(p){
         var mid='';
         if(p.flagship==='Crisis Command'){
@@ -498,6 +525,8 @@
       loadAll();
     });});
   }
+
+  ['pSearch','pFlag','pTheme'].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', renderParts); });
 
   document.getElementById('syncFlag').addEventListener('click', async function(){
     var m=document.getElementById('partMsg'); m.textContent='Syncing\u2026';
