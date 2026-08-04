@@ -56,7 +56,7 @@
     COS = c.error ? [] : (c.data || []);
 
     var a = await sb.from("nn_accounts").select("*").eq("team_id", P.team_id).maybeSingle();
-    CASH = a.data ? Number(a.data.cash) : 500000;
+    CASH = a.data ? Number(a.data.cash) : 1000000;
 
     var h = await sb.from("nn_holdings").select("*").eq("team_id", P.team_id);
     HOLD = {};
@@ -70,7 +70,7 @@
 
   function renderNoTeam() {
     el("nnBody").innerHTML = '<p class="ws-note">You registered with a partner. Once the \u00c9lan team links your ' +
-      "pair, your trading account opens here with your starting balance of 5,00,000 \u00a2. Nothing is required from you in the meantime.</p>";
+      "pair, your trading account opens here with your starting balance of 10,00,000 \u00a2. Nothing is required from you in the meantime.</p>";
   }
 
   function portfolioValue() {

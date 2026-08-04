@@ -401,7 +401,7 @@
         var mfl=reg?((reg.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/)):null;
         if(!mfl) continue;
         var upd={ flagship: mfl[1].trim(), centsible_theme: mfl[2]?mfl[2].trim():null };
-        if(upd.flagship==='Cent$ible' && p.cents_balance==null) upd.cents_balance=500000;
+        if(upd.flagship==='Cent$ible' && p.cents_balance==null) upd.cents_balance=1000000;
         var r=await sb.from('participants').update(upd).eq('id', p.id);
         if(!r.error){ Object.assign(p,upd); changed=true; }
       }
@@ -574,7 +574,7 @@
       var mfl=(reg.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/);
       if(!mfl) { missed.push(p.full_name); continue; }
       var upd={ flagship: mfl[1].trim(), centsible_theme: mfl[2]?mfl[2].trim():null };
-      if(upd.flagship==='Cent$ible' && p.cents_balance==null){ upd.cents_balance=500000; }
+      if(upd.flagship==='Cent$ible' && p.cents_balance==null){ upd.cents_balance=1000000; }
       var r=await sb.from('participants').update(upd).eq('id', p.id);
       if(!r.error) updated++;
     }
@@ -940,10 +940,10 @@
       document.getElementById('mkMsg').textContent='Prices reset.'; loadMarket();
     });
     document.getElementById('mkWipe').addEventListener('click', async function(){
-      if(!confirm('Reset ALL portfolios? Every team returns to 5,00,000 Cents and loses all holdings and trade history. Use this only before the event.')) return;
+      if(!confirm('Reset ALL portfolios? Every team returns to 10,00,000 Cents and loses all holdings and trade history. Use this only before the event.')) return;
       await sb.from('nn_holdings').delete().neq('team_id','00000000-0000-0000-0000-000000000000');
       await sb.from('nn_trades').delete().neq('team_id','00000000-0000-0000-0000-000000000000');
-      await sb.from('nn_accounts').update({cash:500000}).neq('team_id','00000000-0000-0000-0000-000000000000');
+      await sb.from('nn_accounts').update({cash:1000000}).neq('team_id','00000000-0000-0000-0000-000000000000');
       document.getElementById('mkMsg').textContent='Portfolios reset.'; loadMarket();
     });
   })();

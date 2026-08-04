@@ -355,7 +355,7 @@
         if (idx >= 0 && idx < THEME_LIST.length) {
           p.flagship = "Cent$ible"; p.centsible_theme = THEME_LIST[idx];
           p.cc_role = null;
-          if (p.cents_balance == null) p.cents_balance = 500000;
+          if (p.cents_balance == null) p.cents_balance = 1000000;
           who = "Cent$ible \u2014 " + p.centsible_theme;
         }
       }
