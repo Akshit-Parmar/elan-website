@@ -66,8 +66,9 @@ document.addEventListener("elan:participant",function(ev){
   }
 
   var d=DETAIL[theme];
-  var isNote = theme.indexOf("NOTE")!==-1;
-  var bal=(isNote && p.cents_balance!=null)?Number(p.cents_balance):null;
+  // NOTE \u0928\u0940\u0924\u093F shows a LIVE balance in the trading floor (portal-note.js),
+  // so no static balance card is rendered here for any theme.
+  var bal=null;
 
   // ---- banking-style balance card ----
   var balCard = bal==null ? "" :
