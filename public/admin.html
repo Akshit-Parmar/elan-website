@@ -318,11 +318,42 @@
   // ---- auth gate ----
   async function showConsoleIfAuthed(){
     var s=await sb.auth.getSession();
-    if(s.data.session){ document.getElementById('gate').style.display='none';
-      document.getElementById('console').style.display='';
-      document.getElementById('whoami').textContent=s.data.session.user.email||'';
-      loadAll(); return true; }
-    return false;
+    if(!s.data.session) return false;
+
+    // Ask the database whether this account is an Élan admin. Participants who
+    // land here are sent to their own portal instead of an empty console.
+    var isAdmin=false, checkFailed=false;
+    try{
+      var chk=await sb.rpc('is_elan_admin');
+      if(chk.error) checkFailed=true; else isAdmin = chk.data===true;
+    }catch(e){ checkFailed=true; }
+
+    if(!isAdmin && !checkFailed){
+      document.getElementById('gate').style.display='none';
+      document.getElementById('console').style.display='none';
+      var host=document.querySelector('.aw');
+      var box=document.createElement('div');
+      box.className='rep';
+      box.style.cssText='background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:16px;padding:26px;max-width:560px';
+      box.innerHTML='<h2 style="font-family:\'Cormorant Garamond\',serif;font-size:30px;margin:0 0 8px">This is the organiser console.</h2>'+
+        '<p class="note" style="margin:0 0 6px">You are signed in as <strong>'+esc(s.data.session.user.email||'')+'</strong>, which is a participant account, so there is nothing for you here.</p>'+
+        '<p class="note" style="margin:0 0 16px">Your ticket, schedule, flagship briefing and announcements are all in the participant portal.</p>'+
+        '<div class="cta-row"><a class="btn btn-gold" href="/portal/dashboard.html">Go to your participant portal</a>'+
+        '<a class="btn btn-ghost" href="#" id="naSignOut">Sign out</a></div>'+
+        '<p class="note" style="margin-top:14px">If you should have organiser access, contact the \u00c9lan Director on +91 8160215010.</p>';
+      host.appendChild(box);
+      var so=document.getElementById('naSignOut');
+      if(so) so.addEventListener('click', async function(e){ e.preventDefault(); await sb.auth.signOut(); location.reload(); });
+      // send them onward automatically, but leave a moment to read
+      setTimeout(function(){ location.href='/portal/dashboard.html'; }, 6000);
+      return true;
+    }
+
+    document.getElementById('gate').style.display='none';
+    document.getElementById('console').style.display='';
+    document.getElementById('whoami').textContent=s.data.session.user.email||'';
+    loadAll();
+    return true;
   }
   document.getElementById('gBtn').addEventListener('click', async function(){
     var m=document.getElementById('gMsg'); m.textContent='Signing in…';
