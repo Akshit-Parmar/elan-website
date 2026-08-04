@@ -444,7 +444,15 @@
     // theme filter only makes sense for Cent$ible
     document.getElementById('rTheme').disabled = (fl==='Crisis Command' || fl==='__none');
     var el=document.getElementById('regTable');
-    if(!rows.length){ el.innerHTML='<p class="note">No registrations match these filters.</p>'; return; }
+    if(!rows.length){
+      el.innerHTML='<p class="note">No registrations match these filters. <button class="mini-btn" id="rClear">Clear filters</button></p>';
+      var rc=document.getElementById('rClear');
+      if(rc) rc.addEventListener('click',function(){
+        ['rSearch','rStatus','rTier','rFlag','rTheme'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+        renderRegs();
+      });
+      return;
+    }
     el.innerHTML='<p class="note" style="margin:6px 0 10px">Showing <strong>'+rows.length+'</strong> of '+REGS.length+' registration(s).</p>'+
       '<table><tr><th>Name</th><th>Contact</th><th>School</th><th>Ticket</th><th>Amount</th><th>Flagship</th><th>Status</th><th></th></tr>'+
       rows.map(function(r){
@@ -478,7 +486,6 @@
 
   function renderParts(){
     var el=document.getElementById('partTable');
-    if(!LIST.length){ el.innerHTML='<p class="note">No participants match these filters.</p>'; return; }
     if(!PARTS.length){ el.innerHTML='<p class="note">No participant records found. If you have issued participants, this means the database is returning zero rows \u2014 check the admin banner above.</p>'; return; }
     var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
     var pq=((document.getElementById('pSearch')||{}).value||'').toLowerCase().trim();
@@ -493,6 +500,17 @@
     });
     var themeSel=document.getElementById('pTheme');
     if(themeSel) themeSel.disabled = (pf==='Crisis Command' || pf==='__none');
+    if(!LIST.length){
+      el.innerHTML='<p class="note">No participants match these filters. <button class="mini-btn" id="pClear">Clear filters</button></p>';
+      var cb=document.getElementById('pClear');
+      if(cb) cb.addEventListener('click',function(){
+        document.getElementById('pSearch').value='';
+        document.getElementById('pFlag').value='';
+        document.getElementById('pTheme').value='';
+        renderParts();
+      });
+      return;
+    }
     el.innerHTML='<p class="note" style="margin:6px 0 10px">Showing <strong>'+LIST.length+'</strong> of '+PARTS.length+' participant(s).</p>'+'<table><tr><th>UID</th><th>Name</th><th>Flagship</th><th>Role / Theme</th><th>Cents</th><th>Contact</th><th></th></tr>'+
       LIST.map(function(p){
         var mid='';
