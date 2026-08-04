@@ -63,6 +63,7 @@
       <button class="atab" data-tab="sched">Portal schedule</button>
       <button class="atab" data-tab="admins">Admins</button>
       <button class="atab" data-tab="teams">Teams</button>
+      <button class="atab" data-tab="market">Market</button>
       <button class="atab" data-tab="checkin">Check-in</button>
       <button class="atab" data-tab="prev">Portal previews</button>
       <button class="atab" data-tab="issue">Issue links</button>
@@ -190,6 +191,23 @@
       <div id="cbTable" class="rep"></div>
       <div id="tmTable" class="rep"></div>
       <div id="tmReport" class="rep"></div>
+    </section>
+
+    <!-- NOTE नीति MARKET -->
+    <section class="apanel" id="tab-market" style="display:none">
+      <p class="note">NOTE नीति trading floor. Open the market, then move prices as the anchors call them. Every change updates participants’ screens instantly.</p>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;margin-top:14px">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-gold" id="mkToggle">Loading…</button>
+          <span class="note" id="mkState"></span>
+          <button class="mini-btn" id="mkReset">Reset all prices to start</button>
+          <button class="mini-btn danger" id="mkWipe">Reset all portfolios</button>
+          <span class="note" id="mkMsg" style="margin-left:8px"></span>
+        </div>
+        <p class="note" style="margin-top:10px">Quick move: type a percentage and press the button on a company row. Positive raises the price, negative lowers it.</p>
+      </div>
+      <div id="mkTable" class="rep"></div>
+      <div id="mkBoard" class="rep"></div>
     </section>
 
     <!-- EVENT-DAY CHECK-IN -->
@@ -320,7 +338,7 @@
   document.querySelectorAll('.atab').forEach(function(t){ t.addEventListener('click', function(){
     document.querySelectorAll('.atab').forEach(function(x){x.classList.remove('active');});
     t.classList.add('active');
-    ['overview','regs','pays','parts','ann','sched','admins','teams','checkin','prev','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
+    ['overview','regs','pays','parts','ann','sched','admins','teams','market','checkin','prev','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
   });});
 
   // ---- data loading (graceful if RLS blocks) ----
@@ -363,7 +381,7 @@
     if(blocked.length){
       note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load</strong> — your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase — ask and I\u2019ll provide it.</span></div>';
     }
-    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin(); loadTeams(); loadCent();
+    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin(); loadTeams(); loadCent(); loadMarket();
     autoPilot();
   }
 
@@ -841,6 +859,94 @@
     m.textContent='Linked \u2713'; document.getElementById('cbName').value='';
     loadAll(); loadTeams(); loadCent();
   });
+
+  // ---- NOTE नीति market ----
+  var MKT=[], MKOPEN=false;
+  async function loadMarket(){
+    var st=await sb.from('nn_state').select('*').eq('id',1).maybeSingle();
+    MKOPEN=!!(st.data&&st.data.is_open);
+    var c=await sb.from('nn_companies').select('*').order('sort_order');
+    MKT=c.error?[]:(c.data||[]);
+    var b=await sb.from('nn_leaderboard').select('*').order('net_worth',{ascending:false});
+    renderMarket(b.error?[]:(b.data||[]));
+  }
+  function renderMarket(board){
+    var t=document.getElementById('mkToggle'); if(!t) return;
+    t.textContent = MKOPEN ? 'Close the market' : 'Open the market';
+    document.getElementById('mkState').innerHTML = MKOPEN
+      ? '<span class="pill-paid">trading is OPEN</span>'
+      : '<span class="pill-pending">trading is CLOSED</span>';
+
+    var el=document.getElementById('mkTable');
+    if(!MKT.length){ el.innerHTML='<p class="note" style="margin-top:14px">No companies found. Run the NOTE \u0928\u0940\u0924\u093F SQL setup first.</p>'; return; }
+    el.innerHTML='<h3 style="margin:22px 0 8px">Companies ('+MKT.length+')</h3>'+
+      '<table><tr><th>Ticker</th><th>Company</th><th>Price</th><th>Since start</th><th>Move price</th></tr>'+
+      MKT.map(function(c){
+        var p=Number(c.price), s0=Number(c.start_price||p);
+        var d=s0?((p-s0)/s0*100):0;
+        return '<tr><td class="mono"><strong>'+esc(c.ticker)+'</strong></td>'+
+        '<td>'+esc(c.name)+'<br><span class="note">'+esc(c.sector||'')+'</span></td>'+
+        '<td class="mono"><strong>'+p.toFixed(2)+'</strong></td>'+
+        '<td class="mono" style="color:'+(d>0?'#166534':(d<0?'#b91c1c':'#6b7280'))+'">'+(d>0?'+':'')+d.toFixed(1)+'%</td>'+
+        '<td style="white-space:nowrap"><input class="mk-pct" id="pct-'+esc(c.id)+'" type="number" step="0.5" value="2" style="width:74px"/> % '+
+        '<button class="mini-btn" data-up="'+esc(c.id)+'">Raise</button> '+
+        '<button class="mini-btn" data-dn="'+esc(c.id)+'">Drop</button> '+
+        '<button class="mini-btn" data-set="'+esc(c.id)+'">Set exact</button></td></tr>';
+      }).join('')+'</table>';
+
+    document.getElementById('mkBoard').innerHTML = board.length
+      ? '<h3 style="margin:26px 0 8px">Leaderboard</h3><table><tr><th>#</th><th>Team</th><th>Cash</th><th>Holdings</th><th>Net worth</th></tr>'+
+        board.map(function(r,i){ return '<tr><td><strong>'+(i+1)+'</strong></td><td>'+esc(r.team_name)+'</td>'+
+          '<td class="mono">'+Number(r.cash).toLocaleString('en-IN',{maximumFractionDigits:0})+'</td>'+
+          '<td class="mono">'+Number(r.holdings_value).toLocaleString('en-IN',{maximumFractionDigits:0})+'</td>'+
+          '<td class="mono"><strong>'+Number(r.net_worth).toLocaleString('en-IN',{maximumFractionDigits:0})+' \u00a2</strong></td></tr>'; }).join('')+'</table>'
+      : '<p class="note" style="margin-top:20px">No teams trading yet.</p>';
+
+    function pct(id){ var e=document.getElementById('pct-'+id); return Math.abs(parseFloat(e&&e.value)||0); }
+    async function move(id, dir){
+      var c=MKT.filter(function(x){return String(x.id)===String(id);})[0]; if(!c) return;
+      var p=Number(c.price), v=pct(id);
+      if(!v){ document.getElementById('mkMsg').textContent='Enter a percentage first.'; return; }
+      var np=Math.max(1, +(p*(1+dir*v/100)).toFixed(2));
+      var r=await sb.from('nn_companies').update({price:np, prev_price:p, updated_at:new Date().toISOString()}).eq('id',id);
+      document.getElementById('mkMsg').textContent = r.error ? ('Blocked: '+r.error.message)
+        : (c.ticker+' '+(dir>0?'up':'down')+' '+v+'% \u2192 '+np.toFixed(2));
+      loadMarket();
+    }
+    el.querySelectorAll('[data-up]').forEach(function(b){ b.addEventListener('click',function(){ move(b.dataset.up, 1); });});
+    el.querySelectorAll('[data-dn]').forEach(function(b){ b.addEventListener('click',function(){ move(b.dataset.dn, -1); });});
+    el.querySelectorAll('[data-set]').forEach(function(b){ b.addEventListener('click', async function(){
+      var c=MKT.filter(function(x){return String(x.id)===String(b.dataset.set);})[0];
+      var v=prompt('Set exact price for '+c.ticker+':', Number(c.price).toFixed(2));
+      if(v==null) return;
+      var np=parseFloat(v); if(isNaN(np)||np<=0){ alert('Enter a positive number.'); return; }
+      var r=await sb.from('nn_companies').update({price:np, prev_price:Number(c.price), updated_at:new Date().toISOString()}).eq('id',c.id);
+      if(r.error) alert('Blocked: '+r.error.message);
+      loadMarket();
+    });});
+  }
+  (function(){
+    var t=document.getElementById('mkToggle'); if(!t) return;
+    t.addEventListener('click', async function(){
+      var r=await sb.from('nn_state').update({is_open:!MKOPEN, updated_at:new Date().toISOString()}).eq('id',1);
+      if(r.error){ document.getElementById('mkMsg').textContent='Blocked: '+r.error.message; return; }
+      loadMarket();
+    });
+    document.getElementById('mkReset').addEventListener('click', async function(){
+      if(!confirm('Reset every company to its starting price? Portfolios are not affected.')) return;
+      for(var i=0;i<MKT.length;i++){
+        await sb.from('nn_companies').update({price:MKT[i].start_price, prev_price:MKT[i].price}).eq('id',MKT[i].id);
+      }
+      document.getElementById('mkMsg').textContent='Prices reset.'; loadMarket();
+    });
+    document.getElementById('mkWipe').addEventListener('click', async function(){
+      if(!confirm('Reset ALL portfolios? Every team returns to 5,00,000 Cents and loses all holdings and trade history. Use this only before the event.')) return;
+      await sb.from('nn_holdings').delete().neq('team_id','00000000-0000-0000-0000-000000000000');
+      await sb.from('nn_trades').delete().neq('team_id','00000000-0000-0000-0000-000000000000');
+      await sb.from('nn_accounts').update({cash:500000}).neq('team_id','00000000-0000-0000-0000-000000000000');
+      document.getElementById('mkMsg').textContent='Portfolios reset.'; loadMarket();
+    });
+  })();
 
   // ---- event-day check-in ----
   function renderCheckin(){

@@ -76,6 +76,7 @@
     var sb = window.__elanSb;
     if (!p || !sb) return;
     if (p.flagship !== "Cent$ible") return;
+    if (p.centsible_theme === "NOTE \u0928\u0940\u0924\u093F") return;   // handled by portal-note.js
     if (ranFor === p.participant_uid) return;      // don't run twice
     ranFor = p.participant_uid;
 
