@@ -77,9 +77,10 @@
 
     <!-- REGISTRATIONS -->
     <section class="apanel" id="tab-regs" style="display:none">
-      <div class="row" style="grid-template-columns:2fr 1fr 1fr 1fr 1.2fr 1fr">
+      <div class="row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1.2fr 1fr">
         <div><label>Search</label><input id="rSearch" placeholder="name / email / school / phone"/></div>
         <div><label>Status</label><select id="rStatus"><option value="">All</option><option>pending</option><option>paid</option></select></div>
+        <div><label>Email</label><select id="rMail"><option value="">All</option><option value="1">Sent</option><option value="0">Not sent</option></select></div>
         <div><label>Ticket</label><select id="rTier"><option value="">All</option><option>Early Bird</option><option>Standard</option><option>Late Registration</option><option>Day Delegate</option></select></div>
         <div><label>Flagship</label><select id="rFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option><option value="__none">Not chosen</option></select></div>
         <div><label>Cent$ible theme</label><select id="rTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>VIRAL व्यापार</option><option>NOTE नीति</option><option>प्रश्न PRODIGY</option></select></div>
@@ -312,7 +313,7 @@
 <script>
 (function(){
   var sb=window.supabase.createClient(window.ELAN_CONFIG.SUPABASE_URL, window.ELAN_CONFIG.SUPABASE_ANON_KEY);
-  var REGS=[], PAYS=[], PARTS=[], ANNS=[], SCHED=[], STATUS_COL=null;
+  var REGS=[], PAYS=[], PARTS=[], ANNS=[], SCHED=[], STATUS_COL=null, EMAIL_COL=null;
   function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
   // ---- auth gate ----
@@ -408,7 +409,8 @@
     ANNS=r4.error?[]:(r4.data||[]); if(r4.error) blocked.push('portal_announcements ('+r4.error.message+')');
     var r5=await sb.from('portal_schedule_items').select('*').order('day').order('start_time');
     SCHED=r5.error?[]:(r5.data||[]); if(r5.error) blocked.push('portal_schedule_items ('+r5.error.message+')');
-    if(REGS.length){ STATUS_COL=['payment_status','status'].find(function(k){return k in REGS[0];})||null; }
+    if(REGS.length){ STATUS_COL=['payment_status','status'].find(function(k){return k in REGS[0];})||null;
+      EMAIL_COL=['email_sent','link_sent','mail_sent'].find(function(k){return k in REGS[0];})||null; }
     if(blocked.length){
       note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load</strong> — your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase — ask and I\u2019ll provide it.</span></div>';
     }
@@ -484,6 +486,9 @@
       if(q && ((r.full_name||'')+' '+(r.email||'')+' '+(r.school||'')+' '+(r.phone||'')).toLowerCase().indexOf(q)===-1) return false;
       if(st && STATUS_COL && String(r[STATUS_COL]).toLowerCase()!==st) return false;
       if(tr && (r.ticket_type||'').indexOf(tr)===-1) return false;
+      var ml=document.getElementById('rMail');
+      var mv=ml?ml.value:'';
+      if(mv!=='' && EMAIL_COL){ var isSent=(r[EMAIL_COL]===true||r[EMAIL_COL]==='sent'); if((mv==='1')!==isSent) return false; }
       var notes=r.notes||'';
       if(fl==='__none'){ if(notes.indexOf('[Flagship:')!==-1) return false; }
       else if(fl){ if(notes.indexOf('[Flagship: '+fl)===-1) return false; }
@@ -497,24 +502,39 @@
       el.innerHTML='<p class="note">No registrations match these filters. <button class="mini-btn" id="rClear">Clear filters</button></p>';
       var rc=document.getElementById('rClear');
       if(rc) rc.addEventListener('click',function(){
-        ['rSearch','rStatus','rTier','rFlag','rTheme'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+        ['rSearch','rStatus','rTier','rFlag','rTheme','rMail'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
         renderRegs();
       });
       return;
     }
     el.innerHTML='<p class="note" style="margin:6px 0 10px">Showing <strong>'+rows.length+'</strong> of '+REGS.length+' registration(s).</p>'+
-      '<table><tr><th>Name</th><th>Contact</th><th>School</th><th>Ticket</th><th>Amount</th><th>Flagship</th><th>Status</th><th></th></tr>'+
+      '<table><tr><th>Name</th><th>Contact</th><th>School</th><th>Ticket</th><th>Amount</th><th>Flagship</th><th>Status</th><th>Email</th><th></th></tr>'+
       rows.map(function(r){
         var fl=(r.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/);
         var paid=isPaid(r);
+        var sent=EMAIL_COL ? (r[EMAIL_COL]===true || r[EMAIL_COL]==='sent') : false;
         return '<tr><td><strong>'+esc(r.full_name)+'</strong></td>'+
           '<td>'+esc(r.email||'')+'<br><span class="note">'+esc(r.phone||'')+'</span></td>'+
           '<td>'+esc(r.school||'')+'</td><td>'+esc((r.ticket_type||'').split('\u00B7')[0])+(r.quantity>1?' \u00D7'+r.quantity:'')+'</td>'+
           '<td>'+money(r.amount)+'</td><td>'+esc(fl?fl[1].trim()+(fl[2]?' \u2014 '+fl[2].trim():''):'\u2014')+'</td>'+
           '<td>'+(STATUS_COL?('<span class="'+(paid?'pill-paid':'pill-pending')+'">'+(paid?'paid':'pending')+'</span>'):'\u2014')+'</td>'+
+          '<td>'+(EMAIL_COL
+            ? ('<button class="mini-btn '+(sent?'is-sent':'')+'" data-mail="'+esc(r.id)+'" data-to="'+(sent?'0':'1')+'">'+
+               (sent?'\u2713 sent':'not sent')+'</button>')
+            : '<span class="note">add column</span>')+'</td>'+
           '<td>'+(STATUS_COL?('<button class="mini-btn" data-id="'+esc(r.id)+'" data-to="'+(paid?'pending':'paid')+'">Mark '+(paid?'pending':'paid')+'</button>'):'')+'</td></tr>';
       }).join('')+'</table>';
-    el.querySelectorAll('.mini-btn').forEach(function(b){ b.addEventListener('click', async function(){
+    el.querySelectorAll('[data-mail]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!EMAIL_COL) return;
+      b.disabled=true; b.textContent='\u2026';
+      var upd={}; upd[EMAIL_COL] = (b.dataset.to==='1');
+      var r=await sb.from('registrations').update(upd).eq('id', b.dataset.mail);
+      if(r.error){ alert('Blocked: '+r.error.message); b.disabled=false; b.textContent='retry'; return; }
+      var row=REGS.filter(function(x){return String(x.id)===String(b.dataset.mail);})[0];
+      if(row) row[EMAIL_COL]=(b.dataset.to==='1');
+      renderRegs();
+    });});
+    el.querySelectorAll('[data-id]').forEach(function(b){ b.addEventListener('click', async function(){
       b.disabled=true; b.textContent='Saving\u2026';
       var upd={}; upd[STATUS_COL]=b.dataset.to;
       var r=await sb.from('registrations').update(upd).eq('id', b.dataset.id);
@@ -522,12 +542,12 @@
       loadAll();
     });});
   }
-  ['rSearch','rStatus','rTier','rFlag','rTheme'].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', renderRegs); });
+  ['rSearch','rStatus','rTier','rFlag','rTheme','rMail'].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', renderRegs); });
 
   document.getElementById('rCsv').addEventListener('click', function(){
-    var head=['full_name','email','phone','school','ticket_type','quantity','amount','status','notes','created_at'];
+    var head=['full_name','email','phone','school','ticket_type','quantity','amount','status','email_sent','notes','created_at'];
     var lines=[head.join(',')].concat(REGS.map(function(r){
-      return head.map(function(k){ var v=k==='status'?(STATUS_COL?r[STATUS_COL]:''):r[k]; v=String(v==null?'':v).replace(/"/g,'""'); return '"'+v+'"'; }).join(',');
+      return head.map(function(k){ var v=k==='status'?(STATUS_COL?r[STATUS_COL]:''):(k==='email_sent'?(EMAIL_COL?(r[EMAIL_COL]?'sent':'not sent'):''):r[k]); v=String(v==null?'':v).replace(/"/g,'""'); return '"'+v+'"'; }).join(',');
     }));
     var blob=new Blob([lines.join('\n')],{type:'text/csv'}); var a=document.createElement('a');
     a.href=URL.createObjectURL(blob); a.download='elan-registrations.csv'; a.click();

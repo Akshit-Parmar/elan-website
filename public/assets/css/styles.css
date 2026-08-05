@@ -1255,3 +1255,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible,.nav-link:focus-visible,
   .nn-top{grid-template-columns:repeat(2,1fr)}
   .nn-stat strong{font-size:22px}
 }
+
+/* Admin: email-sent toggle */
+.mini-btn.is-sent{background:#dcfce7;border-color:#86efac;color:#166534;font-weight:800}
+.mini-btn.is-sent:hover{background:#166534;color:#fff;border-color:#166534}
