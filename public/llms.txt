@@ -14,7 +14,7 @@ The Early Bird, Standard and Late Registration passes include accommodation for 
 ## Prizes
 The winning team in each flagship receives a ₹10,000 cash prize — one for Crisis Command, one for Cent$ible — awarded at the Grand Closing and Awards Ceremony.
 
-## Tickets (https://elansummit.com/tickets.html)
+## Tickets (https://elansummit.com/tickets)
 - Early Bird — ₹3,699
 - Standard — ₹4,199
 - Late Registration — ₹4,899
@@ -22,15 +22,15 @@ The winning team in each flagship receives a ₹10,000 cash prize — one for Cr
 
 ## Key pages
 - Home: https://elansummit.com/
-- Tickets & registration: https://elansummit.com/tickets.html
-- Crisis Command: https://elansummit.com/flagship.html
-- Cent$ible: https://elansummit.com/centsible.html
-- School delegations: https://elansummit.com/schools.html
-- Event details: https://elansummit.com/event-details.html
-- Schedule: https://elansummit.com/schedule.html
-- FAQs: https://elansummit.com/faqs.html
-- Code of Conduct: https://elansummit.com/code-of-conduct.html
-- Contact: https://elansummit.com/contact.html
+- Tickets & registration: https://elansummit.com/tickets
+- Crisis Command: https://elansummit.com/flagship
+- Cent$ible: https://elansummit.com/centsible
+- School delegations: https://elansummit.com/schools
+- Event details: https://elansummit.com/event-details
+- Schedule: https://elansummit.com/schedule
+- FAQs: https://elansummit.com/faqs
+- Code of Conduct: https://elansummit.com/code-of-conduct
+- Contact: https://elansummit.com/contact
 
 ## Contact
 - Email: elan@sgischool.in
