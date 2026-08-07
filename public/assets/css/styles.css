@@ -1259,3 +1259,9 @@ a:focus-visible,button:focus-visible,.btn:focus-visible,.nav-link:focus-visible,
 /* Admin: email-sent toggle */
 .mini-btn.is-sent{background:#dcfce7;border-color:#86efac;color:#166534;font-weight:800}
 .mini-btn.is-sent:hover{background:#166534;color:#fff;border-color:#166534}
+
+/* Sold-out ticket tiers read differently from not-yet-open ones */
+.price-card.tier-soldout{opacity:.62}
+.price-card.tier-soldout .price{text-decoration:line-through;text-decoration-thickness:2px;
+  text-decoration-color:rgba(78,0,0,.45)}
+.price-card.tier-soldout .btn.is-disabled{background:#8c8378;border-color:#8c8378;color:#fff}

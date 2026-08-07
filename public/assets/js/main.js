@@ -306,7 +306,12 @@ const TICKET_OPEN = {
   day:      true     // Day Delegate      — ₹2,800 (no stay, no transport)
 };
 
+// Tiers listed here read "Sold out" instead of "Currently closed" when shut:
+// their window has passed and will not reopen.
+const TICKET_SOLD_OUT = ['early'];
+
 function isTierOpen(tier){ return TICKET_OPEN[tier] === true; }
+function tierClosedLabel(tier){ return TICKET_SOLD_OUT.indexOf(tier) !== -1 ? 'Sold out' : 'Currently closed'; }
 
 function initTicketAvailability(){
   const cards = qsa('.price-card[data-tier]');
@@ -318,6 +323,7 @@ function initTicketAvailability(){
     const open = isTierOpen(card.dataset.tier);
     if(open) anyOpen = true;
     card.classList.toggle('tier-closed', !open);
+    card.classList.toggle('tier-soldout', !open && TICKET_SOLD_OUT.indexOf(card.dataset.tier) !== -1);
 
     const btn = qs('.btn[data-ticket]', card);
     if(btn){
@@ -330,7 +336,7 @@ function initTicketAvailability(){
         btn.classList.add('is-disabled');
         btn.setAttribute('aria-disabled', 'true');
         btn.dataset.locked = 'true';
-        btn.textContent = 'Currently closed';
+        btn.textContent = tierClosedLabel(card.dataset.tier);
       }
     }
   });
