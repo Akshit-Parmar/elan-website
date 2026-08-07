@@ -300,8 +300,8 @@ function validateForm(form){
  *  No dates are involved: tickets open and close only when changed here.
  * ------------------------------------------------------------------ */
 const TICKET_OPEN = {
-  early:    true,    // Early Bird        — ₹3,699 (includes stay + transport)
-  standard: false,   // Standard          — ₹4,199 (includes stay + transport)
+  early:    false,   // Early Bird        — ₹3,699 (CLOSED, window has passed)
+  standard: true,    // Standard          — ₹4,199 (includes stay + transport)
   late:     false,   // Late Registration — ₹4,899 (includes stay + transport)
   day:      true     // Day Delegate      — ₹2,800 (no stay, no transport)
 };

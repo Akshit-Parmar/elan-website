@@ -99,7 +99,7 @@
   if(amount>0){ amtEl.textContent="₹"+amount.toLocaleString("en-IN");
     det.textContent=ticket?(ticket+(qty>1?" × "+qty:"")):""; }
   else { amtEl.textContent="See your ticket amount";
-    det.textContent="Pay the amount for the ticket you selected (Early Bird ₹3,699 · Standard ₹4,199 · Late ₹4,899 · Day Delegate ₹2,800)."; }
+    det.textContent="Pay the amount for the ticket you selected (Standard ₹4,199 · Late ₹4,899 · Day Delegate ₹2,800)."; }
 
   var note=(name?name:"")+(phone?" "+phone:""); if(!note) note="Elan Summit registration";
   var upiUrl="upi://pay?pa="+encodeURIComponent(UPI_ID)+"&pn="+encodeURIComponent(UPI_NAME)
