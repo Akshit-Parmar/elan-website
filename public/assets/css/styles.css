@@ -1318,3 +1318,72 @@ a.partner-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(19,3
   .sgis-figure{margin:18px 0 4px}
   .sgis-figure img{border-radius:14px}
 }
+
+
+/* ============================================================================
+   NOTE नीति — market realism: ticker, sparklines, badges, confirm dialog
+   ============================================================================ */
+.nn-ticker{overflow:hidden;background:var(--navy,#13273F);border-radius:14px;margin-bottom:14px;
+  padding:9px 0;position:relative}
+.nn-ticker-track{display:inline-flex;gap:26px;white-space:nowrap;animation:nnScroll 60s linear infinite}
+.nn-ticker:hover .nn-ticker-track{animation-play-state:paused}
+@keyframes nnScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.nn-tick{color:var(--pearl,#E9D4C3);font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.nn-tick b{font-weight:800;margin-right:5px}
+.nn-tick i{font-style:normal;font-weight:700}
+.nn-tick.up i{color:#4ade80}
+.nn-tick.down i{color:#fca5a5}
+.nn-tick.flat i{color:#94a3b8}
+
+.nn-stat em{display:block;margin-top:3px;font-style:normal;font-size:12px;font-weight:700;
+  font-variant-numeric:tabular-nums}
+.nn-stat em.up{color:#166534}
+.nn-stat em.down{color:#b91c1c}
+.nn-stat.is-net em.up{color:#86efac}
+.nn-stat.is-net em.down{color:#fca5a5}
+.nn-stat.is-net em{color:rgba(233,212,195,.75)}
+
+.nn-sparkcell{width:76px}
+.nn-spark{width:68px;height:22px;display:block}
+.nn-spark-empty{color:#cbd5e1}
+.nn-sector{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#9ca3af;font-weight:700}
+.nn-range{font-size:12px;color:#6b7280;white-space:nowrap}
+
+.nn-badge{display:inline-block;font-size:9.5px;font-weight:900;letter-spacing:.07em;
+  text-transform:uppercase;padding:3px 7px;border-radius:99px;margin:0 4px 3px 0;white-space:nowrap}
+.nn-badge.v-hi{background:#fee2e2;color:#991b1b}
+.nn-badge.v-md{background:#fef3c7;color:#92400e}
+.nn-badge.v-lo{background:#dcfce7;color:#166534}
+.nn-badge.l-high{background:#e0f2fe;color:#075985}
+.nn-badge.l-medium{background:#f1f5f9;color:#475569}
+.nn-badge.l-low{background:#f5f3ff;color:#6b21a8}
+
+.nn-trades{display:grid;gap:6px;margin-top:10px}
+.nn-trade{display:grid;grid-template-columns:58px 1fr auto auto;gap:12px;align-items:center;
+  padding:10px 14px;border-radius:12px;background:#fff;border:1px solid var(--border,#d9d6cf);font-size:14px}
+.nn-side{font-size:10px;font-weight:900;letter-spacing:.08em;padding:3px 0;text-align:center;border-radius:6px}
+.nn-trade.buy .nn-side{background:#dcfce7;color:#166534}
+.nn-trade.sell .nn-side{background:#fee2e2;color:#991b1b}
+.nn-total{font-variant-numeric:tabular-nums;font-weight:700}
+
+.nn-worth em{display:block;font-style:normal;font-size:11.5px;font-weight:700;margin-top:2px}
+.nn-worth em.up{color:#166534}
+.nn-worth em.down{color:#b91c1c}
+.nn-row.is-me .nn-worth em.up{color:#86efac}
+.nn-row.is-me .nn-worth em.down{color:#fca5a5}
+
+.nn-confirm{position:fixed;inset:0;z-index:700;display:grid;place-items:center;padding:20px;
+  background:rgba(7,17,31,.72)}
+.nn-confirm-panel{background:#fff;border-radius:20px;padding:28px;max-width:420px;width:100%;
+  box-shadow:0 30px 80px rgba(7,17,31,.4)}
+.nn-confirm-panel h3{font-family:"Cormorant Garamond",serif;font-size:26px;margin:0 0 12px;
+  color:var(--midnight,#13273F)}
+.nn-confirm-panel p{margin:0 0 8px;color:#51443d;line-height:1.6}
+.nn-confirm-total{font-size:17px;color:var(--midnight,#13273F)!important}
+.nn-warn{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:11px 13px;
+  font-size:13.5px;color:#9a3412!important;margin-top:10px!important}
+
+@media(max-width:640px){
+  .nn-trade{grid-template-columns:52px 1fr auto;font-size:13px}
+  .nn-trade .note{display:none}
+}
