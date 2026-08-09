@@ -1387,3 +1387,9 @@ a.partner-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(19,3
   .nn-trade{grid-template-columns:52px 1fr auto;font-size:13px}
   .nn-trade .note{display:none}
 }
+
+/* Trade dialog must escape any transformed ancestor and sit centred on screen */
+.nn-confirm{position:fixed!important;inset:0!important;z-index:9999!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  transform:none!important;margin:0!important;padding:20px}
+.nn-confirm-panel{transform:none!important;max-height:88vh;overflow-y:auto}

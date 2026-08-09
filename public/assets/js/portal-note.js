@@ -11,7 +11,7 @@
   var NOTE = "NOTE \u0928\u0940\u0924\u093F";
   var sb = null, P = null;
   var COS = [], HOLD = {}, HIST = {}, TRADES = [], CASH = 0, OPEN = false, board = [];
-  var busy = false, ran = false, pending = null;
+  var busy = false, ran = false, pending = null, lastHist = 0, rendering = false;
 
   function esc(x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -43,12 +43,14 @@
       '<h2 class="ws-h">NOTE \u0928\u0940\u0924\u093F</h2>' +
       '<div id="nnBody"><p class="ws-note">Loading the market\u2026</p></div></article>';
     refresh();
-    setInterval(refresh, 8000);
+    setInterval(refresh, 15000);
     subscribe();
   }
 
   /* ---------- data ---------- */
   async function refresh() {
+    if (pending || busy) return;                 // never redraw mid-decision
+    if (document.hidden) return;                 // pause when the tab is not visible
     if (!P.team_id) { renderNoTeam(); return; }
 
     var st = await sb.from("nn_state").select("*").eq("id", 1).maybeSingle();
@@ -63,12 +65,18 @@
     var h = await sb.from("nn_holdings").select("*").eq("team_id", P.team_id);
     HOLD = {}; (h.error ? [] : (h.data || [])).forEach(function (x) { HOLD[x.company_id] = x.qty; });
 
-    var pr = await sb.from("nn_prices").select("company_id,price,changed_at")
-                     .order("changed_at", { ascending: true }).limit(4000);
-    HIST = {};
-    (pr.error ? [] : (pr.data || [])).forEach(function (r) {
-      (HIST[r.company_id] = HIST[r.company_id] || []).push(Number(r.price));
-    });
+    // Price history is only needed for sparklines and volatility, so refresh it
+    // at most every 20 seconds rather than on every poll.
+    var now = Date.now();
+    if (!lastHist || now - lastHist > 20000) {
+      lastHist = now;
+      var pr = await sb.from("nn_prices").select("company_id,price")
+                       .order("changed_at", { ascending: true }).limit(1200);
+      HIST = {};
+      (pr.error ? [] : (pr.data || [])).forEach(function (r) {
+        (HIST[r.company_id] = HIST[r.company_id] || []).push(Number(r.price));
+      });
+    }
 
     var t = await sb.from("nn_trades").select("*").eq("team_id", P.team_id)
                     .order("traded_at", { ascending: false }).limit(60);
@@ -87,27 +95,32 @@
   }
 
   /* ---------- market maths ---------- */
+  var VOLC = {};
   function vol(id) {
+    if (VOLC[id] != null) return VOLC[id];
     var h = HIST[id] || [];
-    if (h.length < 3) return 0;
+    if (h.length < 3) return (VOLC[id] = 0);
     var r = [], i;
     for (i = 1; i < h.length; i++) if (h[i - 1]) r.push((h[i] - h[i - 1]) / h[i - 1] * 100);
     if (!r.length) return 0;
     var m = r.reduce(function (a, b) { return a + b; }, 0) / r.length;
     var v = r.reduce(function (a, b) { return a + Math.pow(b - m, 2); }, 0) / r.length;
-    return Math.sqrt(v);
+    return (VOLC[id] = Math.sqrt(v));
   }
   function volBand(v) { return v >= 4 ? ["High", "hi"] : v >= 1.8 ? ["Medium", "md"] : ["Low", "lo"]; }
 
-  function avgCost(id) {
-    var qty = 0, cost = 0;
+  var AVG = null;                       // rebuilt once per render, not per row
+  function buildAvg() {
+    AVG = {};
+    var acc = {};
     TRADES.slice().reverse().forEach(function (t) {
-      if (t.company_id !== id) return;
-      if (t.side === "buy") { cost += Number(t.total); qty += t.qty; }
-      else { var unit = qty ? cost / qty : 0; cost -= unit * t.qty; qty -= t.qty; }
+      var a = acc[t.company_id] = acc[t.company_id] || { qty: 0, cost: 0 };
+      if (t.side === "buy") { a.cost += Number(t.total); a.qty += t.qty; }
+      else { var unit = a.qty ? a.cost / a.qty : 0; a.cost -= unit * t.qty; a.qty -= t.qty; }
     });
-    return qty > 0 ? cost / qty : null;
+    Object.keys(acc).forEach(function (k) { AVG[k] = acc[k].qty > 0 ? acc[k].cost / acc[k].qty : null; });
   }
+  function avgCost(id) { return AVG ? (AVG[id] == null ? null : AVG[id]) : null; }
 
   function spark(id, up) {
     var h = (HIST[id] || []).slice(-24);
@@ -130,6 +143,9 @@
 
   /* ---------- render ---------- */
   function render() {
+    if (rendering) return;
+    rendering = true;
+    VOLC = {}; buildAvg();
     var pv = 0, invested = 0;
     COS.forEach(function (c) {
       var q = HOLD[c.id] || 0; if (!q) return;
@@ -238,8 +254,13 @@
           }).join("")
         : '<p class="note">No teams trading yet.</p>') + "</div>";
 
+    // preserve whatever quantity the user was typing across re-renders
+    var typed = {};
+    document.querySelectorAll('.nn-qty').forEach(function(i){ if(i.value && i.value!=='1') typed[i.id]=i.value; });
     el("nnBody").innerHTML = h;
+    Object.keys(typed).forEach(function(id){ var i=el(id); if(i) i.value=typed[id]; });
     wire();
+    rendering = false;
   }
 
   /* ---------- trading ---------- */
@@ -270,9 +291,13 @@
       (thin ? '<p class="nn-warn">' + esc(c.ticker) + " is thinly traded. Large positions in low-liquidity stocks are harder to exit if the price turns.</p>" : "") +
       '<div class="cta-row"><button class="btn btn-gold" id="nnGo">Confirm</button>' +
       '<button class="btn btn-ghost" id="nnNo">Cancel</button></div></div>';
-    document.body.appendChild(box);
-    el("nnNo").addEventListener("click", function () { box.remove(); pending = null; });
-    el("nnGo").addEventListener("click", function () { box.remove(); doTrade(); });
+    document.body.appendChild(box);          // body-level: no transformed ancestor
+    document.documentElement.style.overflow='hidden';
+    function closeBox(){ box.remove(); document.documentElement.style.overflow=""; }
+    el("nnNo").addEventListener("click", function () { closeBox(); pending = null; });
+    box.addEventListener("click", function(e){ if(e.target===box){ closeBox(); pending=null; } });
+    document.addEventListener("keydown", function esc2(e){ if(e.key==="Escape"){ closeBox(); pending=null; document.removeEventListener("keydown", esc2); } });
+    el("nnGo").addEventListener("click", function () { closeBox(); doTrade(); });
   }
 
   async function doTrade() {
@@ -291,11 +316,16 @@
     refresh();
   }
 
+  var rtTimer = null;
+  function debouncedRefresh() {
+    clearTimeout(rtTimer);
+    rtTimer = setTimeout(refresh, 700);          // collapse bursts into one redraw
+  }
   function subscribe() {
     if (!sb.channel) return;
     sb.channel("nn-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "nn_companies" }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "nn_state" }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "nn_companies" }, debouncedRefresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "nn_state" }, debouncedRefresh)
       .subscribe();
   }
 })();
