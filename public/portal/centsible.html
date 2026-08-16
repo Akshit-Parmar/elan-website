@@ -41,11 +41,10 @@ document.addEventListener("elan:participant",function(ev){
 
     "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY":{
       tag:"Business quiz \u00B7 strategic bidding",
-      blurb:"A high-energy business arena in three stages, played in teams of two. Answer fast, bid well, then defend your thinking in the Boardroom.",
+      blurb:"A high-energy business arena played in teams of two. Answer fast, then bid well.",
       rounds:[["Round 1","Rapid Vision Rush","One minute per team. Logos, taglines, founders and CEOs, startups, emoji brand clues, product silhouettes, advertisement visuals and current business affairs, all shuffled. 100 Cents per correct answer, no negative marking, skipping allowed."],
-              ["Round 2","The Bidding War","Bid your Cents for questions you have not seen. Bidding opens at 100 and teams bid each other up. Correct adds your full bid; wrong takes away half of it. This round runs either side of lunch."],
-              ["Round 3","Nova Boardroom","The Mega Finale on Day 2, which is the Cent$ible Boardroom Finale. The three highest-scoring teams take on a business situation, decide on a course of action, and justify it to the board."]],
-      twists:"Nobody is eliminated after Round 1, and the Cents you earn there become your ammunition for the bidding. Scores are totalled at the end of Round 2 and the top three go through."}
+              ["Round 2","The Bidding War","Bid your Cents for questions you have not seen. Bidding opens at 100 and teams bid each other up. Correct adds your full bid; wrong takes away half of it. This round runs either side of lunch."]],
+      twists:"Nobody is eliminated after Round 1, and the Cents you earn there become your ammunition for the bidding. Scores are totalled at the end of Round 2 and the top three go through to the Boardroom Finale, which in this theme is called the Nova Boardroom."}
   };
 
   // Show ONLY the participant's own theme card; remove the other three.
@@ -93,8 +92,9 @@ document.addEventListener("elan:participant",function(ev){
     '</article>';
 
   var LI='style="display:block;margin:10px 0;padding-left:74px;position:relative;line-height:1.6"';
-  // Round counts differ per theme, and PRODIGY's Round 3 sits on Day 2, so the
-  // heading and the closing note are both derived rather than hard-coded.
+  // Round counts differ per theme (BRAND has a pre-event brief), and no theme
+  // lists the Day 2 Boardroom Finale as one of its own rounds, so the heading
+  // and the closing note are both derived rather than hard-coded.
   var day1 = d ? d.rounds.filter(function(r){ return r[0] !== "Before" && !/Boardroom/.test(r[1]); }).length : 0;
   var WORDS = ["", "one round", "two rounds", "three rounds", "four rounds"];
   var rounds = d ? ('<article class="white-card" style="margin-top:14px"><span class="section-label">Your rounds</span>' +

@@ -81,10 +81,10 @@
   };
 
   BRIEF[PRODIGY] = {
-    intro: "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY runs live in the room, in teams of two, across three stages and roughly " +
-           "two to three hours in total. There is nothing to submit before the event. Everyone plays both Day 1 rounds and nobody " +
-           "is eliminated after Round 1, so the Cents you earn early become the ammunition you bid with later. Round 3, the Nova " +
-           "Boardroom, is the Cent$ible Boardroom Finale on Day 2 and only the top three teams reach it.",
+    intro: "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY runs live in the room, in teams of two, and takes roughly two to three " +
+           "hours in total. There is nothing to submit before the event. You have two scored rounds on Day 1 and nobody is " +
+           "eliminated after Round 1, so the Cents you earn early become the ammunition you bid with later. The top three teams " +
+           "then go through to the Boardroom Finale on Day 2, which in this theme is called the Nova Boardroom.",
     rounds: [
       ["Round 1", "Rapid Vision Rush",
        "One minute per team, and as many questions as you can take in it. Business and commerce, famous brands, company logos, " +
@@ -98,12 +98,7 @@
        "The highest bidder gets the question. Answer correctly and your full bid is added to your score. Answer wrong and half " +
        "your bid is taken away, so a well-judged risk is often worth taking. Between battles there are audience activities: " +
        "prediction questions, live business polls, guess-the-bid challenges, market reaction activities and bonus questions, so " +
-       "you stay in it even when another team holds the question. Scores are totalled at the end and the top three teams go through."],
-      ["Round 3", "Nova Boardroom",
-       "The Mega Finale, held on Day 2 as the Cent$ible Boardroom Finale. The three highest-scoring teams are given a business " +
-       "situation drawn from startup strategy, marketing, finance, brand management, business expansion, crisis management or " +
-       "entrepreneurial decision-making. Analyse it, decide on a course of action, and justify that decision to the board. " +
-       "Every other team joins the audience as market spectators."]
+       "you stay in it even when another team holds the question. Scores are totalled at the end and the top three teams go through."]
     ],
     judged: [
       "Speed of recall and accuracy under a one-minute clock",
@@ -111,8 +106,7 @@
       "Visual intelligence: logos, silhouettes, advertisements",
       "Risk assessment and financial judgement when bidding",
       "Composure under pressure",
-      "How well the two of you work as a pair",
-      "In the Nova Boardroom: creativity, problem-solving, financial understanding and the confidence to defend a decision"
+      "How well the two of you work as a pair"
     ],
     prep: [
       "Learn logos and taglines as a pair, testing each other in short bursts rather than long sessions.",
