@@ -232,7 +232,7 @@
 
     if (TRADES.length) {
       h += '<div class="ws-sep"></div><h3 class="ws-h3">Your trades</h3>' +
-        '<p class="ws-note">Every decision you have made, most recent first. Useful when you defend your strategy in the Financial Face-Off.</p>' +
+        '<p class="ws-note">Every decision you have made, most recent first. Useful when you have to explain the calls you made.</p>' +
         '<div class="nn-trades">' + TRADES.slice(0, 12).map(function (t) {
           var c = COS.filter(function (x) { return x.id === t.company_id; })[0] || {};
           return '<div class="nn-trade ' + t.side + '"><span class="nn-side">' + t.side.toUpperCase() + "</span>" +

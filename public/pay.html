@@ -39,7 +39,7 @@
 <section class="light-section"><div class="container pay-wrap">
 <div class="white-card" style="padding:26px">
   <span class="section-label">Amount to pay</span>
-  <div class="pay-amount" id="amt">₹—</div>
+  <div class="pay-amount" id="amt">₹</div>
   <div class="pay-note" id="amtDetail"></div>
 </div>
 
@@ -105,7 +105,7 @@
   var upiUrl="upi://pay?pa="+encodeURIComponent(UPI_ID)+"&pn="+encodeURIComponent(UPI_NAME)
     +(amount>0?("&am="+amount+".00"):"")+"&cu=INR&tn="+encodeURIComponent(note.slice(0,50));
   try{ new QRious({element:document.getElementById("qr"),value:upiUrl,size:230}); }
-  catch(e){ document.getElementById("qr").outerHTML='<p class="pay-note">QR unavailable — pay to the UPI ID below.</p>'; }
+  catch(e){ document.getElementById("qr").outerHTML='<p class="pay-note">QR unavailable. Pay to the UPI ID below.</p>'; }
   document.getElementById("upiLink").href=upiUrl;
   document.getElementById("copyUpi").addEventListener("click",function(){
     navigator.clipboard.writeText(UPI_ID); this.textContent="Copied ✓";
@@ -129,8 +129,8 @@
         ph=document.getElementById("pPhone").value.trim(),
         utr=document.getElementById("pUtr").value.trim();
     if(!nm||!em||!ph||!utr){ m.innerHTML='<div class="ep-msg err">Please fill every field, including the UTR.</div>'; return; }
-    if(!/^\d{10,16}$/.test(utr.replace(/\s/g,""))){ m.innerHTML='<div class="ep-msg err">That doesn\u2019t look like a UTR — it\u2019s the 10–16 digit reference number in your UPI app\u2019s payment details.</div>'; return; }
-    if(!sb){ m.innerHTML='<div class="ep-msg err">Connection problem — please try again.</div>'; return; }
+    if(!/^\d{10,16}$/.test(utr.replace(/\s/g,""))){ m.innerHTML='<div class="ep-msg err">That doesn\u2019t look like a UTR. It\u2019s the 10 to 16 digit reference number in your UPI app\u2019s payment details.</div>'; return; }
+    if(!sb){ m.innerHTML='<div class="ep-msg err">Connection problem. Please try again.</div>'; return; }
     btn.disabled=true; btn.textContent="Submitting…";
     var row={ full_name:nm, email:em, phone:ph, inquiry_type:"Payment UTR",
       message:"[PAYMENT-UTR] UTR: "+utr+" | Ticket: "+(ticket||"not passed")+" | Qty: "+qty+" | Amount: ₹"+(amount||"?")+" | Paid to: "+UPI_ID };

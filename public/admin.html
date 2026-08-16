@@ -98,7 +98,7 @@
 
     <!-- PARTICIPANTS -->
     <section class="apanel" id="tab-parts" style="display:none">
-      <p class="note">All participant records. Rows marked <span class="pill-pending">admin</span> are organiser accounts — they are excluded from participant counts, check-in and cabinet assignment. To re-send a fresh set-password link, use the Issue links tab.</p>
+      <p class="note">All participant records. Rows marked <span class="pill-pending">admin</span> are organiser accounts. They are excluded from participant counts, check-in and cabinet assignment. To re-send a fresh set-password link, use the Issue links tab.</p>
       <div class="row" style="grid-template-columns:2fr 1fr 1.2fr;margin-top:10px">
         <div><label>Search</label><input id="pSearch" placeholder="name, UID, email or school" autocomplete="off"/></div>
         <div><label>Flagship</label><select id="pFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option><option value="__none">Not set</option></select></div>
@@ -140,7 +140,7 @@
         <span class="note" id="scMsg" style="margin-left:10px"></span></div>
       </div>
       <div style="margin:14px 0;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px">
-        <strong>Note:</strong> the official two-day itinerary is built into the participant portal already — you don’t need to re-enter it here.
+        <strong>Note:</strong> the official two-day itinerary is built into the participant portal already, so you don’t need to re-enter it here.
         Use this tab only for <em>changes and notices</em> (room moves, delays, extra briefings); they appear under “Updates from the organising team” on each participant’s schedule.
         <div style="margin-top:10px"><button class="mini-btn danger" id="scClearAll">Delete ALL schedule items</button>
         <span class="note" id="scClearMsg" style="margin-left:10px"></span></div>
@@ -150,11 +150,11 @@
 
     <!-- ADMINS -->
     <section class="apanel" id="tab-admins" style="display:none">
-      <p class="note">Create another Élan admin. They get the full console — registrations, payments, check-in, announcements and previews — the moment they sign in.</p>
+      <p class="note">Create another Élan admin. The moment they sign in they get the full console: registrations, payments, check-in, announcements and previews.</p>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:560px">
         <label>Full name</label><input id="adName" autocomplete="off" placeholder="e.g. Riya Sharma"/>
         <label style="margin-top:10px;display:block">Email</label><input id="adEmail" type="email" autocomplete="off" placeholder="their login email"/>
-        <label style="margin-top:10px;display:block">Password</label><input id="adPw" type="text" autocomplete="off" placeholder="at least 8 characters — share it with them"/>
+        <label style="margin-top:10px;display:block">Password</label><input id="adPw" type="text" autocomplete="off" placeholder="at least 8 characters, share it with them"/>
         <div style="margin-top:12px"><button class="btn btn-gold" id="adCreate">Create admin</button>
           <span class="note" id="adMsg" style="margin-left:10px"></span></div>
         <p class="note" style="margin-top:10px">The password is shown in plain text here only so you can pass it on. Ask them to change it after their first sign-in.</p>
@@ -226,7 +226,7 @@
 
     <!-- PORTAL PREVIEWS -->
     <section class="apanel" id="tab-prev" style="display:none">
-      <p class="note">See exactly what each type of participant sees in their portal. This is a display-only preview — no participant record is changed, and no other participant’s data is loaded.</p>
+      <p class="note">See exactly what each type of participant sees in their portal. This is a display-only preview. No participant record is changed, and no other participant’s data is loaded.</p>
       <div class="row" style="grid-template-columns:1fr">
         <div><label>Participant type</label>
           <div id="pvPersonas" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"></div>
@@ -263,7 +263,7 @@
 
     <!-- ISSUE LINKS (original tool, unchanged contract) -->
     <section class="apanel" id="tab-issue" style="display:none">
-      <p class="note">Paste the list of people who have <strong>paid</strong> — one per line. Optionally add the amount after a comma to break ties between people with the same name.<br>Example: <span class="mono">Riya Sharma, 4199</span></p>
+      <p class="note">Paste the list of people who have <strong>paid</strong>, one per line. Optionally add the amount after a comma to break ties between people with the same name.<br>Example: <span class="mono">Riya Sharma, 4199</span></p>
       <div class="row">
         <div><label>Function URL</label><input id="fnUrl" placeholder="https://YOUR-REF.functions.supabase.co/admin-issue-batch"></div>
         <div><label>Admin secret</label><input id="secret" type="password" placeholder="ADMIN_ISSUE_SECRET"></div>
@@ -339,14 +339,14 @@
       box.innerHTML='<h2 style="font-family:\'Cormorant Garamond\',serif;font-size:30px;margin:0 0 8px">This is the organiser console.</h2>'+
         '<p class="note" style="margin:0 0 6px">You are signed in as <strong>'+esc(s.data.session.user.email||'')+'</strong>, which is a participant account, so there is nothing for you here.</p>'+
         '<p class="note" style="margin:0 0 16px">Your ticket, schedule, flagship briefing and announcements are all in the participant portal.</p>'+
-        '<div class="cta-row"><a class="btn btn-gold" href="/portal/dashboard.html">Go to your participant portal</a>'+
+        '<div class="cta-row"><a class="btn btn-gold" href="/portal/dashboard">Go to your participant portal</a>'+
         '<a class="btn btn-ghost" href="#" id="naSignOut">Sign out</a></div>'+
         '<p class="note" style="margin-top:14px">If you should have organiser access, contact the \u00c9lan Director on +91 8160215010.</p>';
       host.appendChild(box);
       var so=document.getElementById('naSignOut');
       if(so) so.addEventListener('click', async function(e){ e.preventDefault(); await sb.auth.signOut(); location.reload(); });
       // send them onward automatically, but leave a moment to read
-      setTimeout(function(){ location.href='/portal/dashboard.html'; }, 6000);
+      setTimeout(function(){ location.href='/portal/dashboard'; }, 6000);
       return true;
     }
 
@@ -412,7 +412,7 @@
     if(REGS.length){ STATUS_COL=['payment_status','status'].find(function(k){return k in REGS[0];})||null;
       EMAIL_COL=['email_sent','link_sent','mail_sent'].find(function(k){return k in REGS[0];})||null; }
     if(blocked.length){
-      note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load</strong> — your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase — ask and I\u2019ll provide it.</span></div>';
+      note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load.</strong> Your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase. Ask your developer for it.</span></div>';
     }
     renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin(); loadTeams(); loadCent(); loadMarket();
     autoPilot();
@@ -463,7 +463,7 @@
     var rev=paid.reduce(function(a,r){return a+(Number(r.amount)||0);},0);
     var pendRev=pend.reduce(function(a,r){return a+(Number(r.amount)||0);},0);
     var flag=function(name){ return REGS.filter(function(r){return (r.notes||'').indexOf('[Flagship: '+name)!==-1;}).length; };
-    var tiers={}; REGS.forEach(function(r){ var t=(r.ticket_type||'').split('\u00B7')[0].trim()||'—'; tiers[t]=(tiers[t]||0)+1; });
+    var tiers={}; REGS.forEach(function(r){ var t=(r.ticket_type||'').split('\u00B7')[0].trim()||'–'; tiers[t]=(tiers[t]||0)+1; });
     document.getElementById('statCards').innerHTML=
       '<div class="stat-card"><b>'+REGS.length+'</b><span>Total registrations</span></div>'+
       '<div class="stat-card"><b>'+paid.length+'</b><span>Paid</span></div>'+
@@ -982,18 +982,24 @@
       loadMarket();
     });
     document.getElementById('mkReset').addEventListener('click', async function(){
-      if(!confirm('Reset every company to its starting price? Portfolios are not affected.')) return;
-      for(var i=0;i<MKT.length;i++){
-        await sb.from('nn_companies').update({price:MKT[i].start_price, prev_price:MKT[i].price}).eq('id',MKT[i].id);
-      }
-      document.getElementById('mkMsg').textContent='Prices reset.'; loadMarket();
+      if(!confirm('Reset every company to its starting price? This also clears the day range and every price chart. Portfolios are not affected.')) return;
+      var msg=document.getElementById('mkMsg');
+      msg.textContent='Resetting prices\u2026';
+      var r=await sb.rpc('nn_reset_market');
+      if(r.error){ msg.textContent='Could not reset prices: '+r.error.message; return; }
+      if(r.data && r.data.ok===false){ msg.textContent='Could not reset prices: '+r.data.error; return; }
+      msg.textContent='Prices, day range and charts reset for '+((r.data&&r.data.companies)||0)+' companies.';
+      loadMarket();
     });
     document.getElementById('mkWipe').addEventListener('click', async function(){
       if(!confirm('Reset ALL portfolios? Every team returns to 10,00,000 Cents and loses all holdings and trade history. Use this only before the event.')) return;
-      await sb.from('nn_holdings').delete().neq('team_id','00000000-0000-0000-0000-000000000000');
-      await sb.from('nn_trades').delete().neq('team_id','00000000-0000-0000-0000-000000000000');
-      await sb.from('nn_accounts').update({cash:1000000}).neq('team_id','00000000-0000-0000-0000-000000000000');
-      document.getElementById('mkMsg').textContent='Portfolios reset.'; loadMarket();
+      var msg=document.getElementById('mkMsg');
+      msg.textContent='Resetting portfolios\u2026';
+      var r=await sb.rpc('nn_reset_portfolios');
+      if(r.error){ msg.textContent='Could not reset portfolios: '+r.error.message; return; }
+      if(r.data && r.data.ok===false){ msg.textContent='Could not reset portfolios: '+r.data.error; return; }
+      msg.textContent='Portfolios reset for '+((r.data&&r.data.teams)||0)+' teams.';
+      loadMarket();
     });
   })();
 
@@ -1210,7 +1216,7 @@
   var lastIssued=[];
   window.epCopy=function(t,btn){ if(!t) return; navigator.clipboard.writeText(t);var b=btn||(window.event&&window.event.target); if(b&&b.tagName==='BUTTON'){var o=b.textContent;b.textContent='Copied \u2713'; b.disabled=true; setTimeout(function(){b.textContent=o;b.disabled=false;},1500);} };
   window.epCopyAll=function(){ var rows=lastIssued.filter(function(x){return x.link;}).map(function(x){return x.name+'\t'+(x.uid||'')+'\t'+x.link;});if(!rows.length) return; navigator.clipboard.writeText(rows.join('\n'));var b=window.event&&window.event.target; if(b&&b.tagName==='BUTTON'){var o=b.textContent;b.textContent='Copied '+rows.length+' \u2713'; setTimeout(function(){b.textContent=o;},1800);} };
-  function linkCell(x){ return x.link ? '<button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="epCopy(\''+esc(x.link)+'\',this)">Copy link</button>' : '<span class="note">—</span>'; }
+  function linkCell(x){ return x.link ? '<button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="epCopy(\''+esc(x.link)+'\',this)">Copy link</button>' : '<span class="note">–</span>'; }
 
   document.getElementById('run').addEventListener('click', async function(){
     var url=document.getElementById('fnUrl').value.trim();
@@ -1236,22 +1242,22 @@
         +'<span class="chip bad">Unmatched '+(s.unmatched||0)+'</span></div>';
       lastIssued=(d.issued||[]).concat(d.already||[]);
       if(d.issued&&d.issued.length){
-        rep.innerHTML+='<h3>Issued — send each person their link</h3>'
+        rep.innerHTML+='<h3>Issued: send each person their link</h3>'
           +'<button class="btn btn-gold" style="padding:6px 14px;font-size:13px;margin-bottom:8px" onclick="epCopyAll()">Copy all (name, UID, link)</button>'
           +'<table><tr><th>Name</th><th>UID</th><th>Email</th><th>Set-password link</th></tr>'
-          +d.issued.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td class="mono">'+esc(x.uid||'—')+'</td><td>'+esc(x.email||'')+'</td><td>'+(x.uid?linkCell(x):'<span class="chip bad">'+esc(x.note||'failed — check function logs')+'</span>')+'</td></tr>';}).join('')+'</table>'
-          +'<p class="note">Send each person their own link (WhatsApp / email). It opens the set-password page so they can log in. Links expire, so send promptly — if one expires, just re-run that name to get a fresh link.</p>';
+          +d.issued.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td class="mono">'+esc(x.uid||'–')+'</td><td>'+esc(x.email||'')+'</td><td>'+(x.uid?linkCell(x):'<span class="chip bad">'+esc(x.note||'failed, check function logs')+'</span>')+'</td></tr>';}).join('')+'</table>'
+          +'<p class="note">Send each person their own link (WhatsApp / email). It opens the set-password page so they can log in. Links expire, so send promptly. If one expires, just re-run that name to get a fresh link.</p>';
       }
       if(d.already&&d.already.length){
         rep.innerHTML+='<h3>Already issued earlier (fresh link below)</h3><table><tr><th>Name</th><th>UID</th><th>Set-password link</th></tr>'
-          +d.already.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td class="mono">'+esc(x.uid||'—')+'</td><td>'+linkCell(x)+'</td></tr>';}).join('')+'</table>';
+          +d.already.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td class="mono">'+esc(x.uid||'–')+'</td><td>'+linkCell(x)+'</td></tr>';}).join('')+'</table>';
       }
       if(d.ambiguous&&d.ambiguous.length){
-        rep.innerHTML+='<h3>Needs review — same name matches several registrations</h3><table><tr><th>Name</th><th>Matches</th><th>Hint</th></tr>'
+        rep.innerHTML+='<h3>Needs review: same name matches several registrations</h3><table><tr><th>Name</th><th>Matches</th><th>Hint</th></tr>'
           +d.ambiguous.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td>'+esc(x.count)+'</td><td>'+esc(x.hint||'')+'</td></tr>';}).join('')+'</table>';
       }
       if(d.unmatched&&d.unmatched.length){
-        rep.innerHTML+='<h3>Unmatched — no pending registration with that name</h3><p class="note">Check spelling, or they may not have registered on the site.</p><p class="mono">'+d.unmatched.map(esc).join('<br>')+'</p>';
+        rep.innerHTML+='<h3>Unmatched: no pending registration with that name</h3><p class="note">Check spelling, or they may not have registered on the site.</p><p class="mono">'+d.unmatched.map(esc).join('<br>')+'</p>';
       }
     }catch(e){ st.textContent='Request failed: '+e.message; }
   });

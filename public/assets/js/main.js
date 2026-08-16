@@ -554,7 +554,7 @@ function initForms(){
 
       if(!result.ok){
         showToast(result.reason === 'no-config'
-          ? 'Form not connected yet — add your Supabase keys in assets/js/config.js.'
+          ? 'Form not connected yet. Add your Supabase keys in assets/js/config.js.'
           : 'Something went wrong. Please try again in a moment.');
         return;
       }

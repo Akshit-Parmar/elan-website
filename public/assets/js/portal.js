@@ -87,7 +87,7 @@
         '<section class="section light-section"><div class="container">' +
           '<div class="ep-grid3">' +
             '<div class="ep-pass"><div class="ep-uid-label">Participant UID</div><div class="ep-uid">' + esc(p.participant_uid) + "</div><div class=\"ep-uid-sub\">Your permanent Élan identity.</div></div>" +
-            '<article class="white-card"><span class="section-label">Ticket</span><h3 class="card-title" style="font-size:26px">' + esc(p.ticket_type || "—") + '</h3><span class="tag ep-good">Access active</span></article>' +
+            '<article class="white-card"><span class="section-label">Ticket</span><h3 class="card-title" style="font-size:26px">' + esc(p.ticket_type || "–") + '</h3><span class="tag ep-good">Access active</span></article>' +
             '<article class="white-card"><span class="section-label">Élan begins in</span><h3 class="ep-count ep-mono"><span id="days">00</span>d <span id="hours">00</span>h <span id="minutes">00</span>m <span id="seconds">00</span>s</h3><p class="card-copy">5–6 September 2026 · SGI Campus</p></article>' +
           "</div>" +
           (p.centsible_theme && p.centsible_theme.indexOf("BRAND") !== -1
@@ -102,7 +102,7 @@
                 (p.cc_role ? '<p class="card-copy">Your cabinet post: <strong>' + esc(p.cc_role) + '</strong></p>'
                            : '<p class="card-copy">Your cabinet post will appear here once teams are formed.</p>') +
                 '<div class="cta-row" style="margin-top:10px"><a class="btn btn-link" href="flagship.html">Crisis Command briefing →</a></div>'
-              : '<h3 class="card-title" style="font-size:26px">Cent$ible' + (p.centsible_theme ? ' — ' + esc(p.centsible_theme) : '') + '</h3>' +
+              : '<h3 class="card-title" style="font-size:26px">Cent$ible' + (p.centsible_theme ? ': ' + esc(p.centsible_theme) : '') + '</h3>' +
                 ((p.centsible_theme && p.centsible_theme.indexOf("NOTE") !== -1 && p.cents_balance != null) ? '<p class="card-copy">Cents balance: <strong>' + Number(p.cents_balance).toLocaleString("en-IN") + ' ¢</strong></p>' : '') +
                 '<p class="card-copy">All three theme rounds run on Day 1; the Boardroom Finale is on Day 2.</p>' +
                 '<div class="cta-row" style="margin-top:10px"><a class="btn btn-link" href="centsible.html">Your Cent$ible arena →</a></div>') +
@@ -114,7 +114,7 @@
             "</article>" +
             '<article class="white-card"><h3 class="card-title">Quick links</h3><ul class="list-clean" style="margin-top:10px">' +
               '<li><a href="ticket.html">My Ticket</a></li><li><a href="portal-schedule.html">Schedule</a></li><li><a href="participant-guide.html">Participant Guide</a></li>' +
-              (p.flagship === "Cent$ible" ? '<li><a href="centsible.html">Cent$ible' + (p.centsible_theme ? " — " + esc(p.centsible_theme) : "") + '</a></li>'
+              (p.flagship === "Cent$ible" ? '<li><a href="centsible.html">Cent$ible' + (p.centsible_theme ? ": " + esc(p.centsible_theme) : "") + '</a></li>'
                : p.flagship === "Crisis Command" ? '<li><a href="flagship.html">Crisis Command</a></li>'
                : '<li><a href="flagship.html">Crisis Command</a></li><li><a href="centsible.html">Cent$ible</a></li>') +
               '<li><a href="help-desk.html">Help Desk</a></li></ul></article>' +
@@ -148,15 +148,21 @@
         [1,"08:45","all","Auditorium Doors Close","Dignitaries are received and participants settle for the opening.","Auditorium"],
         [1,"09:00","all","Grand Opening Ceremony","Ceremonial lamp-lighting, welcome performance, addresses by the Élan Director, school leadership and the Chief Guest, the Élan film, and the introduction of both flagships. Ends strictly at 11:00 a.m.","Auditorium"],
         [1,"11:00","all","Movement to Your Flagship Venue","Fifteen minutes to move to your competition venue.","Flagship Venues"],
-        [1,"11:15","cc","Preliminary Phase 1 — The Situation Room","You receive the national crisis briefing, your governing-council dossier, available resources, key stakeholders, confidential role information and initial intelligence. Analyse the crisis, assign responsibilities, set immediate priorities and build your initial response strategy. Ends with a short situation-room briefing or submission.","Crisis Command Venue"],
-        [1,"11:15","cent","Round 1","Foundational round — interpret the situation you are given and make your first decisions. Scores are recorded immediately and you move straight into Round 2.","Your theme room"],
-        [1,"12:15","cc","Preliminary Phase 2 — Escalation","A major crisis update lands: international pressure, economic instability, public unrest, infrastructure failure, media leaks or new evidence. Modify your strategy and make time-sensitive decisions. Judged on adaptability, strategic reasoning, leadership, coordination, ethics and resource management.","Crisis Command Venue"],
-        [1,"12:15","cent","Round 2","Difficulty increases — new commercial information, financial constraints, market changes, stakeholder pressure, risk factors and ethical considerations. Adapt your decisions to the new information.","Your theme room"],
+        [1,"11:15","cc","Preliminary Phase 1: The Situation Room","You receive the national crisis briefing, your governing-council dossier, available resources, key stakeholders, confidential role information and initial intelligence. Analyse the crisis, assign responsibilities, set immediate priorities and build your initial response strategy. Ends with a short situation-room briefing or submission.","Crisis Command Venue"],
+        [1,"11:15","cent:BRAND","Round 1: The Founder Pitch","Five minutes to present your venture: brand name, logo, target audience, business model, marketing approach and future vision. Your nine-field product brief, submitted before the event, is the foundation the judges read from.","Your theme room"],
+        [1,"11:15","cent:VIRAL","Round 1: The Comeback Pitch","You are handed a real brand that failed. Thirty minutes to prepare, five minutes to pitch its revival. A deck or a product picture is required.","Your theme room"],
+        [1,"11:15","cent:NOTE","Round 1: The Money Market Mayhem","Two hours on the live trading floor in your portal, starting with 10,00,000 Cents. The host announces a new market status every five minutes. Buy and sell through the portal; every trade is logged.","Your theme room"],
+        [1,"11:15","cent:PRODIGY","Round 1: Rapid Vision Rush","One minute per team of rapid business questions. Correct answers earn 100 Cents each. There is no negative marking, skipping is allowed, and nobody is eliminated in this round.","Your theme room"],
+        [1,"12:15","cc","Preliminary Phase 2: Escalation","A major crisis update lands: international pressure, economic instability, public unrest, infrastructure failure, media leaks or new evidence. Modify your strategy and make time-sensitive decisions. Judged on adaptability, strategic reasoning, leadership, coordination, ethics and resource management.","Crisis Command Venue"],
+        [1,"12:15","cent:PRODIGY","Round 2: The Bidding War","Bid Cents on each question, with a base bid of 100. A correct answer adds your full bid and a wrong answer costs you half of it.","Your theme room"],
         [1,"13:15","all","Lunch Break","Competition rooms are secured. No formal competition work during lunch unless your rules specifically allow it.","Dining Area"],
-        [1,"14:00","cc","Preliminary Phase 3 — National Response","The final major Day 1 development. Prepare your complete National Crisis Response Plan, resource-allocation strategy, public communication plan, diplomatic strategy, official government statement and contingency plan. This is the most substantial Day 1 phase.","Crisis Command Venue"],
-        [1,"14:00","cent","Round 3","Your final preliminary round — produce your strongest complete response. Depending on your theme this may be a financial strategy, business plan, investment decision, marketing response, negotiation strategy or commercial presentation. Must finish by 3:15 p.m.","Your theme room"],
+        [1,"14:00","cc","Preliminary Phase 3: National Response","The final major Day 1 development. Prepare your complete National Crisis Response Plan, resource-allocation strategy, public communication plan, diplomatic strategy, official government statement and contingency plan. This is the most substantial Day 1 phase.","Crisis Command Venue"],
+        [1,"14:00","cent:BRAND","Round 2: Brand Under Pressure","A sealed crisis envelope written for your specific brand. Twenty minutes to prepare, three minutes to respond. Must finish by 3:15 p.m.","Your theme room"],
+        [1,"14:00","cent:VIRAL","Round 2: Unexpected Collab","Draw one brand and one product category from the two fish bowls. Thirty minutes to prepare, five minutes to pitch the collaboration. Must finish by 3:15 p.m.","Your theme room"],
+        [1,"14:00","cent:NOTE","Round 2: The Coin Economy","The physical round. Thirty coins per team, worth 17,50,000 in total, across five zones: Dice of Fortune, Spin Wheel, Stock Market Dart, Investment Plinko and Bull vs Bear Arena. Two plays maximum per zone, ninety minutes of active play. Your Round 1 capital plus your final coin value gives your total.","Your theme room"],
+        [1,"14:00","cent:PRODIGY","Round 3: Final Preliminary Round","Your last scored preliminary block before shortlisting. Must finish by 3:15 p.m.","Your theme room"],
         [1,"15:15","all","Refreshment and Transition Break","A short break before the final Day 1 evaluation block.","Flagship Venues"],
-        [1,"15:30","cc","Day 1 Defence and Submission","Submit your final Day 1 response. This block may include a written submission, council presentation, press statement, media questioning and judges\u2019 questioning. The deadline is strict — late submissions carry a predetermined penalty.","Crisis Command Venue"],
+        [1,"15:30","cc","Day 1 Defence and Submission","Submit your final Day 1 response. This block may include a written submission, council presentation, press statement, media questioning and judges\u2019 questioning. The deadline is strict. Late submissions carry a predetermined penalty.","Crisis Command Venue"],
         [1,"15:30","cent","Final Submission and Questioning","Complete your final submission and face judges\u2019 questions, a short defence, rapid presentation, clarification round or theme-specific challenge.","Your theme room"],
         [1,"16:20","cc","Shortlisting and Finalist Briefing","Judges consolidate scores and announce the finalist councils. Finalists receive Day 2 reporting time, final-round format, presentation duration, device and research rules, dress expectations and holding-room instructions. The final crisis update is not revealed until Day 2.","Crisis Command Venue"],
         [1,"16:20","cent","Final Boardroom Shortlisting","Scores go to the Central Evaluation Room for moderation and the Final Boardroom teams are confirmed. Finalists receive reporting time, presentation rules, holding-room instructions, dress expectations, allowed materials and time limits.","Your theme room"],
@@ -167,8 +173,8 @@
         [2,"08:15","all","Arrival, Breakfast and Check-in","Complete attendance and have breakfast. Finalists report directly to their designated holding rooms and must not interact with judges before the round begins.","Registration Counters"],
         [2,"08:50","all","Seating and Final Instructions","Participants settle and receive instructions for the finals, carnival and closing ceremony.","Auditorium"],
         [2,"09:00","all","Finalist Reporting and Venue Preparation","Finalists take position and audiences move to the finals venues.","Finals Venues"],
-        [2,"09:20","cc","Crisis Command Final","The final crisis development is revealed at 9:20, followed by a short preparation period. Each council presents its final strategic response, immediate action plan, long-term recovery plan, resource allocation, public communication strategy, diplomatic response, ethical justification and contingency plan — roughly 12 minutes presenting and 6 minutes of questioning — closing with a final judges\u2019 challenge. Ends at 12:00 p.m.","Crisis Command Finals Venue"],
-        [2,"09:20","cent","Final Boardroom","The strongest shortlisted teams enter the Boardroom, which is more formal and demanding than the preliminary rounds. Present your final recommendation, explain your financial reasoning, defend your assumptions, respond to board questioning, address risks and justify trade-offs — roughly 15 minutes presenting and 7 minutes of questioning. Ends at 12:00 p.m.","Final Boardroom"],
+        [2,"09:20","cc","Crisis Command Final","The final crisis development is revealed at 9:20, followed by a short preparation period. Each council presents its final strategic response, immediate action plan, long-term recovery plan, resource allocation, public communication strategy, diplomatic response, ethical justification and contingency plan, with roughly 12 minutes presenting and 6 minutes of questioning, closing with a final judges\u2019 challenge. Ends at 12:00 p.m.","Crisis Command Finals Venue"],
+        [2,"09:20","cent","Final Boardroom","The strongest shortlisted teams enter the Boardroom, which is more formal and demanding than the preliminary rounds. Present your final recommendation, explain your financial reasoning, defend your assumptions, respond to board questioning, address risks and justify trade-offs, with roughly 15 minutes presenting and 7 minutes of questioning. Ends at 12:00 p.m.","Final Boardroom"],
         [2,"12:00","all","Judges\u2019 Deliberation","Winners, runners-up, theme recognitions and individual awards are finalised. Results remain confidential until the Closing Ceremony.","Central Evaluation Room"],
         [2,"12:30","all","Lunch","Lunch for participants, judges, dignitaries and the organising committee.","Dining Area"],
         [2,"13:30","all","Élan Carnival","Food and student-run stalls, carnival games, skill challenges, photo booths, sponsor stalls, interactive installations, music and merchandise. Stalls close at 3:30 p.m.","Carnival Grounds"],
@@ -177,7 +183,19 @@
         [2,"20:00","all","Official Photographs and Departure","Winning teams, schools, judges and the organising committee take official photographs before organised dispersal.","Auditorium"]
       ];
 
-      function mine(tr){ return tr === "all" || unknown || (tr === "cc" && isCC) || (tr === "cent" && isCent); }
+      // Cent$ible rounds differ per theme, so tracks may be "cent:BRAND" etc.
+      // A participant whose theme is not yet set sees all four, each self-labelled.
+      var THEME_KEY = theme.indexOf("BRAND") !== -1 ? "BRAND"
+                    : theme.indexOf("VIRAL") !== -1 ? "VIRAL"
+                    : theme.indexOf("NOTE") !== -1 ? "NOTE"
+                    : theme.indexOf("PRODIGY") !== -1 ? "PRODIGY" : "";
+      function mine(tr){
+        if (tr === "all" || unknown) return true;
+        if (tr === "cc") return isCC;
+        if (tr === "cent") return isCent;
+        if (tr.indexOf("cent:") === 0) return isCent && (!THEME_KEY || tr.slice(5) === THEME_KEY);
+        return false;
+      }
       function dbMine(cat){
         if (!cat) return true;
         var c = String(cat);
@@ -190,7 +208,7 @@
       var r = await sb.from("portal_schedule_items").select("*").eq("is_published", true).order("day").order("start_time");
       var db = (r.error ? [] : (r.data || [])).filter(function (i) { return dbMine(i.category); });
 
-      var label = isCC ? "Crisis Command" : isCent ? ("Cent$ible" + (theme ? " — " + theme : "")) : "";
+      var label = isCC ? "Crisis Command" : isCent ? ("Cent$ible" + (theme ? ": " + theme : "")) : "";
       main.innerHTML = '<section class="page-hero"><div class="container"><div class="breadcrumb"><span>Participants only</span></div>' +
         "<h1>Your schedule.</h1>" +
         "<p>" + (label
@@ -203,7 +221,12 @@
         var list = OFFICIAL.filter(function (i) { return i[0] === day && mine(i[2]); }).map(function (i) {
           var title = i[3], loc = i[5], tag = "Shared";
           if (i[2] === "cc") { title = "Crisis Command · " + title; tag = "Crisis Command"; }
-          if (i[2] === "cent") { title = "Cent$ible · " + title + (theme ? " — " + theme : ""); tag = "Cent$ible"; loc = theme ? "Your theme room — " + theme : "Cent$ible theme rooms"; }
+          if (i[2] === "cent" || i[2].indexOf("cent:") === 0) {
+            var tname = theme || ({BRAND:"BRAND \u092C\u0928\u093E\u0913", VIRAL:"VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930", NOTE:"NOTE \u0928\u0940\u0924\u093F", PRODIGY:"\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"}[i[2].slice(5)] || "");
+            title = "Cent$ible \u00b7 " + title + (tname ? ": " + tname : "");
+            tag = "Cent$ible";
+            loc = tname ? "Your theme room: " + tname : "Cent$ible theme rooms";
+          }
           return { t: i[1], title: title, d: i[4], loc: loc, tag: tag };
         });
         return list.map(function (x) {
@@ -262,7 +285,7 @@
             '<div class="ep-pass mini" style="margin-top:14px"><div class="ep-uid-label">Participant UID</div><div class="ep-uid">' + esc(p.participant_uid) + '</div><div class="ep-uid-sub">' + esc(p.full_name) + '</div></div>' +
             '<div class="ep-details">' +
               drow("Email", esc(p.email)) +
-              drow("Ticket", esc(p.ticket_type || "—")) +
+              drow("Ticket", esc(p.ticket_type || "–")) +
               drow("Payment", '<span class="tag ep-good">' + esc(p.payment_status) + '</span>') +
               drow("Check-in", '<span class="tag ' + (p.check_in_status === "checked_in" ? "ep-good" : "ep-warn") + '">' + (p.check_in_status === "checked_in" ? "Checked in" : "Not checked in") + '</span>') +
             '</div>' +
