@@ -81,21 +81,29 @@
   };
 
   BRIEF[PRODIGY] = {
-    intro: "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY runs live in the room across three stages. There is nothing to submit " +
-           "before the event. Everyone plays both of the first two rounds, and the Cents you earn early become the ammunition " +
-           "you bid with later.",
+    intro: "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY runs live in the room, in teams of two, across three stages and roughly " +
+           "two to three hours in total. There is nothing to submit before the event. Everyone plays both Day 1 rounds and nobody " +
+           "is eliminated after Round 1, so the Cents you earn early become the ammunition you bid with later. Round 3, the Nova " +
+           "Boardroom, is the Cent$ible Boardroom Finale on Day 2 and only the top three teams reach it.",
     rounds: [
       ["Round 1", "Rapid Vision Rush",
-       "One minute per team, and as many questions as you can take in it. Logos, taglines, founders and CEOs, startups, " +
-       "brand emoji clues, product silhouettes, advertisement visuals and current business affairs, deliberately shuffled so " +
-       "you can never settle into one kind of thinking. Every correct answer is 100 Cents, there is no negative marking, and " +
-       "you may skip anything. Nobody is eliminated."],
+       "One minute per team, and as many questions as you can take in it. Business and commerce, famous brands, company logos, " +
+       "founders and CEOs, startups and entrepreneurs, products and services, brand taglines, current business affairs, emoji " +
+       "brand clues, founder and CEO images, product silhouettes, advertisement visuals and business personalities, deliberately " +
+       "shuffled so you can never settle into one kind of thinking. Every correct answer is 100 Cents, a wrong answer costs you " +
+       "nothing, and a skip is worth zero. Nine correct in the minute is 900 Cents. Nobody is eliminated, and whatever you earn " +
+       "here becomes your starting score for the bidding."],
       ["Round 2", "The Bidding War",
-       "Teams bid Cents for the right to answer a question nobody has seen. Bidding opens at 100 Cents and teams bid each " +
-       "other up. Answer correctly and your full bid is added to your score. Answer wrong and half your bid is taken away. " +
-       "The top three teams after this round go through."],
+       "The host reveals a question for bidding and teams bid each other up for the right to answer it, opening at 100 Cents. " +
+       "The highest bidder gets the question. Answer correctly and your full bid is added to your score. Answer wrong and half " +
+       "your bid is taken away, so a well-judged risk is often worth taking. Between battles there are audience activities: " +
+       "prediction questions, live business polls, guess-the-bid challenges, market reaction activities and bonus questions, so " +
+       "you stay in it even when another team holds the question. Scores are totalled at the end and the top three teams go through."],
       ["Round 3", "Nova Boardroom",
-       "The Mega Finale. The three highest-scoring teams take on the final business challenge."]
+       "The Mega Finale, held on Day 2 as the Cent$ible Boardroom Finale. The three highest-scoring teams are given a business " +
+       "situation drawn from startup strategy, marketing, finance, brand management, business expansion, crisis management or " +
+       "entrepreneurial decision-making. Analyse it, decide on a course of action, and justify that decision to the board. " +
+       "Every other team joins the audience as market spectators."]
     ],
     judged: [
       "Speed of recall and accuracy under a one-minute clock",
@@ -103,14 +111,16 @@
       "Visual intelligence: logos, silhouettes, advertisements",
       "Risk assessment and financial judgement when bidding",
       "Composure under pressure",
-      "How well the two of you work as a pair"
+      "How well the two of you work as a pair",
+      "In the Nova Boardroom: creativity, problem-solving, financial understanding and the confidence to defend a decision"
     ],
     prep: [
       "Learn logos and taglines as a pair, testing each other in short bursts rather than long sessions.",
       "Follow business news for a few weeks before Élan. Current affairs questions appear.",
       "Practise founders and CEOs, both names and faces.",
       "Agree a rule for skipping. In a one-minute round, hesitating on one question can cost you three.",
-      "Decide in advance who calls the bids, so you are not arguing while the bidding runs."
+      "Decide in advance who calls the bids, so you are not arguing while the bidding runs.",
+      "Agree when to sit a battle out. Conserving Cents for a category you actually know is a strategy, not a retreat."
     ],
     practice: [
       ["Rapid Vision Rush", "Set a one-minute timer. Name as many brand taglines as you can. Count them, then beat it tomorrow."],

@@ -9,7 +9,7 @@
 <article class="white-card info-card" data-theme="NOTE नीति"><span class="tag">Theme 3</span><h3 style="margin-top:10px">NOTE नीति</h3><p>Trade a live market in this portal, then take thirty coins onto a floor of five physical investment zones.</p></article>
 <article class="white-card info-card" data-theme="प्रश्न PRODIGY"><span class="tag">Theme 4</span><h3 style="margin-top:10px">प्रश्न PRODIGY</h3><p>Answer fast under a one-minute clock, then bid your Cents for questions nobody has seen yet.</p></article>
 </div>
-<article class="white-card" style="margin-top:16px"><h3 class="card-title">The Boardroom Finale</h3><p class="card-copy">Top teams from every theme advance to the Boardroom Finale for the overall Cent$ible championship. Watch <a href="announcements.html">Announcements</a> for your theme's round times and reporting details.</p></article>
+<article class="white-card" style="margin-top:16px"><h3 class="card-title">The Boardroom Finale</h3><p class="card-copy">The three highest-scoring teams from every theme advance to the Boardroom Finale on Day 2, the round that decides the overall Cent$ible championship. In प्रश्न PRODIGY this stage is called the Nova Boardroom.</p><p class="card-copy" style="margin-top:10px">The Boardroom is a business decision-making arena rather than a quiz or a pitch. You are given a business situation drawn from startup strategy, marketing, finance, brand management, business expansion, crisis management or entrepreneurial decision-making. Analyse the information, identify the opportunity, decide on a course of action, then justify that decision and answer board questioning.</p><p class="card-copy" style="margin-top:10px">Judged on business knowledge, strategic thinking, creativity, decision-making, problem-solving, financial understanding, communication, confidence, teamwork and composure under pressure. Watch <a href="announcements.html">Announcements</a> for your theme's round times and reporting details.</p></article>
 </div></section>
 </main><div class="toast" role="status" aria-live="polite"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/assets/js/config.js"></script><script src="/assets/js/portal.js"></script><script src="/assets/js/portal-centsible.js"></script><script src="/assets/js/portal-note.js"></script><script src="/assets/js/auth.js"></script><script src="/assets/js/main.js"></script><style>.ep-flag-strip{margin:18px auto 0;max-width:1120px;padding:0 20px}.ep-flag-strip .white-card{border-left:4px solid var(--red,#4E0000)}</style><script>
 document.addEventListener("elan:participant",function(ev){
@@ -41,11 +41,11 @@ document.addEventListener("elan:participant",function(ev){
 
     "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY":{
       tag:"Business quiz \u00B7 strategic bidding",
-      blurb:"A high-energy business arena in three stages. Answer fast, bid well, then defend your thinking in the Boardroom.",
-      rounds:[["Round 1","Rapid Vision Rush","One minute per team. Logos, taglines, founders, emoji clues, product silhouettes, business affairs, all shuffled. 100 Cents per correct answer, no negative marking, skipping allowed."],
-              ["Round 2","The Bidding War","Bid your Cents for questions you have not seen. Bidding opens at 100. Correct adds your full bid; wrong takes away half of it."],
-              ["Round 3","Nova Boardroom","The top three teams face the final business challenge."]],
-      twists:"Nobody is eliminated after Round 1, and the Cents you earn there become your ammunition for the bidding."}
+      blurb:"A high-energy business arena in three stages, played in teams of two. Answer fast, bid well, then defend your thinking in the Boardroom.",
+      rounds:[["Round 1","Rapid Vision Rush","One minute per team. Logos, taglines, founders and CEOs, startups, emoji brand clues, product silhouettes, advertisement visuals and current business affairs, all shuffled. 100 Cents per correct answer, no negative marking, skipping allowed."],
+              ["Round 2","The Bidding War","Bid your Cents for questions you have not seen. Bidding opens at 100 and teams bid each other up. Correct adds your full bid; wrong takes away half of it. This round runs either side of lunch."],
+              ["Round 3","Nova Boardroom","The Mega Finale on Day 2, which is the Cent$ible Boardroom Finale. The three highest-scoring teams take on a business situation, decide on a course of action, and justify it to the board."]],
+      twists:"Nobody is eliminated after Round 1, and the Cents you earn there become your ammunition for the bidding. Scores are totalled at the end of Round 2 and the top three go through."}
   };
 
   // Show ONLY the participant's own theme card; remove the other three.
@@ -93,13 +93,17 @@ document.addEventListener("elan:participant",function(ev){
     '</article>';
 
   var LI='style="display:block;margin:10px 0;padding-left:74px;position:relative;line-height:1.6"';
-  var rounds = d ? ('<article class="white-card" style="margin-top:14px"><span class="section-label">Your three rounds \u00B7 Day 1</span>' +
+  // Round counts differ per theme, and PRODIGY's Round 3 sits on Day 2, so the
+  // heading and the closing note are both derived rather than hard-coded.
+  var day1 = d ? d.rounds.filter(function(r){ return r[0] !== "Before" && !/Boardroom/.test(r[1]); }).length : 0;
+  var WORDS = ["", "one round", "two rounds", "three rounds", "four rounds"];
+  var rounds = d ? ('<article class="white-card" style="margin-top:14px"><span class="section-label">Your rounds</span>' +
       d.rounds.map(function(r){
         return '<span '+LI+'><span style="position:absolute;left:0;top:.1em;font-weight:800;font-family:ui-monospace,monospace;color:#4E0000">'+r[0]+'</span>' +
                '<strong>'+r[1]+'</strong><br><span style="opacity:.75">'+r[2]+'</span></span>';
       }).join('') +
       '<p class="card-copy" style="margin-top:12px">'+d.twists+'</p>' +
-      '<p class="card-copy" style="margin-top:10px">All three rounds run in your theme room on <strong>Day 1 (5 September)</strong>. The strongest teams advance to the <strong>Boardroom Finale on Day 2 (6 September)</strong>, 9:20\u201312:00.</p></article>') : '';
+      '<p class="card-copy" style="margin-top:10px">Your ' + (WORDS[day1] || (day1 + " rounds")) + ' of scored competition run in your theme room on <strong>Day 1 (5 September)</strong>. The top three teams in your theme advance to the <strong>Boardroom Finale on Day 2 (6 September)</strong>, 9:20\u201312:00. Exact block times are on your <a href="portal-schedule.html">Schedule</a>.</p></article>') : '';
 
   wrap.innerHTML =
     '<article class="white-card"><span class="section-label">Your theme</span>' +
