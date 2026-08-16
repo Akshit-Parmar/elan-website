@@ -18,33 +18,34 @@ document.addEventListener("elan:participant",function(ev){
 
   var DETAIL={
     "BRAND \u092C\u0928\u093E\u0913":{
-      tag:"Entrepreneurship \u00B7 pitching",
-      blurb:"You build a startup from nothing and take it all the way to investors. Every round adds pressure: a business that has to make sense on paper, then survive the questions.",
-      rounds:[["11:15","Startup Launchpad","Build and pitch your startup concept \u2014 the idea, the market, the model."],
-              ["12:15","Business Breakdown","Break your business down for scrutiny: numbers, assumptions, weaknesses."],
-              ["14:00","Investor Pit Stop","Face the investors, defend your valuation, and close the deal."]],
-      twists:"Watch for the Investor Dice and the Crisis Spin Wheel \u2014 both can change your position mid-round."},
+      tag:"Entrepreneurship \u00B7 founder pitching",
+      blurb:"You build a brand as its founder and pitch it like one. Then you find out whether it survives a crisis written specifically for your startup.",
+      rounds:[["Before","Your product brief","Two days before \u00c9lan you submit a short form about your startup. The organising team uses it to build your crisis. You will not be told what it is."],
+              ["Round 1","The Founder Pitch","Five minutes: brand name and meaning, logo and the idea behind it, target audience, business model, marketing strategy, future vision. Judges may stop you at five minutes."],
+              ["Round 2","Brand Under Pressure","A sealed envelope with a crisis built for your startup. Twenty minutes to rebuild your strategy, three minutes to present your recovery plan."]],
+      twists:"Round 1 rewards the quality of the idea. Round 2 reveals the quality of the founder. The top three teams go through to the Boardroom."},
+
     "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930":{
-      tag:"Branding \u00B7 advertising",
-      blurb:"A branding and advertising battlefield. You launch a brand, then adapt it live as the brief changes underneath you.",
-      rounds:[["11:15","Brand Launch Expo","Launch your brand \u2014 identity, positioning, and the campaign that carries it."],
-              ["12:15","Brand from Chaos","A live marketing twist lands. Rebuild your brand around it, fast."],
-              ["14:00","Sell the Unsold","Take something nobody wants and make the room want it."]],
-      twists:"Judged on creativity, adaptability, and how convincingly you sell under time pressure."},
+      tag:"Branding \u00B7 marketing revival",
+      blurb:"Two rounds, both about marketing. First you rescue a brand that failed. Then you make an impossible collaboration make sense.",
+      rounds:[["Round 1","The Comeback Pitch","You are given a real brand that failed because of its marketing, with its history and the reason it collapsed. Thirty minutes to prepare, five to pitch the revival. A deck or product picture is required."],
+              ["Round 2","Unexpected Collab","Draw one brand and one product category from two fish bowls, then sell the collaboration between them. Thirty minutes to prepare, five to pitch."]],
+      twists:"Judged on creativity, marketing strategy, understanding of the challenge, execution, audience engagement and time management. Top three go to the Boardroom."},
+
     "NOTE \u0928\u0940\u0924\u093F":{
-      tag:"Finance \u00B7 markets",
-      blurb:"A live financial simulation arena. You manage capital through volatility and answer for every call you make.",
-      rounds:[["11:15","Market Shocks","Trade your portfolio through a market that moves against you."],
-              ["12:15","Casino of Capital","Weigh risk against reward \u2014 and decide how much you are willing to gamble."],
-              ["14:00","Financial Face-Off","Defend your financial strategy head-to-head."]],
-      twists:"Your Cents balance is the scoreboard here \u2014 protect it, grow it, and be ready to justify every move."},
+      tag:"Finance \u00B7 live markets",
+      blurb:"Money Market Mayhem. You trade a live market in this portal, then take thirty coins onto a physical investment floor.",
+      rounds:[["Round 1","The Money Market Mayhem","Two hours trading live in this portal. The host announces a new market status every five minutes and you decide whether to hold, sell or switch. Your closing capital is locked at the final freeze."],
+              ["Round 2","The Coin Economy","Thirty coins: ten red, ten blue, ten black. Five zones open at once and you choose your own route. Ninety minutes, then the coins are counted."]],
+      twists:"Round 1 capital plus your final coin value decides your total. The top three teams go through to the Boardroom."},
+
     "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY":{
-      tag:"Business quiz \u00B7 strategy",
-      blurb:"A high-energy business battle that rewards range \u2014 how much you know, how fast you think, and how well you bid.",
-      rounds:[["11:15","Case Crack","Break down a real business case and present your reading of it."],
-              ["12:15","Rapid Brand Rounds","Fast-fire rounds on brands, logos, campaigns and business history."],
-              ["14:00","Bidding War","Out-bid rival teams for the questions worth the most."]],
-      twists:"Speed matters as much as accuracy \u2014 and over-bidding costs you."}
+      tag:"Business quiz \u00B7 strategic bidding",
+      blurb:"A high-energy business arena in three stages. Answer fast, bid well, then defend your thinking in the Boardroom.",
+      rounds:[["Round 1","Rapid Vision Rush","One minute per team. Logos, taglines, founders, emoji clues, product silhouettes, business affairs, all shuffled. 100 Cents per correct answer, no negative marking, skipping allowed."],
+              ["Round 2","The Bidding War","Bid your Cents for questions you have not seen. Bidding opens at 100. Correct adds your full bid; wrong takes away half of it."],
+              ["Round 3","Nova Boardroom","The top three teams face the final business challenge."]],
+      twists:"Nobody is eliminated after Round 1, and the Cents you earn there become your ammunition for the bidding."}
   };
 
   // Show ONLY the participant's own theme card; remove the other three.

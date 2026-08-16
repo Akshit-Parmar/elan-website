@@ -92,7 +92,7 @@
           "</div>" +
           (p.centsible_theme && p.centsible_theme.indexOf("BRAND") !== -1
             ? '<article class="white-card" id="dashDeck" style="margin-top:16px"><span class="section-label">Before the event</span>' +
-              '<h3 class="card-title" style="font-size:22px;margin:6px 0 4px">Your pitch deck</h3>' +
+              '<h3 class="card-title" style="font-size:22px;margin:6px 0 4px">Your product brief</h3>' +
               '<p class="card-copy" id="dashDeckMsg">Checking\u2026</p>' +
               '<div class="cta-row" style="margin-top:10px"><a class="btn btn-gold" href="centsible.html">Open your workspace</a></div></article>'
             : '') +
@@ -386,16 +386,15 @@
     (async function () {
       var box = document.getElementById("dashDeckMsg");
       if (!box) return;
-      if (!p.team_id) { box.textContent = "Your team is being confirmed. Once you and your partner are linked, you can upload your pitch deck here."; return; }
-      var f = await sb.from("cc_files").select("file_name,uploaded_at").eq("team_id", p.team_id)
-                      .eq("round", "pitch").order("uploaded_at", { ascending: false }).limit(1);
-      var got = !f.error && f.data && f.data.length;
+      if (!p.team_id) { box.textContent = "Your team is being confirmed. Once you and your partner are linked, you can fill in your product brief here."; return; }
+      var f = await sb.from("cc_sections").select("role,body").eq("team_id", p.team_id).eq("round", "brief");
+      var filled = (f.error ? [] : (f.data || [])).filter(function (x) { return (x.body || "").trim(); }).length;
       var card = document.getElementById("dashDeck");
-      if (got) {
-        box.innerHTML = "Received: <strong>" + esc(f.data[0].file_name) + "</strong>. You can replace it any time before the event.";
+      if (filled >= 9) {
+        box.innerHTML = "<strong>Complete.</strong> All nine answers are in. You can still edit them before 3 September.";
       } else {
         if (card) card.style.borderLeft = "4px solid var(--red, #4E0000)";
-        box.innerHTML = "<strong>Not uploaded yet.</strong> BRAND \u092C\u0928\u093E\u0913 teams prepare a pitch deck in advance and upload it before travelling to \u00c9lan.";
+        box.innerHTML = "<strong>" + filled + " of 9 answered.</strong> BRAND \u092C\u0928\u093E\u0913 teams submit a short product brief by <strong>3 September</strong>. It is used to build the crisis you face in Round 2.";
       }
     })();
     document.body.insertAdjacentHTML("beforeend", footHTML());

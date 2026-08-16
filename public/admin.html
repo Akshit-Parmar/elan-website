@@ -164,7 +164,7 @@
 
     <!-- CRISIS COMMAND TEAMS -->
     <section class="apanel" id="tab-teams" style="display:none">
-      <p class="note">Crisis Command cabinets are formed on the day (five participants, one per post). Cent$ible BRAND बनाओ teams are pairs and can be linked now, so partners can upload their pitch deck before the event.</p>
+      <p class="note">Crisis Command cabinets are formed on the day (five participants, one per post). Cent$ible teams are pairs and can be linked now. BRAND बनाओ pairs then fill in their product brief, which is due 3 September.</p>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px">
         <div class="row" style="grid-template-columns:1fr 1fr auto">
           <div><label>New team name</label><input id="tmName" placeholder="e.g. Cabinet Alpha"/></div>
@@ -807,7 +807,7 @@
   // ---- Cent$ible pairs ----
   var CFILES=[];
   async function loadCent(){
-    var f=await sb.from('cc_files').select('*').eq('round','pitch');
+    var f=await sb.from('cc_sections').select('team_id,role,body').eq('round','brief');
     CFILES=f.error?[]:(f.data||[]);
     renderCent();
     renderStorage();
@@ -856,18 +856,16 @@
     var teamIds=Object.keys(ids);
     if(!teamIds.length){ el.innerHTML='<p class="note" style="margin-top:14px">No Cent$ible pairs linked yet. '+free.length+' participant(s) unlinked.</p>'; return; }
     el.innerHTML='<h3 style="margin:22px 0 8px">Cent$ible teams ('+teamIds.length+') \u00B7 '+free.length+' unlinked</h3>'+
-      '<table><tr><th>Team</th><th>Members</th><th>Theme</th><th>Pitch deck</th><th></th></tr>'+
+      '<table><tr><th>Team</th><th>Members</th><th>Theme</th><th>Product brief</th><th></th></tr>'+
       teamIds.map(function(tid){
         var mem=cent.filter(function(p){return String(p.team_id)===String(tid);});
         var t=TEAMS.filter(function(x){return String(x.id)===String(tid);})[0]||{};
-        var decks=CFILES.filter(function(f){return String(f.team_id)===String(tid);})
-                        .sort(function(a,b){return String(b.uploaded_at).localeCompare(String(a.uploaded_at));});
-        var d=decks[0];
+        var ans=CFILES.filter(function(f){return String(f.team_id)===String(tid)&&(f.body||'').trim();}).length;
         return '<tr><td><strong>'+esc(t.name||'Team')+'</strong>'+
-        '<br><button class="mini-btn" data-cbsum="'+esc(tid)+'" data-nm="'+esc(t.name||'Team')+'">Pitch summary</button></td>'+
+        '<br><button class="mini-btn" data-cbsum="'+esc(tid)+'" data-nm="'+esc(t.name||'Team')+'">View brief</button></td>'+
         '<td>'+mem.map(function(m){return esc(m.full_name)+'<br><span class="note">'+esc(m.school||'')+'</span>';}).join('<br>')+'</td>'+
         '<td>'+esc(mem[0]&&mem[0].centsible_theme||'\u2014')+'</td>'+
-        '<td>'+(d?'<span class="pill-paid">received</span><br><button class="mini-btn" data-cdl="'+esc(d.file_path)+'">'+esc(d.file_name)+'</button>':'<span class="pill-pending">not uploaded</span>')+'</td>'+
+        '<td>'+(ans>=9?'<span class="pill-paid">complete</span>':(ans?'<span class="pill-pending">'+ans+' of 9</span>':'<span class="pill-pending">not started</span>'))+'</td>'+
         '<td><button class="mini-btn danger" data-cbunlink="'+esc(tid)+'">Unlink</button></td></tr>';
       }).join('')+'</table>';
     el.querySelectorAll('[data-cdl]').forEach(function(b){ b.addEventListener('click', async function(){
@@ -877,11 +875,11 @@
     el.querySelectorAll('[data-cbsum]').forEach(function(b){ b.addEventListener('click', async function(){
       var box=document.getElementById('tmReport');
       box.innerHTML='<p class="note">Loading pitch summary\u2026</p>';
-      var r=await sb.from('cc_sections').select('*').eq('team_id',b.dataset.cbsum).eq('round','pitch');
+      var r=await sb.from('cc_sections').select('*').eq('team_id',b.dataset.cbsum).eq('round','brief');
       if(r.error){ box.innerHTML='<p class="note">Blocked: '+esc(r.error.message)+'</p>'; return; }
       var S={}; (r.data||[]).forEach(function(x){ S[x.role]=x.body||''; });
-      var L=[['startup','Startup name'],['oneline','One-line pitch'],['problem','The problem'],['ask','Their ask']];
-      box.innerHTML='<h3 style="margin:26px 0 10px">'+esc(b.dataset.nm)+' \u2014 pitch summary</h3>'+
+      var L=[['brand_name','Brand name'],['product','Product or service'],['customer','Target customer'],['price','Price range'],['model','Business model'],['channel','Sales channel'],['differentiator','Key differentiator'],['dependency','Major dependency'],['expansion','Expansion idea']];
+      box.innerHTML='<h3 style="margin:26px 0 10px">'+esc(b.dataset.nm)+' \u2014 product brief</h3>'+
         '<div style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px">'+
         L.map(function(k){ return '<div style="margin-bottom:12px"><span class="note" style="font-weight:800;text-transform:uppercase;letter-spacing:.08em">'+k[1]+'</span>'+
           '<div style="white-space:pre-wrap;line-height:1.6;margin-top:3px">'+esc(S[k[0]]||'(not filled in)')+'</div></div>'; }).join('')+
