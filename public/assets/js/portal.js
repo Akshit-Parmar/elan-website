@@ -73,7 +73,64 @@
       { href: "login.html", label: "Back to login" }); return null; }
     if (["paid", "confirmed"].indexOf(p.payment_status) < 0) { main.innerHTML = state("Access not active yet",
       "Your registration isn't confirmed as paid yet. Once payment is verified, your portal unlocks automatically.", "err"); return null; }
+    // The emailed password is Firstname.Lastname, which anyone at the event can
+    // guess. It gets you in once. Every portal page stays blocked until you
+    // replace it. This sits in guard(), so no page can skip it.
+    if (p.must_change_password === true) { renderForcedPasswordChange(main, p); return null; }
     return p;
+  }
+
+  function renderForcedPasswordChange(main, p) {
+    main.innerHTML =
+      '<section class="page-hero"><div class="container"><div class="breadcrumb"><span>One step left</span></div>' +
+      "<h1>Choose your password.</h1>" +
+      "<p>You signed in with the password we emailed you. That one is based on your name, so anyone at \u00C9lan could guess it. Pick your own to finish activating your account.</p></div></section>" +
+      '<section class="section light-section"><div class="container" style="max-width:460px">' +
+      '<article class="white-card">' +
+      '<div class="field"><label>New password</label><input id="fp_pw" type="password" autocomplete="new-password" placeholder="At least 8 characters"/></div>' +
+      '<div class="field" style="margin-top:12px"><label>Confirm password</label><input id="fp_pw2" type="password" autocomplete="new-password" placeholder="Type it again"/></div>' +
+      '<button class="btn btn-gold" id="fp_go" style="width:100%;margin-top:16px">Set password and continue</button>' +
+      '<div id="fp_msg"></div>' +
+      '<p class="card-copy" style="margin-top:14px;font-size:13px">Please do not reuse a password from another account. \u00C9lan never stores it and can never show it back to you, so choose something you will remember.</p>' +
+      "</article></div></section>";
+
+    function msg(t, ok) {
+      document.getElementById("fp_msg").innerHTML =
+        '<div class="ep-msg ' + (ok ? "ok" : "err") + '">' + t + "</div>";
+    }
+
+    async function go() {
+      var pw = document.getElementById("fp_pw").value;
+      var pw2 = document.getElementById("fp_pw2").value;
+      if (!pw || pw.length < 8) { msg("Use at least 8 characters.", false); return; }
+      if (pw !== pw2) { msg("Those two do not match.", false); return; }
+      // Refuse the emailed one, or the whole exercise achieves nothing.
+      var parts = String(p.full_name || "").trim().split(/\s+/);
+      if (parts.length >= 2) {
+        var guessable = (parts[0] + "." + parts[parts.length - 1]).toLowerCase();
+        if (pw.toLowerCase().replace(/[^a-z.]/g, "") === guessable) {
+          msg("That is the password we emailed you. Please choose a different one.", false);
+          return;
+        }
+      }
+      var btn = document.getElementById("fp_go");
+      btn.disabled = true; btn.textContent = "Saving\u2026";
+      var u = await sb.auth.updateUser({ password: pw });
+      if (u.error) { msg(u.error.message, false); btn.disabled = false; btn.textContent = "Set password and continue"; return; }
+      var r = await sb.rpc("elan_mark_password_set");
+      if (r.error || (r.data && r.data.ok === false)) {
+        // The password did change, so do not let them retype the old one.
+        msg("Your password was changed, but your account flag could not be updated. Please contact the Help Desk.", false);
+        btn.disabled = false; btn.textContent = "Continue";
+        btn.onclick = function () { location.reload(); };
+        return;
+      }
+      msg("Password set. Taking you to your portal\u2026", true);
+      setTimeout(function () { location.reload(); }, 800);
+    }
+
+    document.getElementById("fp_go").addEventListener("click", go);
+    document.getElementById("fp_pw2").addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
   }
 
   var pages = {
