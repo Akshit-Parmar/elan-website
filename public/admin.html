@@ -337,7 +337,9 @@
       var d=r.data||{};
       if(d.ok===false) return {ok:false, error:d.error||'The function reported a failure.'};
       if(d.dry_run===true) window.__elanDryRun = true;
-      return {ok:true, skipped:d.skipped===true, dry_run:d.dry_run===true, uid:d.participant_uid};
+      return {ok:true, skipped:d.skipped===true, dry_run:d.dry_run===true,
+              kept_password:d.kept_existing_password===true, warning:d.warning||null,
+              uid:d.participant_uid};
     }catch(e){ return {ok:false, error:String(e&&e.message||e)}; }
   }
   window.__elanSendWelcome = sendWelcome;
@@ -612,6 +614,14 @@
       b.disabled=true; b.textContent='Sending\u2026';
       var w=await sendWelcome(b.dataset.welcome, force);
       if(!w.ok){ alert('Not sent:\n\n'+w.error); b.disabled=false; b.textContent='Retry'; return; }
+      if(w.warning){ alert('Heads up:\n\n'+w.warning); }
+      if(w.dry_run){
+        alert('DRY RUN.\n\nThe account and UID were created, but NO email was sent and the row is not marked as sent.\n\nThat is the expected result right now. When you are ready to send for real, set ELAN_DRY_RUN=false on the function.');
+        b.disabled=false; b.textContent='Send login'; return;
+      }
+      if(w.kept_password){
+        alert('Sent.\n\nThis person had already signed in, so their existing password was left alone. The email tells them to keep using it.');
+      }
       loadAll();
     });});
   }
