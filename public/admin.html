@@ -77,15 +77,16 @@
 
     <!-- REGISTRATIONS -->
     <section class="apanel" id="tab-regs" style="display:none">
-      <div class="row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1.2fr 1fr">
+      <div class="row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 1.2fr 1fr">
         <div><label>Search</label><input id="rSearch" placeholder="name / email / school / phone"/></div>
         <div><label>Status</label><select id="rStatus"><option value="">All</option><option>pending</option><option>paid</option></select></div>
-        <div><label>Email</label><select id="rMail"><option value="">All</option><option value="1">Sent</option><option value="0">Not sent</option></select></div>
+        <div><label>Email</label><select id="rMail"><option value="">All</option><option value="1">Sent</option><option value="0">Not sent</option></select></div> <div><label>Kolhapur travel</label><select id="rTravel"><option value="">All</option><option value="paid">Paid</option><option value="due">Not paid</option><option value="na">Not travelling</option></select></div>
         <div><label>Ticket</label><select id="rTier"><option value="">All</option><option>Early Bird</option><option>Standard</option><option>Late Registration</option><option>Day Delegate</option></select></div>
         <div><label>Flagship</label><select id="rFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option><option value="__none">Not chosen</option></select></div>
         <div><label>Cent$ible theme</label><select id="rTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>VIRAL व्यापार</option><option>NOTE नीति</option><option>प्रश्न PRODIGY</option></select></div>
         <div><label>&nbsp;</label><button class="btn btn-ghost" id="rCsv" style="width:100%">Export CSV</button></div>
       </div>
+      <div class="rep" id="travelBox" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:12px;padding:12px 14px;margin-bottom:12px"></div>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:12px;padding:12px 14px;margin-bottom:12px">
         <strong>Portal logins</strong>
         <p class="note" style="margin:4px 0 8px">Marking someone paid creates their portal account and emails them their confirmation automatically. The password is <strong>Firstname.Lastname</strong> from their registered name, so anyone who loses the email can simply be told the rule. Cent$ible participants also get the teammate-details section; Crisis Command participants do not. Use this only to catch up anyone marked paid before that was switched on. It never sends twice to the same person.</p>
@@ -485,6 +486,21 @@
 
   function money(n){ n=Number(n)||0; return '\u20B9'+n.toLocaleString('en-IN'); }
   function isPaid(r){ return STATUS_COL ? String(r[STATUS_COL]).toLowerCase()==='paid' : false; }
+  // Kolhapur travel supplement. Three states, because a plain paid/unpaid
+  // boolean would show every Pune-based participant as unpaid forever.
+  function travelCell(r){
+    var id=esc(r.id);
+    if(!r.travel_fee_due)
+      return '<span class="note">not travelling</span><br><button class="mini-btn" data-travel="'+id+'" data-act="due" style="margin-top:4px">Travelling</button>';
+    if(r.travel_fee_paid_at){
+      var d=new Date(r.travel_fee_paid_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+      return '<span class="pill-paid">paid '+esc(d)+'</span><br><button class="mini-btn" data-travel="'+id+'" data-act="unpaid" style="margin-top:4px">Mark not paid</button>';
+    }
+    return '<span class="pill-pending">not paid</span><br><span class="note" style="font-size:11px">&#8377;'+esc(r.travel_fee_amount||1100)+'</span>'+
+           '<br><button class="mini-btn" data-travel="'+id+'" data-act="paid" style="margin-top:4px">Mark paid</button>'+
+           ' <button class="mini-btn" data-travel="'+id+'" data-act="na">Not travelling</button>';
+  }
+
   // Whether a participant has replaced the emailed Firstname.Lastname password
   // with one of their own. Élan never sees or stores the password itself.
   function acctCell(p){
@@ -535,7 +551,31 @@
       Object.keys(tiers).map(function(t){return '<div class="stat-card"><b>'+tiers[t]+'</b><span>'+esc(t)+'</span></div>';}).join('');
   }
 
+  // Money position on the Kolhapur travel supplement, at a glance.
+  function renderTravelBox(){
+    var box=document.getElementById('travelBox'); if(!box) return;
+    var due=REGS.filter(function(r){ return r.travel_fee_due; });
+    if(!due.length){
+      box.innerHTML='<strong>Kolhapur travel supplement (&#8377;1,100)</strong>'+
+        '<p class="note" style="margin:4px 0 0">Nobody is marked as travelling from Kolhapur yet. Use <em>Travelling</em> on each participant who owes the supplement.</p>';
+      return;
+    }
+    var paid=due.filter(function(r){ return r.travel_fee_paid_at; });
+    var amt=function(list){ return list.reduce(function(a,r){ return a+Number(r.travel_fee_amount||1100); },0); };
+    box.innerHTML='<strong>Kolhapur travel supplement (&#8377;1,100)</strong>'+
+      '<p class="note" style="margin:4px 0 8px">'+
+        due.length+' travelling &middot; <strong>'+paid.length+' paid</strong>, &#8377;'+amt(paid).toLocaleString('en-IN')+' collected'+
+        ' &middot; <strong>'+(due.length-paid.length)+' not paid</strong>, &#8377;'+(amt(due)-amt(paid)).toLocaleString('en-IN')+' to come'+
+      '</p>'+
+      (due.length-paid.length ? '<button class="mini-btn" id="travelShow">Show only not paid</button>' : '');
+    var b=document.getElementById('travelShow');
+    if(b) b.addEventListener('click', function(){
+      document.getElementById('rTravel').value='due'; renderRegs();
+    });
+  }
+
   function renderRegs(){
+    renderTravelBox();
     var q=(document.getElementById('rSearch').value||'').toLowerCase();
     var st=document.getElementById('rStatus').value, tr=document.getElementById('rTier').value;
     var fl=document.getElementById('rFlag').value, th=document.getElementById('rTheme').value;
@@ -546,6 +586,10 @@
       var ml=document.getElementById('rMail');
       var mv=ml?ml.value:'';
       if(mv!=='' && EMAIL_COL){ var isSent=(r[EMAIL_COL]===true||r[EMAIL_COL]==='sent'); if((mv==='1')!==isSent) return false; }
+      var tv=document.getElementById('rTravel'); var tvv=tv?tv.value:'';
+      if(tvv==='due'  && !(r.travel_fee_due && !r.travel_fee_paid_at)) return false;
+      if(tvv==='paid' && !(r.travel_fee_due &&  r.travel_fee_paid_at)) return false;
+      if(tvv==='na'   &&   r.travel_fee_due) return false;
       var notes=r.notes||'';
       if(fl==='__none'){ if(notes.indexOf('[Flagship:')!==-1) return false; }
       else if(fl){ if(notes.indexOf('[Flagship: '+fl)===-1) return false; }
@@ -559,13 +603,13 @@
       el.innerHTML='<p class="note">No registrations match these filters. <button class="mini-btn" id="rClear">Clear filters</button></p>';
       var rc=document.getElementById('rClear');
       if(rc) rc.addEventListener('click',function(){
-        ['rSearch','rStatus','rTier','rFlag','rTheme','rMail'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+        ['rSearch','rStatus','rTier','rFlag','rTheme','rMail','rTravel'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
         renderRegs();
       });
       return;
     }
     el.innerHTML='<p class="note" style="margin:6px 0 10px">Showing <strong>'+rows.length+'</strong> of '+REGS.length+' registration(s).</p>'+
-      '<table><tr><th>Name</th><th>Contact</th><th>School</th><th>Ticket</th><th>Amount</th><th>Flagship</th><th>Status</th><th>Email</th><th>Portal login</th><th></th></tr>'+
+      '<table><tr><th>Name</th><th>Contact</th><th>School</th><th>Ticket</th><th>Amount</th><th>Flagship</th><th>Status</th><th>Kolhapur travel<br><span class="note" style="font-weight:400">&#8377;1,100</span></th><th>Email</th><th>Portal login</th><th></th></tr>'+
       rows.map(function(r){
         var fl=(r.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/);
         var paid=isPaid(r);
@@ -575,6 +619,7 @@
           '<td>'+esc(r.school||'')+'</td><td>'+esc((r.ticket_type||'').split('\u00B7')[0])+(r.quantity>1?' \u00D7'+r.quantity:'')+'</td>'+
           '<td>'+money(r.amount)+'</td><td>'+esc(fl?fl[1].trim()+(fl[2]?' \u2014 '+fl[2].trim():''):'\u2014')+'</td>'+
           '<td>'+(STATUS_COL?('<span class="'+(paid?'pill-paid':'pill-pending')+'">'+(paid?'paid':'pending')+'</span>'):'\u2014')+'</td>'+
+          '<td>'+travelCell(r)+'</td>'+
           '<td>'+(EMAIL_COL
             ? ('<button class="mini-btn '+(sent?'is-sent':'')+'" data-mail="'+esc(r.id)+'" data-to="'+(sent?'0':'1')+'">'+
                (sent?'\u2713 sent':'not sent')+'</button>')
@@ -606,6 +651,17 @@
         else if(w.dry_run){ alert('DRY RUN.\n\nThe account and UID were created, but NO email was sent and the row is not marked as sent.\n\nWhen you are ready to send for real:\nsupabase secrets set ELAN_DRY_RUN=false'); }
         else if(w.skipped){ /* already had one, nothing to say */ }
       }
+      loadAll();
+    });});
+    el.querySelectorAll('[data-travel]').forEach(function(b){ b.addEventListener('click', async function(){
+      var act=b.dataset.act, upd;
+      if(act==='due')        upd={travel_fee_due:true,  travel_fee_paid_at:null};
+      else if(act==='paid')  upd={travel_fee_due:true,  travel_fee_paid_at:new Date().toISOString()};
+      else if(act==='unpaid')upd={travel_fee_due:true,  travel_fee_paid_at:null};
+      else                   upd={travel_fee_due:false, travel_fee_paid_at:null};
+      b.disabled=true; b.textContent='\u2026';
+      var r=await sb.from('registrations').update(upd).eq('id', b.dataset.travel);
+      if(r.error){ alert('Could not update the travel fee: '+r.error.message); b.disabled=false; b.textContent='Retry'; return; }
       loadAll();
     });});
     el.querySelectorAll('[data-welcome]').forEach(function(b){ b.addEventListener('click', async function(){
@@ -654,12 +710,12 @@
     });
   })();
 
-  ['rSearch','rStatus','rTier','rFlag','rTheme','rMail'].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', renderRegs); });
+  ['rSearch','rStatus','rTier','rFlag','rTheme','rMail','rTravel'].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', renderRegs); });
 
   document.getElementById('rCsv').addEventListener('click', function(){
-    var head=['full_name','email','phone','school','ticket_type','quantity','amount','status','email_sent','notes','created_at'];
+    var head=['full_name','email','phone','school','ticket_type','quantity','amount','status','travel_fee','travel_fee_amount','email_sent','notes','created_at'];
     var lines=[head.join(',')].concat(REGS.map(function(r){
-      return head.map(function(k){ var v=k==='status'?(STATUS_COL?r[STATUS_COL]:''):(k==='email_sent'?(EMAIL_COL?(r[EMAIL_COL]?'sent':'not sent'):''):r[k]); v=String(v==null?'':v).replace(/"/g,'""'); return '"'+v+'"'; }).join(',');
+      return head.map(function(k){ var v=k==='status'?(STATUS_COL?r[STATUS_COL]:''):(k==='email_sent'?(EMAIL_COL?(r[EMAIL_COL]?'sent':'not sent'):''):(k==='travel_fee'?(!r.travel_fee_due?'not travelling':(r.travel_fee_paid_at?'paid':'not paid')):(k==='travel_fee_amount'?(r.travel_fee_due?(r.travel_fee_amount||1100):''):r[k]))); v=String(v==null?'':v).replace(/"/g,'""'); return '"'+v+'"'; }).join(',');
     }));
     var blob=new Blob([lines.join('\n')],{type:'text/csv'}); var a=document.createElement('a');
     a.href=URL.createObjectURL(blob); a.download='elan-registrations.csv'; a.click();
