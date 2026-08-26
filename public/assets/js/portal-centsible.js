@@ -1,8 +1,6 @@
 /* ============================================================================
    Élan — Cent$ible portal workspace
    BRAND बनाओ  : pre-event product brief form (drives their Round 2 crisis)
-   VIRAL व्यापार : live-format briefing, nothing to submit
-   प्रश्न PRODIGY : live-format briefing, nothing to submit
    NOTE नीति    : handled by portal-note.js (live trading floor)
    ========================================================================== */
 (function () {
@@ -10,8 +8,8 @@
 
   var BRAND  = "BRAND \u092C\u0928\u093E\u0913";
   var VIRAL  = "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930";
-  var NOTE   = "NOTE \u0928\u0940\u0924\u093F";
   var PRODIGY = "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY";
+  var NOTE   = "NOTE \u0928\u0940\u0924\u093F";
 
   function esc(x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -81,24 +79,21 @@
   };
 
   BRIEF[PRODIGY] = {
-    intro: "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY runs live in the room, in teams of two, and takes roughly two to three " +
-           "hours in total. There is nothing to submit before the event. You have two scored rounds on Day 1 and nobody is " +
-           "eliminated after Round 1, so the Cents you earn early become the ammunition you bid with later. The top three teams " +
-           "then go through to the Boardroom Finale on Day 2, which in this theme is called the Nova Boardroom.",
+    intro: "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY runs live in the room across three stages. There is nothing to submit " +
+           "before the event. Everyone plays both of the first two rounds, and the Cents you earn early become the ammunition " +
+           "you bid with later.",
     rounds: [
       ["Round 1", "Rapid Vision Rush",
-       "One minute per team, and as many questions as you can take in it. Business and commerce, famous brands, company logos, " +
-       "founders and CEOs, startups and entrepreneurs, products and services, brand taglines, current business affairs, emoji " +
-       "brand clues, founder and CEO images, product silhouettes, advertisement visuals and business personalities, deliberately " +
-       "shuffled so you can never settle into one kind of thinking. Every correct answer is 100 Cents, a wrong answer costs you " +
-       "nothing, and a skip is worth zero. Nine correct in the minute is 900 Cents. Nobody is eliminated, and whatever you earn " +
-       "here becomes your starting score for the bidding."],
+       "One minute per team, and as many questions as you can take in it. Logos, taglines, founders and CEOs, startups, " +
+       "brand emoji clues, product silhouettes, advertisement visuals and current business affairs, deliberately shuffled so " +
+       "you can never settle into one kind of thinking. Every correct answer is 100 Cents, there is no negative marking, and " +
+       "you may skip anything. Nobody is eliminated."],
       ["Round 2", "The Bidding War",
-       "The host reveals a question for bidding and teams bid each other up for the right to answer it, opening at 100 Cents. " +
-       "The highest bidder gets the question. Answer correctly and your full bid is added to your score. Answer wrong and half " +
-       "your bid is taken away, so a well-judged risk is often worth taking. Between battles there are audience activities: " +
-       "prediction questions, live business polls, guess-the-bid challenges, market reaction activities and bonus questions, so " +
-       "you stay in it even when another team holds the question. Scores are totalled at the end and the top three teams go through."]
+       "Teams bid Cents for the right to answer a question nobody has seen. Bidding opens at 100 Cents and teams bid each " +
+       "other up. Answer correctly and your full bid is added to your score. Answer wrong and half your bid is taken away. " +
+       "The top three teams after this round go through."],
+      ["Round 3", "Nova Boardroom",
+       "The Mega Finale. The three highest-scoring teams take on the final business challenge."]
     ],
     judged: [
       "Speed of recall and accuracy under a one-minute clock",
@@ -113,8 +108,7 @@
       "Follow business news for a few weeks before Élan. Current affairs questions appear.",
       "Practise founders and CEOs, both names and faces.",
       "Agree a rule for skipping. In a one-minute round, hesitating on one question can cost you three.",
-      "Decide in advance who calls the bids, so you are not arguing while the bidding runs.",
-      "Agree when to sit a battle out. Conserving Cents for a category you actually know is a strategy, not a retreat."
+      "Decide in advance who calls the bids, so you are not arguing while the bidding runs."
     ],
     practice: [
       ["Rapid Vision Rush", "Set a one-minute timer. Name as many brand taglines as you can. Count them, then beat it tomorrow."],
@@ -131,6 +125,7 @@
       "Bidding on a question you have no feel for simply because another team wanted it."
     ]
   };
+
 
   /* ---------------------------------------------------------------------- */
   var ranFor = null;

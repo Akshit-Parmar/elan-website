@@ -83,7 +83,7 @@
         <div><label>Email</label><select id="rMail"><option value="">All</option><option value="1">Sent</option><option value="0">Not sent</option></select></div> <div><label>Kolhapur travel</label><select id="rTravel"><option value="">All</option><option value="paid">Paid</option><option value="due">Not paid</option><option value="na">Not travelling</option></select></div>
         <div><label>Ticket</label><select id="rTier"><option value="">All</option><option>Early Bird</option><option>Standard</option><option>Late Registration</option><option>Day Delegate</option></select></div>
         <div><label>Flagship</label><select id="rFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option><option value="__none">Not chosen</option></select></div>
-        <div><label>Cent$ible theme</label><select id="rTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>VIRAL व्यापार</option><option>NOTE नीति</option><option>प्रश्न PRODIGY</option></select></div>
+        <div><label>Cent$ible theme</label><select id="rTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>NOTE नीति</option><option>VIRAL व्यापार</option><option>प्रश्न PRODIGY</option></select></div>
         <div><label>&nbsp;</label><button class="btn btn-ghost" id="rCsv" style="width:100%">Export CSV</button></div>
       </div>
       <div class="rep" id="travelBox" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:12px;padding:12px 14px;margin-bottom:12px"></div>
@@ -110,7 +110,7 @@
       <div class="row" style="grid-template-columns:2fr 1fr 1.2fr;margin-top:10px">
         <div><label>Search</label><input id="pSearch" placeholder="name, UID, email or school" autocomplete="off"/></div>
         <div><label>Flagship</label><select id="pFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option><option value="__none">Not set</option></select></div>
-        <div><label>Cent$ible theme</label><select id="pTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>VIRAL व्यापार</option><option>NOTE नीति</option><option>प्रश्न PRODIGY</option></select></div>
+        <div><label>Cent$ible theme</label><select id="pTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>NOTE नीति</option><option>VIRAL व्यापार</option><option>प्रश्न PRODIGY</option></select></div>
       </div>
       <div style="margin:10px 0"><button class="btn btn-ghost" id="syncFlag">Sync flagship &amp; theme from registrations</button>
       <button class="btn btn-ghost" id="assignCC">Auto-assign Crisis Command posts</button>
@@ -172,7 +172,7 @@
 
     <!-- CRISIS COMMAND TEAMS -->
     <section class="apanel" id="tab-teams" style="display:none">
-      <p class="note">Crisis Command cabinets are formed on the day (five participants, one per post). Cent$ible teams are pairs in every theme, including प्रश्न PRODIGY, and can be linked now. BRAND बनाओ pairs then fill in their product brief, which is due 3 September. The other three themes submit nothing before the event. NOTE नीति pairs also need a linked team before they can trade, because the market is keyed to the team.</p>
+      <p class="note">Crisis Command cabinets are formed on the day (five participants, one per post). Cent$ible teams are pairs and can be linked now. VIRAL व्यापार and प्रश्न PRODIGY are retired from the public site but still shown here, so the participants registered on them stay visible until they are moved to BRAND बनाओ or NOTE नीति. BRAND बनाओ pairs then fill in their product brief, which is due 3 September. The other three themes submit nothing before the event. NOTE नीति pairs also need a linked team before they can trade, because the market is keyed to the team.</p>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px">
         <div class="row" style="grid-template-columns:1fr 1fr auto">
           <div><label>New team name</label><input id="tmName" placeholder="e.g. Cabinet Alpha"/></div>
@@ -1232,9 +1232,9 @@
     var PERSONAS=[
       {k:"cc",  label:"Crisis Command"},
       {k:"t1",  label:"Cent$ible \u2014 BRAND \u092C\u0928\u093E\u0913"},
-      {k:"t2",  label:"Cent$ible \u2014 VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930"},
       {k:"t3",  label:"Cent$ible \u2014 NOTE \u0928\u0940\u0924\u093F"},
-      {k:"t4",  label:"Cent$ible \u2014 \u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"}
+      {k:"t2",  label:"Cent$ible \u2014 VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930 (retired)"},
+      {k:"t4",  label:"Cent$ible \u2014 \u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY (retired)"}
     ];
     var cur="cc";
     var box=document.getElementById("pvPersonas");

@@ -197,7 +197,7 @@
     schedule: async function (p, main) {
       var flag = p.flagship || "", theme = p.centsible_theme || "";
       var isCC = flag === "Crisis Command", isCent = flag === "Cent$ible", unknown = !isCC && !isCent;
-      var THEMES = ["BRAND \u092C\u0928\u093E\u0913", "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930", "NOTE \u0928\u0940\u0924\u093F", "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"];
+      var THEMES = ["BRAND \u092C\u0928\u093E\u0913", "NOTE \u0928\u0940\u0924\u093F"];
 
       // Official Élan itinerary — [day, time, track(all|cc|cent), title, detail, location]
       var OFFICIAL = [
@@ -208,16 +208,16 @@
         [1,"11:15","cc","Preliminary Phase 1: The Situation Room","You receive the national crisis briefing, your governing-council dossier, available resources, key stakeholders, confidential role information and initial intelligence. Analyse the crisis, assign responsibilities, set immediate priorities and build your initial response strategy. Ends with a short situation-room briefing or submission.","Crisis Command Venue"],
         [1,"11:15","cent:BRAND","Round 1: The Founder Pitch","Five minutes to present your venture: brand name, logo, target audience, business model, marketing approach and future vision. Your nine-field product brief, submitted before the event, is the foundation the judges read from.","Your theme room"],
         [1,"11:15","cent:VIRAL","Round 1: The Comeback Pitch","You are handed a real brand that failed. Thirty minutes to prepare, five minutes to pitch its revival. A deck or a product picture is required.","Your theme room"],
-        [1,"11:15","cent:NOTE","Round 1: The Money Market Mayhem","Two hours on the live trading floor in your portal, starting with 10,00,000 Cents. The host announces a new market status every five minutes. Buy and sell through the portal; every trade is logged.","Your theme room"],
         [1,"11:15","cent:PRODIGY","Round 1: Rapid Vision Rush","One minute per team of rapid business questions. Correct answers earn 100 Cents each. There is no negative marking, skipping is allowed, and nobody is eliminated in this round.","Your theme room"],
+        [1,"11:15","cent:NOTE","Round 1: The Money Market Mayhem","Two hours on the live trading floor in your portal, starting with 10,00,000 Cents. The host announces a new market status every five minutes. Buy and sell through the portal; every trade is logged.","Your theme room"],
         [1,"12:15","cc","Preliminary Phase 2: Escalation","A major crisis update lands: international pressure, economic instability, public unrest, infrastructure failure, media leaks or new evidence. Modify your strategy and make time-sensitive decisions. Judged on adaptability, strategic reasoning, leadership, coordination, ethics and resource management.","Crisis Command Venue"],
-        [1,"12:15","cent:PRODIGY","Round 2: The Bidding War","Bid your Cents for the right to answer a question nobody has seen. Bidding opens at 100 Cents and teams bid each other up. A correct answer adds your full bid; a wrong one costs you half of it. This round breaks for lunch and resumes at 2:00 p.m.","Your theme room"],
         [1,"13:15","all","Lunch Break","Competition rooms are secured. No formal competition work during lunch unless your rules specifically allow it.","Dining Area"],
         [1,"14:00","cc","Preliminary Phase 3: National Response","The final major Day 1 development. Prepare your complete National Crisis Response Plan, resource-allocation strategy, public communication plan, diplomatic strategy, official government statement and contingency plan. This is the most substantial Day 1 phase.","Crisis Command Venue"],
         [1,"14:00","cent:BRAND","Round 2: Brand Under Pressure","A sealed crisis envelope written for your specific brand. Twenty minutes to prepare, three minutes to respond. Must finish by 3:15 p.m.","Your theme room"],
+        [1,"12:15","cent:PRODIGY","Round 2: The Bidding War","The host reveals a question for bidding and teams bid each other up for the right to answer it, opening at 100 Cents. A correct answer adds your full bid; a wrong one costs you half of it. This round breaks for lunch and resumes at 2:00 p.m.","Your theme room"],
         [1,"14:00","cent:VIRAL","Round 2: Unexpected Collab","Draw one brand and one product category from the two fish bowls. Thirty minutes to prepare, five minutes to pitch the collaboration. Must finish by 3:15 p.m.","Your theme room"],
+        [1,"14:00","cent:PRODIGY","Round 2 continues: The Bidding War","The second half of the bidding, plus audience activities between battles. Scores are totalled at the end of this block. Must finish by 3:15 p.m.","Your theme room"],
         [1,"14:00","cent:NOTE","Round 2: The Coin Economy","The physical round. Thirty coins per team, worth 17,50,000 in total, across five zones: Dice of Fortune, Spin Wheel, Stock Market Dart, Investment Plinko and Bull vs Bear Arena. Two plays maximum per zone, ninety minutes of active play. Your Round 1 capital plus your final coin value gives your total.","Your theme room"],
-        [1,"14:00","cent:PRODIGY","Round 2 continues: The Bidding War","The second half of the bidding, plus audience activities between battles. Scores are totalled at the end of this block and the top three teams go through to the Nova Boardroom on Day 2. Must finish by 3:15 p.m.","Your theme room"],
         [1,"15:15","all","Refreshment and Transition Break","A short break before the final Day 1 evaluation block.","Flagship Venues"],
         [1,"15:30","cc","Day 1 Defence and Submission","Submit your final Day 1 response. This block may include a written submission, council presentation, press statement, media questioning and judges\u2019 questioning. The deadline is strict. Late submissions carry a predetermined penalty.","Crisis Command Venue"],
         [1,"15:30","cent","Final Submission and Questioning","Complete your final submission and face judges\u2019 questions, a short defence, rapid presentation, clarification round or theme-specific challenge.","Your theme room"],
@@ -241,10 +241,10 @@
       ];
 
       // Cent$ible rounds differ per theme, so tracks may be "cent:BRAND" etc.
-      // A participant whose theme is not yet set sees all four, each self-labelled.
+      // A participant whose theme is not yet set sees both, each self-labelled.
       var THEME_KEY = theme.indexOf("BRAND") !== -1 ? "BRAND"
-                    : theme.indexOf("VIRAL") !== -1 ? "VIRAL"
                     : theme.indexOf("NOTE") !== -1 ? "NOTE"
+                    : theme.indexOf("VIRAL") !== -1 ? "VIRAL"
                     : theme.indexOf("PRODIGY") !== -1 ? "PRODIGY" : "";
       function mine(tr){
         if (tr === "all" || unknown) return true;
@@ -279,7 +279,7 @@
           var title = i[3], loc = i[5], tag = "Shared";
           if (i[2] === "cc") { title = "Crisis Command · " + title; tag = "Crisis Command"; }
           if (i[2] === "cent" || i[2].indexOf("cent:") === 0) {
-            var tname = theme || ({BRAND:"BRAND \u092C\u0928\u093E\u0913", VIRAL:"VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930", NOTE:"NOTE \u0928\u0940\u0924\u093F", PRODIGY:"\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"}[i[2].slice(5)] || "");
+            var tname = theme || ({BRAND:"BRAND \u092C\u0928\u093E\u0913", NOTE:"NOTE \u0928\u0940\u0924\u093F", VIRAL:"VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930", PRODIGY:"\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"}[i[2].slice(5)] || "");
             title = "Cent$ible \u00b7 " + title + (tname ? ": " + tname : "");
             tag = "Cent$ible";
             loc = tname ? "Your theme room: " + tname : "Cent$ible theme rooms";
@@ -401,7 +401,7 @@
     // ?preview=cc | t1..t4  (optionally &role=Finance%20Minister)
     // Only works for admin accounts, and only changes what is DISPLAYED — no
     // participant record is modified and no other participant's data is read.
-    var THEME_LIST = ["BRAND \u092C\u0928\u093E\u0913", "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930", "NOTE \u0928\u0940\u0924\u093F", "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"];
+    var THEME_LIST = ["BRAND \u092C\u0928\u093E\u0913", "NOTE \u0928\u0940\u0924\u093F", "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930", "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY"];
     var qp = new URLSearchParams(location.search);
     var pv = qp.get("preview");
     var pvRole = qp.get("role");
