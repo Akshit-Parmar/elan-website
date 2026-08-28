@@ -181,19 +181,29 @@
         </div>
         <div style="margin-top:12px"><button class="btn btn-gold" id="tmAuto">Auto-form cabinets from unassigned participants</button>
         <span class="note" id="tmMsg" style="margin-left:10px"></span></div>
-        <p class="note" style="margin-top:8px">Auto-form groups unassigned Crisis Command participants in registration order into cabinets of five, one per cabinet post.</p>
+        <p class="note" style="margin-top:8px">Auto-form groups unassigned Crisis Command participants in registration order into cabinets of five, one per cabinet post. Use it to get started, then adjust by hand below.</p>
+      </div>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px;margin-top:14px">
+        <strong>Build a cabinet by hand</strong>
+        <p class="note" style="margin:4px 0 10px">Create an empty cabinet, then add participants to it one at a time from the table below, choosing each person's post. A cabinet does not have to be full to work: members can submit with any number of people.</p>
+        <div class="row" style="grid-template-columns:2fr 1.4fr 1fr">
+          <div><label>Cabinet name</label><input id="ccName" placeholder="e.g. Cabinet Alpha"/></div>
+          <div><label>Nation <span class="note" style="font-weight:400">(optional)</span></label><input id="ccNation" placeholder="e.g. Republic of Arvana"/></div>
+          <div><label>&nbsp;</label><button class="btn btn-ghost" id="ccCreate" style="width:100%">Create cabinet</button></div>
+        </div>
+        <span class="note" id="ccMsg"></span>
       </div>
       <div id="stgNote" class="rep" style="margin-top:14px"></div>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px;margin-top:14px">
-        <strong>Cent$ible teams (pairs)</strong>
-        <p class="note" style="margin:4px 0 10px">Select two Cent$ible participants who registered together, give the team a name, and link them. Either partner can then upload the pitch deck.</p>
+        <strong>Cent$ible teams</strong>
+        <p class="note" style="margin:4px 0 10px">Select the Cent$ible participants who registered together, give the team a name, and link them. Either partner can then upload the pitch deck. <strong>Participant 2 is optional</strong>: leave it blank to create a solo team for someone competing alone, and they get the same workspace, brief and submission access as a pair.</p>
         <div class="row" style="grid-template-columns:1fr 1fr">
-          <div><label>Partner 1</label><select id="cbA"></select></div>
-          <div><label>Partner 2</label><select id="cbB"></select></div>
+          <div><label>Participant 1</label><select id="cbA"></select></div>
+          <div><label>Participant 2 <span class="note" style="font-weight:400">(optional)</span></label><select id="cbB"></select></div>
         </div>
         <div class="row" style="grid-template-columns:2fr 1fr;margin-top:8px">
           <div><label>Team name</label><input id="cbName" placeholder="e.g. Team Nova"/></div>
-          <div><label>&nbsp;</label><button class="btn btn-ghost" id="cbLink" style="width:100%">Link pair</button></div>
+          <div><label>&nbsp;</label><button class="btn btn-ghost" id="cbLink" style="width:100%">Create team</button></div>
         </div>
         <span class="note" id="cbMsg"></span>
       </div>
@@ -299,6 +309,7 @@
 .pill-paid{background:#dcfce7;color:#166534;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
 .pill-pending{background:#fef3c7;color:#92400e;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
 .mini-btn{padding:5px 12px;font-size:12px;border-radius:999px;border:1px solid var(--border,#d9d6cf);background:#fff;cursor:pointer;font-weight:700}
+.mini-sel{padding:4px 8px;font-size:12px;border-radius:8px;border:1px solid var(--border,#d9d6cf);background:#fff;cursor:pointer;max-width:100%}
 .mini-btn:hover{background:var(--navy,#13273F);color:#fff}
 .mini-btn.danger{border-color:#fecaca;color:#b91c1c}
 .mini-btn.danger:hover{background:#b91c1c;color:#fff;border-color:#b91c1c}
@@ -537,6 +548,10 @@
   function realParts(){ return PARTS.filter(function(p){ return p.is_admin !== true; }); }
 
   function money(n){ n=Number(n)||0; return '\u20B9'+n.toLocaleString('en-IN'); }
+  // The five Crisis Command cabinet posts, used by the auto-assign, the manual
+  // cabinet builder and the portal preview.
+  var CC_POSTS=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
+
   function isPaid(r){ return STATUS_COL ? String(r[STATUS_COL]).toLowerCase()==='paid' : false; }
   // Kolhapur travel supplement. Three states, because a plain paid/unpaid
   // boolean would show every Pune-based participant as unpaid forever.
@@ -946,7 +961,7 @@
     var el=document.getElementById('tmTable'); if(!el) return;
     var cc=realParts().filter(function(p){return p.flagship==='Crisis Command';});
     var unassigned=cc.filter(function(p){return !p.team_id;});
-    if(!TEAMS.length){ el.innerHTML='<p class="note" style="margin-top:14px">No cabinets yet. '+unassigned.length+' Crisis Command participant(s) waiting to be grouped.</p>'; return; }
+    if(!TEAMS.length){ el.innerHTML='<p class="note" style="margin-top:14px">No cabinets yet. '+unassigned.length+' Crisis Command participant(s) waiting to be grouped. Create one above, or use Auto-form.</p>'; return; }
     el.innerHTML='<h3 style="margin:22px 0 8px">Cabinets ('+TEAMS.length+') \u00B7 '+unassigned.length+' unassigned</h3>'+
       '<table><tr><th>Team</th><th>Members</th><th>Day 1</th><th>Day 2</th><th></th></tr>'+
       TEAMS.map(function(t){
@@ -954,12 +969,57 @@
         var d1=SUBS.some(function(x){return String(x.team_id)===String(t.id)&&x.round==='day1';});
         var d2=SUBS.some(function(x){return String(x.team_id)===String(t.id)&&x.round==='day2';});
         return '<tr><td><strong>'+esc(t.name)+'</strong>'+(t.nation?'<br><span class="note">'+esc(t.nation)+'</span>':'')+'</td>'+
-        '<td>'+(mem.length?mem.map(function(m){return '<span class="note">'+esc(m.cc_role||'\u2014')+'</span> '+esc(m.full_name);}).join('<br>'):'<span class="note">empty</span>')+'</td>'+
+        '<td>'+(mem.length?mem.map(function(m){
+          return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">'+
+            '<select class="mini-sel" data-role-for="'+esc(m.id)+'" style="max-width:170px">'+
+              '<option value="">no post</option>'+
+              CC_POSTS.map(function(r){ return '<option'+(m.cc_role===r?' selected':'')+'>'+esc(r)+'</option>'; }).join('')+
+            '</select>'+
+            '<span>'+esc(m.full_name)+'</span>'+
+            '<button class="mini-btn danger" data-ccremove="'+esc(m.id)+'" title="Remove from cabinet">&times;</button>'+
+          '</div>';
+        }).join(''):'<span class="note">empty</span>')+
+        '<div style="display:flex;gap:6px;margin-top:6px">'+
+          '<select class="mini-sel" data-ccadd-who="'+esc(t.id)+'" style="max-width:190px"><option value="">Add participant\u2026</option>'+
+            unassigned.map(function(u){ return '<option value="'+esc(u.id)+'">'+esc(u.full_name)+'</option>'; }).join('')+
+          '</select>'+
+          '<select class="mini-sel" data-ccadd-role="'+esc(t.id)+'" style="max-width:170px"><option value="">no post</option>'+
+            CC_POSTS.map(function(r){ return '<option>'+esc(r)+'</option>'; }).join('')+
+          '</select>'+
+          '<button class="mini-btn" data-ccadd="'+esc(t.id)+'">Add</button>'+
+        '</div></td>'+
         '<td>'+(d1?'<span class="pill-paid">submitted</span>':'<span class="pill-pending">open</span>')+'</td>'+
         '<td>'+(d2?'<span class="pill-paid">submitted</span>':'<span class="pill-pending">open</span>')+'</td>'+
         '<td><button class="mini-btn" data-view="'+esc(t.id)+'" data-nm="'+esc(t.name)+'">View report</button> '+
         '<button class="mini-btn danger" data-tmdel="'+esc(t.id)+'" data-nm="'+esc(t.name)+'">Delete</button></td></tr>';
       }).join('')+'</table>';
+    el.querySelectorAll('[data-role-for]').forEach(function(sel){ sel.addEventListener('change', async function(){
+      var r=await sb.from('participants').update({cc_role: sel.value||null}).eq('id', sel.dataset.roleFor);
+      if(r.error){ alert('Could not set the post: '+r.error.message); return; }
+      loadAll();
+    });});
+    el.querySelectorAll('[data-ccremove]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Remove this participant from the cabinet? They become unassigned and can be added to another one.')) return;
+      var r=await sb.from('participants').update({team_id:null, cc_role:null}).eq('id', b.dataset.ccremove);
+      if(r.error){ alert('Could not remove: '+r.error.message); return; }
+      loadAll();
+    });});
+    el.querySelectorAll('[data-ccadd]').forEach(function(b){ b.addEventListener('click', async function(){
+      var tid=b.dataset.ccadd;
+      var who=el.querySelector('[data-ccadd-who="'+tid+'"]').value;
+      var role=el.querySelector('[data-ccadd-role="'+tid+'"]').value;
+      if(!who){ alert('Choose a participant to add.'); return; }
+      // A post can only be held by one person in a cabinet, otherwise two
+      // people answer for the same brief and the report has a gap.
+      if(role){
+        var clash=cc.filter(function(p){ return String(p.team_id)===String(tid) && p.cc_role===role; });
+        if(clash.length && !confirm(esc(clash[0].full_name)+' already holds '+role+' in this cabinet. Add anyway?')) return;
+      }
+      b.disabled=true; b.textContent='\u2026';
+      var r=await sb.from('participants').update({team_id:tid, cc_role: role||null}).eq('id', who);
+      if(r.error){ alert('Could not add: '+r.error.message); b.disabled=false; b.textContent='Add'; return; }
+      loadAll();
+    });});
     el.querySelectorAll('[data-view]').forEach(function(b){ b.addEventListener('click',function(){ viewReport(b.dataset.view,b.dataset.nm); });});
     el.querySelectorAll('[data-tmdel]').forEach(function(b){ b.addEventListener('click', async function(){
       if(!confirm('Delete cabinet '+b.dataset.nm+'? Members become unassigned and the team\u2019s report is removed.')) return;
@@ -1116,6 +1176,22 @@
       loadAll(); loadTeams(); loadCent();
     });});
   }
+  var ccCreateBtn=document.getElementById('ccCreate');
+  if(ccCreateBtn) ccCreateBtn.addEventListener('click', async function(){
+    var nm=document.getElementById('ccName').value.trim();
+    var nation=document.getElementById('ccNation').value.trim();
+    var m=document.getElementById('ccMsg');
+    if(!nm){ m.textContent='Give the cabinet a name.'; return; }
+    ccCreateBtn.disabled=true; m.textContent='Creating\u2026';
+    var row={name:nm}; if(nation) row.nation=nation;
+    var t=await sb.from('cc_teams').insert(row).select().maybeSingle();
+    ccCreateBtn.disabled=false;
+    if(t.error||!t.data){ m.textContent='Blocked: '+(t.error&&t.error.message||'no cabinet created'); return; }
+    m.textContent='Created \u2713 Add members to it in the table below.';
+    document.getElementById('ccName').value=''; document.getElementById('ccNation').value='';
+    loadAll();
+  });
+
   document.getElementById('cbLink').addEventListener('click', async function(){
     var a=document.getElementById('cbA').value, b=document.getElementById('cbB').value;
     var nm=document.getElementById('cbName').value.trim(), m=document.getElementById('cbMsg');
