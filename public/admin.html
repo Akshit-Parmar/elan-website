@@ -428,23 +428,30 @@
         'update public.participants p\nset auth_user_id = u.id, is_admin = true\nfrom auth.users u\nwhere lower(u.email) = lower(p.email)\n  and lower(u.email) = \''+esc((await sb.auth.getSession()).data.session.user.email||'')+'\';'+
         '</pre></div>';
     }
-    var r1=await sb.from('registrations').select('*').order('created_at',{ascending:false});
+    // These five are independent, so they go out together. Awaiting them one at
+    // a time cost five full round trips to Tokyo (~150ms each from India)
+    // before the console rendered anything.
+    var res=await Promise.all([
+      sb.from('registrations').select('*').order('created_at',{ascending:false}),
+      sb.from('contact_messages').select('*').eq('inquiry_type','Payment UTR').order('created_at',{ascending:false}),
+      sb.from('participants').select('*').order('participant_uid',{ascending:true}),
+      sb.from('portal_announcements').select('*').order('created_at',{ascending:false}),
+      sb.from('portal_schedule_items').select('*').order('day').order('start_time')
+    ]);
+    var r1=res[0], r2=res[1], r3=res[2], r4=res[3], r5=res[4];
     if(r1.error){ blocked.push('registrations ('+r1.error.message+')'); REGS=[]; } else REGS=r1.data||[];
-    var r2=await sb.from('contact_messages').select('*').eq('inquiry_type','Payment UTR').order('created_at',{ascending:false});
     if(r2.error){ blocked.push('contact_messages ('+r2.error.message+')'); PAYS=[]; } else PAYS=r2.data||[];
-    var r3=await sb.from('participants').select('*').order('participant_uid',{ascending:true});
     if(r3.error){ if(blocked.length===0||r3.error.message.indexOf('permission')!==-1) blocked.push('participants ('+r3.error.message+')'); PARTS=[]; } else PARTS=r3.data||[];
-    var r4=await sb.from('portal_announcements').select('*').order('created_at',{ascending:false});
     ANNS=r4.error?[]:(r4.data||[]); if(r4.error) blocked.push('portal_announcements ('+r4.error.message+')');
-    var r5=await sb.from('portal_schedule_items').select('*').order('day').order('start_time');
     SCHED=r5.error?[]:(r5.data||[]); if(r5.error) blocked.push('portal_schedule_items ('+r5.error.message+')');
     if(REGS.length){ STATUS_COL=['payment_status','status'].find(function(k){return k in REGS[0];})||null;
       EMAIL_COL=['email_sent','link_sent','mail_sent'].find(function(k){return k in REGS[0];})||null; }
     if(blocked.length){
       note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load.</strong> Your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase. Ask your developer for it.</span></div>';
     }
-    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin(); loadTeams(); loadCent(); loadMarket();
-    autoPilot();
+    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin();
+    // Independent of each other, so they run together rather than in sequence.
+    Promise.all([loadTeams(), loadCent(), loadMarket()]).then(autoPilot);
   }
 
   // ---- automatic housekeeping: stamp flagships + assign CC posts without clicks ----
