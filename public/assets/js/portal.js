@@ -472,7 +472,7 @@
     (async function () {
       var box = document.getElementById("dashDeckMsg");
       if (!box) return;
-      if (!p.team_id) { box.textContent = "Your team is being confirmed. Once you and your partner are linked, you can fill in your product brief here."; return; }
+      if (!p.team_id) { box.textContent = "Your team is being confirmed. Once the organisers have set it up, whether that is a pair or you competing solo, you can fill in your product brief here."; return; }
       var f = await sb.from("cc_sections").select("role,body").eq("team_id", p.team_id).eq("round", "brief");
       var filled = (f.error ? [] : (f.data || [])).filter(function (x) { return (x.body || "").trim(); }).length;
       var card = document.getElementById("dashDeck");
