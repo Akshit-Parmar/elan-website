@@ -346,8 +346,9 @@
   window.__elanSendWelcome = sendWelcome;
 
   // ---- auth gate ----
-  async function showConsoleIfAuthed(){
-    var s=await sb.auth.getSession();
+  var ADMIN_CHECK=null;   // cached, so is_elan_admin is not asked twice
+  async function showConsoleIfAuthed(knownSession){
+    var s = knownSession ? {data:{session:knownSession}} : await sb.auth.getSession();
     if(!s.data.session) return false;
 
     // Ask the database whether this account is an Élan admin. Participants who
@@ -356,7 +357,8 @@
     try{
       var chk=await sb.rpc('is_elan_admin');
       if(chk.error) checkFailed=true; else isAdmin = chk.data===true;
-    }catch(e){ checkFailed=true; }
+      ADMIN_CHECK={ ok:!chk.error, isAdmin:isAdmin, err:chk.error?chk.error.message:'' };
+    }catch(e){ checkFailed=true; ADMIN_CHECK=null; }
 
     if(!isAdmin && !checkFailed){
       document.getElementById('gate').style.display='none';
@@ -379,17 +381,49 @@
       return true;
     }
 
+    // Show the console immediately. Data arrives underneath it rather than the
+    // user staring at the sign-in form while six queries run.
     document.getElementById('gate').style.display='none';
     document.getElementById('console').style.display='';
     document.getElementById('whoami').textContent=s.data.session.user.email||'';
     loadAll();
     return true;
   }
-  document.getElementById('gBtn').addEventListener('click', async function(){
-    var m=document.getElementById('gMsg'); m.textContent='Signing in…';
-    var r=await sb.auth.signInWithPassword({email:document.getElementById('gEmail').value.trim(),password:document.getElementById('gPw').value});
-    if(r.error){ m.textContent='Sign-in failed: '+r.error.message; return; }
-    m.textContent=''; showConsoleIfAuthed();
+  // Sign-in is guarded against repeat clicks. Password verification is bcrypt
+  // and runs on the database compute instance, so a second click does not
+  // retry, it queues another expensive verification behind the first and makes
+  // the wait longer. The auth log showed seven attempts in three seconds.
+  var SIGNING_IN=false;
+  async function doSignIn(){
+    if(SIGNING_IN) return;
+    var m=document.getElementById('gMsg'), btn=document.getElementById('gBtn');
+    var email=document.getElementById('gEmail').value.trim();
+    var pw=document.getElementById('gPw').value;
+    if(!email || !pw){ m.textContent='Enter your email and password.'; return; }
+    SIGNING_IN=true; btn.disabled=true; btn.style.opacity='.6';
+    var t0=Date.now(), slow=setTimeout(function(){
+      m.textContent='Still signing in\u2026 the server is slow to respond, please wait rather than clicking again.';
+    }, 3000);
+    m.textContent='Signing in\u2026';
+    try{
+      var r=await sb.auth.signInWithPassword({email:email, password:pw});
+      clearTimeout(slow);
+      if(r.error){ m.textContent='Sign-in failed: '+r.error.message; return; }
+      m.textContent='Signed in in '+((Date.now()-t0)/1000).toFixed(1)+'s. Loading\u2026';
+      // Use the session we were just handed instead of asking for it again.
+      await showConsoleIfAuthed(r.data.session);
+      m.textContent='';
+    }catch(e){
+      clearTimeout(slow);
+      m.textContent='Sign-in failed: '+String(e && e.message || e);
+    }finally{
+      SIGNING_IN=false; btn.disabled=false; btn.style.opacity='';
+    }
+  }
+  document.getElementById('gBtn').addEventListener('click', doSignIn);
+  ['gEmail','gPw'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doSignIn(); } });
   });
   document.getElementById('signout').addEventListener('click', async function(e){ e.preventDefault(); await sb.auth.signOut(); location.reload(); });
   document.getElementById('refresh').addEventListener('click', function(){ loadAll(); });
@@ -410,11 +444,18 @@
     // ---- Admin identity check -------------------------------------------------
     // RLS does NOT error when it blocks you - it silently returns zero rows.
     // So ask the database directly whether it recognises this account as an admin.
+    // Reuse the check the auth gate already made rather than paying for the
+    // same round trip twice on every load.
     var adminOk=null, adminErr='';
-    try{
-      var chk=await sb.rpc('is_elan_admin');
-      if(chk.error){ adminErr=chk.error.message; } else { adminOk = chk.data===true; }
-    }catch(e){ adminErr=String(e && e.message || e); }
+    if(ADMIN_CHECK){
+      adminOk = ADMIN_CHECK.ok ? ADMIN_CHECK.isAdmin : null;
+      adminErr = ADMIN_CHECK.ok ? '' : ADMIN_CHECK.err;
+    } else {
+      try{
+        var chk=await sb.rpc('is_elan_admin');
+        if(chk.error){ adminErr=chk.error.message; } else { adminOk = chk.data===true; }
+      }catch(e){ adminErr=String(e && e.message || e); }
+    }
 
     if(adminErr){
       note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px;margin-bottom:14px">'+
