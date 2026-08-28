@@ -454,15 +454,19 @@
     try{
       var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
       var changed=false;
-      // 1) sync flagship/theme/cents where missing
+      // 1) sync flagship/theme/cents from registrations, the source of truth
       var AP=realParts();
       for(var i=0;i<AP.length;i++){
         var p=AP[i];
-        if(p.flagship) continue;
         var reg=REGS.find(function(r){ return (r.email||'').toLowerCase()===(p.email||'').toLowerCase(); });
         var mfl=reg?((reg.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/)):null;
         if(!mfl) continue;
         var upd={ flagship: mfl[1].trim(), centsible_theme: mfl[2]?mfl[2].trim():null };
+        // This used to skip anyone who already had a flagship, so a participant
+        // who SWITCHED kept the old one in their portal forever. Now a mismatch
+        // is corrected; an exact match is still skipped so nothing is rewritten
+        // for no reason.
+        if(p.flagship===upd.flagship && (p.centsible_theme||null)===(upd.centsible_theme||null)) continue;
         if(upd.flagship==='Cent$ible' && p.cents_balance==null) upd.cents_balance=1000000;
         var r=await sb.from('participants').update(upd).eq('id', p.id);
         if(!r.error){ Object.assign(p,upd); changed=true; }
