@@ -158,11 +158,11 @@
 
     <!-- ADMINS -->
     <section class="apanel" id="tab-admins" style="display:none">
-      <p class="note">Create another Élan admin. The moment they sign in they get the full console: registrations, payments, check-in, announcements and previews.</p>
+      <p class="note">Create another Élan admin, or promote someone who is already a participant. The moment they sign in they get the full console: registrations, payments, check-in, announcements and previews. If the email already belongs to a participant, they are promoted in place and keep their existing password, so the password box is ignored.</p>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:560px">
         <label>Full name</label><input id="adName" autocomplete="off" placeholder="e.g. Riya Sharma"/>
         <label style="margin-top:10px;display:block">Email</label><input id="adEmail" type="email" autocomplete="off" placeholder="their login email"/>
-        <label style="margin-top:10px;display:block">Password</label><input id="adPw" type="text" autocomplete="off" placeholder="at least 8 characters, share it with them"/>
+        <label style="margin-top:10px;display:block">Password <span class="note" style="font-weight:400">(new admins only)</span></label><input id="adPw" type="text" autocomplete="off" placeholder="at least 8 characters, share it with them"/>
         <div style="margin-top:12px"><button class="btn btn-gold" id="adCreate">Create admin</button>
           <span class="note" id="adMsg" style="margin-left:10px"></span></div>
         <p class="note" style="margin-top:10px">The password is shown in plain text here only so you can pass it on. Ask them to change it after their first sign-in.</p>
@@ -912,7 +912,7 @@
         '<td><button class="mini-btn danger" data-revoke="'+esc(p.id)+'" data-nm="'+esc(p.full_name||'')+'">Revoke admin</button></td></tr>';
       }).join('')+'</table>';
     el.querySelectorAll('[data-revoke]').forEach(function(b){ b.addEventListener('click', async function(){
-      if(!confirm('Remove admin access for '+b.dataset.nm+'? Their login still works, but the console will be empty for them.')) return;
+      if(!confirm('Remove admin access for '+b.dataset.nm+'?\n\nTheir login and UID are unchanged. If they were promoted from a participant record they go back to being a normal participant, and will reappear in participant counts and check-in.')) return;
       b.disabled=true;
       var r=await sb.from('participants').update({is_admin:false}).eq('id', b.dataset.revoke);
       if(r.error){ alert('Blocked: '+r.error.message); b.disabled=false; return; }
@@ -925,14 +925,47 @@
     var nm=document.getElementById('adName').value.trim(),
         em=document.getElementById('adEmail').value.trim().toLowerCase(),
         pw=document.getElementById('adPw').value;
-    if(!nm||!em||!pw){ m.textContent='Fill in name, email and password.'; return; }
+    if(!nm||!em){ m.textContent='Fill in name and email.'; return; }
+
+    // Promotion path. signUp fails with "User already registered" for anyone who
+    // already has an account, which is exactly the case when you want to give an
+    // existing participant console access. Promote the record they already have
+    // instead: same login, same password, same UID.
+    var already=PARTS.filter(function(p){ return String(p.email||'').toLowerCase()===em; });
+    if(already.length>1){ m.textContent='Several participant records share that email. Fix the duplicate first.'; return; }
+    if(already.length===1){
+      var ex=already[0];
+      if(ex.is_admin){ m.textContent='That person is already an admin ('+(ex.participant_uid||'no UID')+').'; return; }
+      if(!confirm(ex.full_name+' is already a participant ('+(ex.participant_uid||'no UID')+').\n\n'+
+                  'Promote them to admin?\n\n'+
+                  '\u2022 They keep their existing password and UID\n'+
+                  '\u2022 They will be excluded from participant counts and check-in\n'+
+                  '\u2022 The welcome email tool will refuse to email them\n\n'+
+                  'The password box is ignored for a promotion.')) return;
+      m.textContent='Promoting\u2026';
+      var up=await sb.from('participants').update({ is_admin:true, full_name:nm||ex.full_name }).eq('id', ex.id);
+      if(up.error){ m.textContent='Could not promote: '+up.error.message; return; }
+      m.textContent='Promoted \u2713 '+(ex.participant_uid||'')+' now has console access. They sign in with their existing password.';
+      ['adName','adEmail','adPw'].forEach(function(id){document.getElementById(id).value='';});
+      loadAll();
+      return;
+    }
+
+    if(!pw){ m.textContent='Fill in a password for the new admin.'; return; }
     if(pw.length<8){ m.textContent='Password must be at least 8 characters.'; return; }
     m.textContent='Creating\u2026';
     // A SEPARATE client so signUp does not replace YOUR session.
     var sb2=window.supabase.createClient(window.ELAN_CONFIG.SUPABASE_URL, window.ELAN_CONFIG.SUPABASE_ANON_KEY,
       {auth:{persistSession:false, autoRefreshToken:false, storageKey:'elan-admin-create'}});
     var r=await sb2.auth.signUp({email:em, password:pw});
-    if(r.error){ m.textContent='Could not create login: '+r.error.message; return; }
+    if(r.error){
+      var em2=String(r.error.message||'').toLowerCase();
+      if(em2.indexOf('already')!==-1 || em2.indexOf('registered')!==-1){
+        m.textContent='That email already has a login but no participant record here, so it cannot be promoted from this screen. '+
+                      'Either use a different email, or add their participants row in Supabase with is_admin true and their auth user id.';
+      } else { m.textContent='Could not create login: '+r.error.message; }
+      return;
+    }
     var uid=(r.data && r.data.user && r.data.user.id) || null;
     if(!uid){ m.textContent='Login created, but no user id returned \u2014 check Supabase Auth.'; return; }
     // next admin UID: ELAN26-A001, A002 …
