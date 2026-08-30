@@ -458,10 +458,10 @@ body.js-enabled .reveal.visible{opacity:1;transform:none}
   color:var(--gold-2);
   margin:16px 0;
 }
-.role-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
-.role-card{min-height:310px;}
-.role-card h3{font-family:"Cormorant Garamond",serif;font-size:34px;line-height:.95;margin:40px 0 12px;color:var(--gold-2);}
-.role-card p{color:rgba(244,228,213,.78);line-height:1.58;}
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.role-card{min-height:264px;}
+.role-card h3{font-family:"Cormorant Garamond",serif;font-size:clamp(28px,2.3vw,36px);line-height:1.06;margin:26px 0 14px;color:var(--gold-2);text-wrap:balance;min-height:2.12em;display:flex;align-items:flex-end;}
+.role-card p{color:rgba(244,228,213,.78);line-height:1.62;font-size:16px;max-width:34ch;}
 .phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
 .phase-card span{display:inline-block;color:#8b621d;font-size:11px;text-transform:uppercase;letter-spacing:.18em;font-weight:900;margin-bottom:18px;}
 .phase-card h3{font-family:"Cormorant Garamond",serif;font-size:38px;line-height:.95;color:var(--midnight);margin-bottom:14px;}
@@ -474,8 +474,8 @@ body.js-enabled .reveal.visible{opacity:1;transform:none}
 .schedule-card[data-category="Flagship Moments"]{border-color:rgba(121,0,5,.18);box-shadow:0 22px 70px rgba(121,0,5,.09);}
 .schedule-card[data-category="Flagship Moments"] .tag{background:rgba(121,0,5,.10);color:#790005;}
 
-@media(max-width:1120px){.role-grid{grid-template-columns:repeat(3,1fr)}.flagship-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:940px){.flagship-intro,.flagship-grid,.phase-grid,.judging-grid{grid-template-columns:1fr 1fr}.role-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1120px){.flagship-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:940px){.flagship-intro,.flagship-grid,.phase-grid,.judging-grid{grid-template-columns:1fr 1fr}.role-grid{grid-template-columns:repeat(2,1fr)}.role-card{min-height:auto}.role-card h3{min-height:0;display:block}.role-card p{max-width:none}}
 @media(max-width:640px){.flagship-intro,.flagship-grid,.phase-grid,.judging-grid,.role-grid{grid-template-columns:1fr}.role-card{min-height:auto}.partner-note{width:100%;justify-content:center;text-align:center;border-radius:22px;padding:14px}}
 
 /* Safety fallback: content remains visible if JavaScript or scroll reveal fails. */
