@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var ROLES = ["Head of State", "Finance Minister", "Foreign Affairs Minister", "Policy Advisor", "Media & PR Head"];
+  var ROLES = ["Head of State", "Finance Minister", "Foreign Affairs Minister"];
   var ROUNDS = [
     { key: "day1", label: "Day 1: Final Submission", when: "Submit by 4:20 p.m. on 5 September" },
     { key: "day2", label: "Day 2: Final Response",   when: "Submit during the Final, before 12:00 p.m. on 6 September" }
@@ -15,9 +15,7 @@
   var HINT = {
     "Head of State":            "Your nation's overall position, the decisions taken, and why. Own the trade-offs.",
     "Finance Minister":         "Budget and resource allocation. What each decision costs and how it is funded.",
-    "Foreign Affairs Minister": "Diplomatic response, alliances, negotiations, and international consequences.",
-    "Policy Advisor":           "The written brief: options considered, reasoning, second-order effects, contingencies.",
-    "Media & PR Head":          "Public communication: official statements, press lines, and managing public trust."
+    "Foreign Affairs Minister": "Diplomatic response, alliances, negotiations, and international consequences."
   };
 
   var sb = null, P = null, round = "day1", channel = null;

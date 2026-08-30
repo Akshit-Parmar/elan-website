@@ -17,7 +17,7 @@
 
   var PHASES = [
     ["11:15 \u2013 12:15", "Phase 1 \u2014 The Situation Room",
-     "You receive the national crisis briefing, your council dossier, available resources, key stakeholders and initial intelligence. Analyse the crisis, split responsibilities across the five posts, agree your immediate priorities and set your opening strategy."],
+     "You receive the national crisis briefing, your council dossier, available resources, key stakeholders and initial intelligence. Analyse the crisis, split responsibilities across the three posts, agree your immediate priorities and set your opening strategy."],
     ["12:15 \u2013 13:15", "Phase 2 \u2014 Escalation",
      "A major update lands and changes the picture. Revise your strategy under time pressure. Judges are watching adaptability, reasoning, coordination and ethics as much as the decision itself."],
     ["14:00 \u2013 15:15", "Phase 3 \u2014 National Response",

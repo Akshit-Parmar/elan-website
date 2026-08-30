@@ -172,17 +172,17 @@
 
     <!-- CRISIS COMMAND TEAMS -->
     <section class="apanel" id="tab-teams" style="display:none">
-      <p class="note">Crisis Command cabinets hold 1 to 5 participants, one per post, and can be built here or auto-formed. Cent$ible teams are pairs by default, but a participant competing on their own can be given a solo team: leave Participant 2 blank. A solo team gets the same workspace, brief and submission access. VIRAL व्यापार and प्रश्न PRODIGY are retired from the public site but still shown here, so the participants registered on them stay visible until they are moved to BRAND बनाओ or NOTE नीति. BRAND बनाओ pairs then fill in their product brief, which is due 3 September. The other three themes submit nothing before the event. NOTE नीति pairs also need a linked team before they can trade, because the market is keyed to the team.</p>
+      <p class="note">Crisis Command cabinets hold 1 to 3 participants, one per post, and can be built here or auto-formed. Cent$ible teams are pairs by default, but a participant competing on their own can be given a solo team: leave Participant 2 blank. A solo team gets the same workspace, brief and submission access. VIRAL व्यापार and प्रश्न PRODIGY are retired from the public site but still shown here, so the participants registered on them stay visible until they are moved to BRAND बनाओ or NOTE नीति. BRAND बनाओ pairs then fill in their product brief, which is due 3 September. The other three themes submit nothing before the event. NOTE नीति pairs also need a linked team before they can trade, because the market is keyed to the team.</p>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px">
         <strong>Crisis Command cabinets</strong>
-        <p class="note" style="margin:4px 0 10px">Create an empty cabinet, then add participants to it from the Cabinets table below, choosing each person's post. A cabinet can hold anything from 1 to 5 people; it does not have to be full to submit.</p>
+        <p class="note" style="margin:4px 0 10px">Create an empty cabinet, then add participants to it from the Cabinets table below, choosing each person's post. A cabinet can hold anything from 1 to 3 people; it does not have to be full to submit.</p>
         <div class="row" style="grid-template-columns:1fr 1fr auto">
           <div><label>Cabinet name</label><input id="tmName" placeholder="e.g. Cabinet Alpha"/></div>
           <div><label>Nation (optional)</label><input id="tmNation" placeholder="e.g. Republic of Aravind"/></div>
           <div><label>&nbsp;</label><button class="btn btn-ghost" id="tmCreate" style="width:100%">Create cabinet</button></div>
         </div>
         <div class="row" style="grid-template-columns:auto 1fr;margin-top:12px;align-items:end">
-          <div><label>Cabinet size</label><select id="tmSize"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></div>
+          <div><label>Cabinet size</label><select id="tmSize"><option>3</option><option>2</option><option>1</option></select></div>
           <div><label>&nbsp;</label><button class="btn btn-gold" id="tmAuto" style="width:100%">Auto-form cabinets from unassigned participants</button></div>
         </div>
         <span class="note" id="tmMsg"></span>
@@ -249,7 +249,7 @@
         <div><label>Cabinet post (Crisis Command only)</label>
           <select id="pvRole">
             <option>Head of State</option><option>Finance Minister</option>
-            <option>Foreign Affairs Minister</option><option>Policy Advisor</option><option>Media &amp; PR Head</option>
+            <option>Foreign Affairs Minister</option>
           </select>
         </div>
         <div><label>Portal page</label>
@@ -506,7 +506,7 @@
   async function autoPilot(){
     if(AUTOP_RAN) return; AUTOP_RAN=true;
     try{
-      var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
+      var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister'];
       var changed=false;
       // 1) sync flagship/theme/cents from registrations, the source of truth
       var AP=realParts();
@@ -543,9 +543,9 @@
   function realParts(){ return PARTS.filter(function(p){ return p.is_admin !== true; }); }
 
   function money(n){ n=Number(n)||0; return '\u20B9'+n.toLocaleString('en-IN'); }
-  // The five Crisis Command cabinet posts, used by the auto-assign, the manual
+  // The three Crisis Command cabinet posts, used by the auto-assign, the manual
   // cabinet builder and the portal preview.
-  var CC_POSTS=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
+  var CC_POSTS=['Head of State','Finance Minister','Foreign Affairs Minister'];
 
   // cc_teams holds both kinds. Anything not explicitly marked 'centsible' is a
   // cabinet, so rows created before the kind column existed still behave.
@@ -791,7 +791,7 @@
   function renderParts(){
     var el=document.getElementById('partTable');
     if(!PARTS.length){ el.innerHTML='<p class="note">No participant records found. If you have issued participants, this means the database is returning zero rows \u2014 check the admin banner above.</p>'; return; }
-    var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
+    var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister'];
     var pq=((document.getElementById('pSearch')||{}).value||'').toLowerCase().trim();
     var pf=((document.getElementById('pFlag')||{}).value||'');
     var pt=((document.getElementById('pTheme')||{}).value||'');
@@ -871,7 +871,7 @@
 
   document.getElementById('assignCC').addEventListener('click', async function(){
     var m=document.getElementById('partMsg');
-    var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister','Policy Advisor','Media & PR Head'];
+    var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister'];
     var cc=PARTS.filter(function(p){return p.flagship==='Crisis Command';})
                 .sort(function(a,b){return String(a.participant_uid).localeCompare(String(b.participant_uid));});
     if(!cc.length){ m.textContent='No Crisis Command participants yet (run Sync first).'; return; }
@@ -1104,8 +1104,9 @@
     var pool=realParts().filter(function(p){return p.flagship==='Crisis Command' && !p.team_id;})
                         .sort(function(a,b){return String(a.participant_uid).localeCompare(String(b.participant_uid));});
     if(!pool.length){ m.textContent='No unassigned Crisis Command participants.'; return; }
-    // The remainder used to be silently dropped: 19 people at size 5 formed 3
-    // cabinets and left 4 with no cabinet at all. Now they get a smaller one.
+    // The remainder used to be silently dropped. At size 3, 19 unassigned would
+    // form 6 cabinets and leave 1 person with no cabinet at all. Now the
+    // leftover goes into a smaller final cabinet instead of being skipped.
     var full=Math.floor(pool.length/size), rem=pool.length%size;
     var msg='Form '+(full+(rem?1:0))+' cabinet(s) from '+pool.length+' unassigned participant(s), at up to '+size+' each?';
     if(rem) msg+='\n\nThe last cabinet will have '+rem+' member(s).';
