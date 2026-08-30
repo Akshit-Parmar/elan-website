@@ -29,6 +29,55 @@
 
   /* ---- live-format briefings ---- */
   var BRIEF = {};
+  BRIEF[NOTE] = {
+    intro: "NOTE \u0928\u0940\u0924\u093F is played live and there is nothing to submit before the event. Round 1 runs on the " +
+           "trading floor inside this portal and Round 2 is physical, in the room. Your Round 1 closing capital and the value " +
+           "of the coins you finish Round 2 with are added together, so a bad first round is recoverable and a good one is not " +
+           "a guarantee.",
+    rounds: [
+      ["Round 1", "The Money Market Mayhem",
+       "Two hours on a live market run through this portal, starting with 10,00,000 Cents. Buy and sell across the listed " +
+       "companies as prices move. Every five minutes the host announces a new market status and you decide whether to hold, " +
+       "sell or switch. Your portfolio is valued live and the leaderboard moves with it. When the final freeze is called your " +
+       "closing capital is locked and no further trades count."],
+      ["Round 2", "The Coin Economy",
+       "The floor becomes physical. Your team is handed thirty coins, ten red, ten blue and ten black, and five zones open at " +
+       "once: Dice of Fortune, the Spin Wheel, Stock Market Dart, Investment Plinko and the Bull versus Bear Arena. You choose " +
+       "your route, you may play any zone twice, and you can split up to cover more ground. Ninety minutes, then the zones " +
+       "close and your coins are counted."]
+    ],
+    judged: [
+      "Total capital: Round 1 closing value plus the value of the coins you hold at the end",
+      "Risk management, and whether your bets were sized to what you could afford to lose",
+      "How quickly you react to a market status change",
+      "Financial awareness and the reasoning behind your positions",
+      "Decision-making under a running clock",
+      "How well the two of you divide the work"
+    ],
+    prep: [
+      "Sign in and open the trading floor before the event so the screen is familiar. You cannot trade until it opens, but you can look.",
+      "Agree in advance who watches prices and who places the trades. Two people arguing over one phone loses you a status change.",
+      "Decide your rule for a crash before it happens. Deciding in the moment is how teams lose a round.",
+      "Do not put everything into one company. A single bad status announcement ends your round.",
+      "For Round 2, agree a route through the five zones before the clock starts, and agree who covers which zone if you split."
+    ],
+    practice: [
+      ["Money Market Mayhem", "Pick five real listed companies and follow them for a week. Each day, decide hold, sell or switch, and write down why. Check yourself at the end."],
+      ["Money Market Mayhem", "Give yourself an imaginary 10,00,000 and split it across four companies. Change one thing each day and see what it does."],
+      ["Money Market Mayhem", "Practise reacting to one sentence of news: a factory fire, a good quarter, a resignation. Decide in ten seconds."],
+      ["The Coin Economy", "With thirty counters at home, plan how you would spend them across five games where you can play each twice. Write the plan, then see if you would follow it under pressure."],
+      ["The Coin Economy", "Practise splitting up. One of you takes two zones, the other takes three, and you meet after ninety seconds to compare."]
+    ],
+    mistakes: [
+      "Putting all your Cents into one company and losing the round on a single announcement.",
+      "Trading constantly. Every switch is a decision you might get wrong, and doing nothing is sometimes the right call.",
+      "Missing a status announcement because both of you were looking at the same screen.",
+      "Chasing losses after a crash with a bigger bet than you can cover.",
+      "Treating Round 2 as a game of luck. You choose the route and how many coins to commit, and that is the strategy.",
+      "Spending all thirty coins in the first two zones and having nothing left for the arena."
+    ]
+  };
+
   BRIEF[VIRAL] = {
     intro: "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930 is judged live in the room. There is nothing to submit before the event. " +
            "Both rounds give you thirty minutes to prepare and five minutes to pitch, so what decides your result is how " +
