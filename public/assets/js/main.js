@@ -301,14 +301,18 @@ function validateForm(form){
  * ------------------------------------------------------------------ */
 const TICKET_OPEN = {
   early:    false,   // Early Bird        — ₹3,699 (CLOSED, window has passed)
-  standard: true,    // Standard          — ₹4,199 (includes stay + transport)
-  late:     false,   // Late Registration — ₹4,899 (includes stay + transport)
-  day:      true     // Day Delegate      — ₹2,800 (no stay, no transport)
+  standard: false,   // Standard          — ₹4,199 (CLOSED)
+  late:     false,   // Late Registration — ₹4,899 (CLOSED)
+  day:      false    // Day Delegate      — ₹2,800 (CLOSED)
 };
+// ALL REGISTRATION IS CURRENTLY CLOSED. With no tier open, the registration
+// form disables itself and shows the closed notice. To reopen a tier, set it
+// to true here, then run tools/set-ticket-state.py so the schema.org offer
+// availability on every Event page matches, then redeploy.
 
 // Tiers listed here read "Sold out" instead of "Currently closed" when shut:
 // their window has passed and will not reopen.
-const TICKET_SOLD_OUT = ['early'];
+const TICKET_SOLD_OUT = ['early'];   // 'Sold out'; everything else reads 'Currently closed'
 
 function isTierOpen(tier){ return TICKET_OPEN[tier] === true; }
 function tierClosedLabel(tier){ return TICKET_SOLD_OUT.indexOf(tier) !== -1 ? 'Sold out' : 'Currently closed'; }
@@ -357,7 +361,7 @@ function initTicketAvailability(){
   if(!anyOpen){
     if(ticketSelect) ticketSelect.disabled = true;
     if(form){ const s = qs('button[type="submit"]', form); if(s) s.disabled = true; }
-    if(closedNote){ closedNote.textContent = 'Registration is currently closed.'; closedNote.hidden = false; }
+    if(closedNote){ closedNote.textContent = 'Registration is closed for now. Watch this page or contact elan@sgischool.in if you need to be added.'; closedNote.hidden = false; }
   } else if(closedNote){
     closedNote.hidden = true;
   }
