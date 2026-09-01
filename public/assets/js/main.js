@@ -301,18 +301,17 @@ function validateForm(form){
  * ------------------------------------------------------------------ */
 const TICKET_OPEN = {
   early:    false,   // Early Bird        — ₹3,699 (CLOSED, window has passed)
-  standard: false,   // Standard          — ₹4,199 (CLOSED)
-  late:     false,   // Late Registration — ₹4,899 (CLOSED)
-  day:      false    // Day Delegate      — ₹2,800 (CLOSED)
+  standard: true,    // Standard          — ₹4,199 (OPEN, includes stay + transport)
+  late:     false,   // Late Registration — ₹4,899 (CLOSED, window has passed)
+  day:      true     // Day Delegate      — ₹2,800 (OPEN, no stay, no transport)
 };
-// ALL REGISTRATION IS CURRENTLY CLOSED. With no tier open, the registration
-// form disables itself and shows the closed notice. To reopen a tier, set it
-// to true here, then run tools/set-ticket-state.py so the schema.org offer
-// availability on every Event page matches, then redeploy.
+// After changing any tier here, run tools/set-ticket-state.py so the schema.org
+// offer availability on every Event page matches, then redeploy. Missing that
+// step leaves Google advertising a tier that is not actually on sale.
 
 // Tiers listed here read "Sold out" instead of "Currently closed" when shut:
 // their window has passed and will not reopen.
-const TICKET_SOLD_OUT = ['early'];   // 'Sold out'; everything else reads 'Currently closed'
+const TICKET_SOLD_OUT = ['early', 'late'];   // windows have passed: read 'Sold out', not 'Currently closed'
 
 function isTierOpen(tier){ return TICKET_OPEN[tier] === true; }
 function tierClosedLabel(tier){ return TICKET_SOLD_OUT.indexOf(tier) !== -1 ? 'Sold out' : 'Currently closed'; }
