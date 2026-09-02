@@ -330,7 +330,21 @@
           var r = await sb.from("cc_sections").upsert({ team_id: p.team_id, round: "brief", role: k,
             body: inp.value, updated_at: new Date().toISOString(), updated_by: p.auth_user_id || null },
             { onConflict: "team_id,round,role" });
-          if (saved) saved.textContent = r.error ? "not saved, retrying" : "saved";
+          if (r.error) {
+            // Swallowing this made a save failure look like a slow network.
+            // Show the real reason: a participant reporting "not saved" with no
+            // detail is unfixable, and this saves before a deadline.
+            console.error("Product brief save failed:", r.error);
+            if (saved) {
+              saved.textContent = "NOT SAVED: " + (r.error.message || "unknown error");
+              saved.style.color = "#b3261e";
+              saved.title = "Screenshot this and send it to the organisers.";
+            }
+          } else if (saved) {
+            saved.textContent = "saved";
+            saved.style.color = "";
+            saved.title = "";
+          }
         }, 800);
       });
     });
