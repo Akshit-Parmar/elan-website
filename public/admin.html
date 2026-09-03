@@ -982,12 +982,14 @@
   });
 
   // ---- Crisis Command teams ----
-  var TEAMS=[], SUBS=[];
+  var TEAMS=[], SUBS=[], SUBS_ERR='';
   async function loadTeams(){
     var a=await sb.from('cc_teams').select('*').order('name');
     TEAMS=a.error?[]:(a.data||[]);
     var b=await sb.from('cc_submissions').select('*');
-    SUBS=b.error?[]:(b.data||[]);
+    // Swallowing this made every cabinet look unsubmitted with no clue why.
+    if(b.error){ console.error('cc_submissions read blocked:', b.error); SUBS=[]; SUBS_ERR=b.error.message; }
+    else { SUBS=b.data||[]; SUBS_ERR=''; }
     renderTeams();
   }
   function renderTeams(){
@@ -1066,15 +1068,28 @@
   async function viewReport(teamId, name){
     var box=document.getElementById('tmReport');
     box.innerHTML='<p class="note">Loading report\u2026</p>';
-    var secs=await sb.from('cc_sections').select('*').eq('team_id',teamId).order('round');
-    var files=await sb.from('cc_files').select('*').eq('team_id',teamId);
+    // Sections and files were fetched fresh here while the submission status
+    // came from SUBS, cached at page load. A team that submitted after you
+    // opened the console showed as "not submitted" until a full reload. Fetch
+    // all three together.
+    var res=await Promise.all([
+      sb.from('cc_sections').select('*').eq('team_id',teamId).order('round'),
+      sb.from('cc_files').select('*').eq('team_id',teamId),
+      sb.from('cc_submissions').select('*').eq('team_id',teamId)
+    ]);
+    var secs=res[0], files=res[1], subsQ=res[2];
     if(secs.error){ box.innerHTML='<p class="note">Blocked: '+esc(secs.error.message)+'</p>'; return; }
-    var rounds=[['day1','Day 1 \u2014 Final Submission'],['day2','Day 2 \u2014 Final Response']];
-    box.innerHTML='<h3 style="margin:26px 0 10px">'+esc(name)+' \u2014 report</h3>'+
+    if(subsQ.error){ box.innerHTML='<p class="note">Could not read submission status: '+esc(subsQ.error.message)+'</p>'; return; }
+    var teamSubs=subsQ.data||[];
+    // Keep the cached list in step so the Cabinets table agrees with this view.
+    SUBS=SUBS.filter(function(x){ return String(x.team_id)!==String(teamId); }).concat(teamSubs);
+    var rounds=[['day1','Day 1: Final Submission'],['day2','Day 2: Final Response']];
+    box.innerHTML='<h3 style="margin:26px 0 10px">'+esc(name)+': report '+
+      '<button class="mini-btn" id="rpRefresh" style="vertical-align:middle;margin-left:8px">Refresh</button></h3>'+
       rounds.map(function(r){
         var rs=(secs.data||[]).filter(function(x){return x.round===r[0];});
         var fs=(files.data||[]).filter(function(x){return x.round===r[0];});
-        var sub=SUBS.filter(function(x){return String(x.team_id)===String(teamId)&&x.round===r[0];})[0];
+        var sub=teamSubs.filter(function(x){return x.round===r[0];})[0];
         return '<div style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;margin-bottom:14px">'+
           '<strong>'+r[1]+'</strong> '+(sub?'<span class="pill-paid">submitted '+esc(String(sub.submitted_at).slice(0,16).replace('T',' '))+'</span>':'<span class="pill-pending">not submitted</span>')+
           (rs.length?rs.map(function(x){return '<div style="margin-top:12px"><span class="note" style="font-weight:800;text-transform:uppercase;letter-spacing:.08em">'+esc(x.role)+'</span>'+
