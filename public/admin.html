@@ -1334,8 +1334,14 @@
       var msg=document.getElementById('mkMsg');
       msg.textContent='Resetting prices\u2026';
       var r=await sb.rpc('nn_reset_market');
-      if(r.error){ msg.textContent='Could not reset prices: '+r.error.message; return; }
-      if(r.data && r.data.ok===false){ msg.textContent='Could not reset prices: '+r.data.error; return; }
+      if(r.error){
+        msg.textContent='';
+        alert('Could not reset prices.\n\n'+r.error.message+
+              (/(function|does not exist|schema cache)/i.test(r.error.message)
+                ? '\n\nThe database function nn_reset_market() is missing. Run note-niti-market-fixes.sql in the Supabase SQL Editor.' : ''));
+        return;
+      }
+      if(r.data && r.data.ok===false){ msg.textContent=''; alert('Could not reset prices.\n\n'+r.data.error); return; }
       msg.textContent='Prices, day range and charts reset for '+((r.data&&r.data.companies)||0)+' companies.';
       loadMarket();
     });
@@ -1344,8 +1350,14 @@
       var msg=document.getElementById('mkMsg');
       msg.textContent='Resetting portfolios\u2026';
       var r=await sb.rpc('nn_reset_portfolios');
-      if(r.error){ msg.textContent='Could not reset portfolios: '+r.error.message; return; }
-      if(r.data && r.data.ok===false){ msg.textContent='Could not reset portfolios: '+r.data.error; return; }
+      if(r.error){
+        msg.textContent='';
+        alert('Could not reset portfolios.\n\n'+r.error.message+
+              (/(function|does not exist|schema cache)/i.test(r.error.message)
+                ? '\n\nThe database function nn_reset_portfolios() is missing. Run note-niti-market-fixes.sql in the Supabase SQL Editor.' : ''));
+        return;
+      }
+      if(r.data && r.data.ok===false){ msg.textContent=''; alert('Could not reset portfolios.\n\n'+r.data.error); return; }
       msg.textContent='Portfolios reset for '+((r.data&&r.data.teams)||0)+' teams.';
       loadMarket();
     });
