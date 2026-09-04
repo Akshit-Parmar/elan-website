@@ -175,6 +175,7 @@
       <p class="note">Crisis Command cabinets hold 1 to 3 participants, one per post, and can be built here or auto-formed. Cent$ible teams are pairs by default, but a participant competing on their own can be given a solo team: leave Participant 2 blank. A solo team gets the same workspace, brief and submission access. VIRAL व्यापार and प्रश्न PRODIGY are retired from the public site but still shown here, so the participants registered on them stay visible until they are moved to BRAND बनाओ or NOTE नीति. BRAND बनाओ pairs then fill in their product brief, which is due 3 September. The other three themes submit nothing before the event. NOTE नीति pairs also need a linked team before they can trade, because the market is keyed to the team.</p>
       <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px">
         <strong>Crisis Command cabinets</strong>
+        <button class="mini-btn" id="tmReload" style="float:right">Reload from database</button>
         <p class="note" style="margin:4px 0 10px">Create an empty cabinet, then add participants to it from the Cabinets table below, choosing each person's post. A cabinet can hold anything from 1 to 3 people; it does not have to be full to submit.</p>
         <div class="row" style="grid-template-columns:1fr 1fr auto">
           <div><label>Cabinet name</label><input id="tmName" placeholder="e.g. Cabinet Alpha"/></div>
@@ -570,6 +571,50 @@
 
   // Whether a participant has replaced the emailed Firstname.Lastname password
   // with one of their own. Élan never sees or stores the password itself.
+  // Flagship and theme live in TWO places: registrations.notes is the source of
+  // truth, and participants.flagship is what the portal and the Teams tab read.
+  // The autopilot copies notes -> participants on every load, so editing only
+  // the participants row shows up in the portal and is then silently reverted.
+  // This control writes both, so the change sticks.
+  var THEMES_LIST=['BRAND \u092C\u0928\u093E\u0913','NOTE \u0928\u0940\u0924\u093F'];
+  function flagCell(p){
+    var id=esc(p.id);
+    var opts=['','Crisis Command','Cent$ible'].map(function(f){
+      return '<option value="'+esc(f)+'"'+(p.flagship===f?' selected':'')+'>'+(f||'\u2014 none \u2014')+'</option>';
+    }).join('');
+    var th='';
+    if(p.flagship==='Cent$ible'){
+      th='<br><select class="mini-sel" data-theme-for="'+id+'" style="margin-top:4px;max-width:150px">'+
+         '<option value="">\u2014 theme \u2014</option>'+
+         THEMES_LIST.map(function(t){ return '<option'+(p.centsible_theme===t?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+
+         '</select>';
+    }
+    return '<select class="mini-sel" data-flag-for="'+id+'" style="max-width:150px">'+opts+'</select>'+th;
+  }
+
+  // Rewrites the [Flagship: ...] tag inside registrations.notes, or appends one
+  // if the registration has none, then updates the participant to match.
+  async function setFlagship(pid, flagship, theme){
+    var p=PARTS.filter(function(x){ return String(x.id)===String(pid); })[0];
+    if(!p) return {ok:false, error:'Participant not found.'};
+    var tag = flagship ? ('[Flagship: '+flagship+(flagship==='Cent$ible'&&theme?(' \u2014 '+theme):'')+']') : '';
+
+    var reg=REGS.filter(function(r){ return String(r.email||'').toLowerCase()===String(p.email||'').toLowerCase(); })[0];
+    if(reg){
+      var notes=String(reg.notes||'');
+      var re=/\[Flagship:[^\]]*\]/;
+      notes = re.test(notes) ? notes.replace(re, tag) : (tag ? (tag+' '+notes).trim() : notes);
+      var r1=await sb.from('registrations').update({notes:notes}).eq('id', reg.id);
+      if(r1.error) return {ok:false, error:'registrations: '+r1.error.message};
+    }
+    var patch={ flagship: flagship||null };
+    patch.centsible_theme = (flagship==='Cent$ible') ? (theme||null) : null;
+    if(flagship!=='Crisis Command') patch.cc_role=null;
+    var r2=await sb.from('participants').update(patch).eq('id', pid);
+    if(r2.error) return {ok:false, error:'participants: '+r2.error.message};
+    return {ok:true, no_reg:!reg};
+  }
+
   function acctCell(p){
     if(p.must_change_password === true)
       return '<span class="chip warn">not activated</span><br><span class="note" style="font-size:11px">still on the emailed password</span>';
@@ -823,11 +868,32 @@
         } else if(p.flagship==='Cent$ible'){ mid=esc(p.centsible_theme||'\u2014'); }
         var cents=(p.flagship==='Cent$ible')?((p.cents_balance!=null?Number(p.cents_balance).toLocaleString('en-IN'):'\u2014')+' <button class="mini-btn" data-cents="'+esc(p.id)+'">\u00B1</button>'):'\u2014';
         return '<tr'+(p.is_admin?' style="background:#faf7f2"':'')+'><td class="mono"><strong>'+esc(p.participant_uid||'')+'</strong></td><td>'+esc(p.full_name||'')+(p.is_admin?' <span class="pill-pending">admin</span>':'')+'<br><span class="note">'+esc((p.ticket_type||'').split('\u00B7')[0])+'</span></td>'+
-        '<td>'+esc(p.flagship||'\u2014')+'</td><td>'+mid+'</td><td>'+cents+'</td>'+
+        '<td>'+flagCell(p)+'</td><td>'+mid+'</td><td>'+cents+'</td>'+
         '<td>'+esc(p.email||'')+'<br><span class="note">'+esc(p.phone||'')+'</span></td>'+
         '<td>'+acctCell(p)+'</td>'+
         '<td><button class="mini-btn danger" data-del="'+esc(p.id)+'" data-uid="'+esc(p.participant_uid||'')+'">Remove</button></td></tr>';
       }).join('')+'</table>';
+    el.querySelectorAll('[data-flag-for]').forEach(function(sel){ sel.addEventListener('change', async function(){
+      var pid=sel.dataset.flagFor, val=sel.value;
+      var cur=PARTS.filter(function(x){ return String(x.id)===String(pid); })[0]||{};
+      if(val==='Cent$ible' && !cur.centsible_theme){
+        alert('Set the flagship to Cent$ible first, then pick the theme from the second dropdown that appears.');
+      }
+      sel.disabled=true;
+      var r=await setFlagship(pid, val, cur.centsible_theme);
+      sel.disabled=false;
+      if(!r.ok){ alert('Could not change the flagship:\n\n'+r.error); loadAll(); return; }
+      if(r.no_reg) alert('Updated the participant, but no registration was found for that email, so registrations.notes was not changed. If a registration exists under a different address, fix that too or the autopilot will revert this.');
+      loadAll();
+    });});
+    el.querySelectorAll('[data-theme-for]').forEach(function(sel){ sel.addEventListener('change', async function(){
+      var pid=sel.dataset.themeFor;
+      sel.disabled=true;
+      var r=await setFlagship(pid, 'Cent$ible', sel.value);
+      sel.disabled=false;
+      if(!r.ok){ alert('Could not change the theme:\n\n'+r.error); loadAll(); return; }
+      loadAll();
+    });});
     el.querySelectorAll('[data-role]').forEach(function(sel){ sel.addEventListener('change', async function(){
       var r=await sb.from('participants').update({cc_role: sel.value||null}).eq('id', sel.dataset.role);
       if(r.error){ alert('Blocked: '+r.error.message); return; } loadAll();
@@ -1103,6 +1169,9 @@
     });});
     box.scrollIntoView({behavior:'smooth',block:'start'});
   }
+  var tmReload=document.getElementById('tmReload');
+  if(tmReload) tmReload.addEventListener('click', function(){ tmReload.textContent='Reloading\u2026'; loadAll(); });
+
   document.getElementById('tmCreate').addEventListener('click', async function(){
     var n=document.getElementById('tmName').value.trim();
     var m=document.getElementById('tmMsg');
