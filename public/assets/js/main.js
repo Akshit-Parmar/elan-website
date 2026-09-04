@@ -303,7 +303,7 @@ const TICKET_OPEN = {
   early:    false,   // Early Bird        — ₹3,699 (CLOSED, window has passed)
   standard: false,   // Standard          — ₹4,199 (CLOSED)
   late:     false,   // Late Registration — ₹4,899 (CLOSED, window has passed)
-  day:      false    // Day Delegate      — ₹2,800 (CLOSED)
+  day:      true     // Day Delegate      — ₹2,800 (OPEN, no stay, no transport)
 };
 // After changing any tier here, run tools/set-ticket-state.py so the schema.org
 // offer availability on every Event page matches, then redeploy. Missing that
