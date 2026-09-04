@@ -187,6 +187,16 @@
           <div><label>&nbsp;</label><button class="btn btn-gold" id="tmAuto" style="width:100%">Auto-form cabinets from unassigned participants</button></div>
         </div>
         <span class="note" id="tmMsg"></span>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border,#d9d6cf)">
+          <label>Assign nations</label>
+          <p class="note" style="margin:2px 0 6px">One per line, in order. They fill the cabinets that have no nation yet, top to bottom. Tick the box to overwrite nations already set.</p>
+          <textarea id="tmNations" rows="4" placeholder="Republic of Arvana&#10;Kingdom of Solara&#10;Federation of Nyra" style="width:100%;font-family:inherit;font-size:14px;padding:8px;border-radius:8px;border:1px solid var(--border,#d9d6cf)"></textarea>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap">
+            <button class="mini-btn" id="tmNationsGo">Assign to cabinets</button>
+            <label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="tmNationsOver"/> overwrite existing</label>
+            <span class="note" id="tmNationsMsg"></span>
+          </div>
+        </div>
         <p class="note" style="margin-top:8px">Auto-form groups unassigned Crisis Command participants in UID order into cabinets of the chosen size, one per post. Anyone left over at the end goes into a smaller final cabinet rather than being skipped.</p>
       </div>
       <div id="stgNote" class="rep" style="margin-top:14px"></div>
@@ -306,6 +316,7 @@
 .pill-pending{background:#fef3c7;color:#92400e;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
 .mini-btn{padding:5px 12px;font-size:12px;border-radius:999px;border:1px solid var(--border,#d9d6cf);background:#fff;cursor:pointer;font-weight:700}
 .mini-sel{padding:4px 8px;font-size:12px;border-radius:8px;border:1px solid var(--border,#d9d6cf);background:#fff;cursor:pointer;max-width:100%}
+.mini-in{padding:4px 8px;font-size:12px;border-radius:8px;border:1px solid var(--border,#d9d6cf);background:#fff;width:100%;max-width:170px;transition:border-color .2s}
 .mini-btn:hover{background:var(--navy,#13273F);color:#fff}
 .mini-btn.danger{border-color:#fecaca;color:#b91c1c}
 .mini-btn.danger:hover{background:#b91c1c;color:#fff;border-color:#b91c1c}
@@ -1070,7 +1081,9 @@
         var mem=cc.filter(function(p){return String(p.team_id)===String(t.id);});
         var d1=SUBS.some(function(x){return String(x.team_id)===String(t.id)&&x.round==='day1';});
         var d2=SUBS.some(function(x){return String(x.team_id)===String(t.id)&&x.round==='day2';});
-        return '<tr><td><strong>'+esc(t.name)+'</strong>'+(t.nation?'<br><span class="note">'+esc(t.nation)+'</span>':'')+'</td>'+
+        return '<tr><td><strong>'+esc(t.name)+'</strong>'+
+        '<br><input class="mini-in" data-nation-for="'+esc(t.id)+'" value="'+esc(t.nation||'')+'" placeholder="nation" style="margin-top:4px"/>'+
+        '</td>'+
         '<td>'+(mem.length?mem.map(function(m){
           return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">'+
             '<select class="mini-sel" data-role-for="'+esc(m.id)+'" style="max-width:170px">'+
@@ -1095,6 +1108,24 @@
         '<td><button class="mini-btn" data-view="'+esc(t.id)+'" data-nm="'+esc(t.name)+'">View report</button> '+
         '<button class="mini-btn danger" data-tmdel="'+esc(t.id)+'" data-nm="'+esc(t.name)+'">Delete</button></td></tr>';
       }).join('')+'</table>';
+    el.querySelectorAll('[data-nation-for]').forEach(function(inp){
+      var save=async function(){
+        var v=inp.value.trim();
+        if(v===(inp.defaultValue||'')) return;
+        inp.disabled=true;
+        var r=await sb.from('cc_teams').update({nation: v||null}).eq('id', inp.dataset.nationFor);
+        inp.disabled=false;
+        if(r.error){ alert('Could not save the nation: '+r.error.message); return; }
+        inp.defaultValue=v;
+        var t=TEAMS.filter(function(x){ return String(x.id)===String(inp.dataset.nationFor); })[0];
+        if(t) t.nation=v||null;
+        inp.style.borderColor='#2e7d32';
+        setTimeout(function(){ inp.style.borderColor=''; }, 900);
+      };
+      inp.addEventListener('change', save);
+      inp.addEventListener('blur', save);
+      inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } });
+    });
     el.querySelectorAll('[data-role-for]').forEach(function(sel){ sel.addEventListener('change', async function(){
       var r=await sb.from('participants').update({cc_role: sel.value||null}).eq('id', sel.dataset.roleFor);
       if(r.error){ alert('Could not set the post: '+r.error.message); return; }
@@ -1169,6 +1200,36 @@
     });});
     box.scrollIntoView({behavior:'smooth',block:'start'});
   }
+  var tmNationsGo=document.getElementById('tmNationsGo');
+  if(tmNationsGo) tmNationsGo.addEventListener('click', async function(){
+    var msg=document.getElementById('tmNationsMsg');
+    var list=document.getElementById('tmNations').value.split('\n')
+              .map(function(x){ return x.trim(); }).filter(Boolean);
+    if(!list.length){ msg.textContent='Paste one nation per line first.'; return; }
+    var over=document.getElementById('tmNationsOver').checked;
+    // Cabinets only, in the same order the table shows them.
+    var cabs=CC_TEAMS().slice().sort(function(a,b){
+      return String(a.name||'').localeCompare(String(b.name||''), undefined, {numeric:true});
+    });
+    var targets=over?cabs:cabs.filter(function(t){ return !t.nation; });
+    if(!targets.length){ msg.textContent='Every cabinet already has a nation. Tick overwrite to replace them.'; return; }
+    var n=Math.min(list.length, targets.length);
+    if(!confirm('Assign '+n+' nation(s) to '+(over?'the first '+n+' cabinets, replacing what is there':'the first '+n+' cabinets without one')+'?\n\n'+
+                targets.slice(0,n).map(function(t,i){ return t.name+'  ->  '+list[i]; }).join('\n'))) return;
+    tmNationsGo.disabled=true;
+    var done=0, fails=[];
+    for(var i=0;i<n;i++){
+      msg.textContent='Assigning '+(i+1)+' of '+n+'\u2026';
+      var r=await sb.from('cc_teams').update({nation:list[i]}).eq('id', targets[i].id);
+      if(r.error) fails.push(targets[i].name+': '+r.error.message); else done++;
+    }
+    tmNationsGo.disabled=false;
+    msg.textContent=done+' assigned'+(fails.length?', '+fails.length+' failed':'')+'.';
+    if(fails.length) alert('Some nations were not saved:\n\n'+fails.join('\n'));
+    if(list.length>targets.length) msg.textContent+=' '+(list.length-targets.length)+' nation(s) left over.';
+    loadAll();
+  });
+
   var tmReload=document.getElementById('tmReload');
   if(tmReload) tmReload.addEventListener('click', function(){ tmReload.textContent='Reloading\u2026'; loadAll(); });
 
