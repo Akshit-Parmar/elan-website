@@ -281,55 +281,20 @@
     var total = qty * Number(c.price);
     var thin = c.liquidity === "low" && total > 150000;
 
+    // A native confirm, not a custom overlay. The styled dialog depended on a
+    // stylesheet and a body-level element rendering correctly, and when either
+    // failed the participant got a dimmed page with nothing to click and no way
+    // to scroll. A browser confirm cannot fail to render, on any device.
+    var lines =
+      (side === "buy" ? "Confirm purchase" : "Confirm sale") + "\n\n" +
+      qty + " \u00d7 " + c.ticker + " at " + money(c.price) + " Cents each\n" +
+      (side === "buy" ? "Cost: " : "Proceeds: ") + money(total) + " Cents\n" +
+      (side === "buy" ? "Cash after this trade: " + money(CASH - total) + " Cents\n" : "") +
+      (thin ? "\n" + c.ticker + " is thinly traded. Large positions in low-liquidity stocks are harder to exit if the price turns.\n" : "");
+
+    if (!window.confirm(lines)) { pending = null; return; }
     pending = { id: id, side: side, qty: qty };
-    var box = document.createElement("div");
-    box.className = "nn-confirm";
-    box.innerHTML = '<div class="nn-confirm-panel"><h3>' + (side === "buy" ? "Confirm purchase" : "Confirm sale") + "</h3>" +
-      "<p><strong>" + qty + " \u00d7 " + esc(c.ticker) + "</strong> at " + money(c.price) + " \u00a2 each</p>" +
-      '<p class="nn-confirm-total">' + (side === "buy" ? "Cost" : "Proceeds") + ": <strong>" + money(total) + " \u00a2</strong></p>" +
-      (side === "buy" ? '<p class="note">Cash after this trade: ' + money(CASH - total) + " \u00a2</p>" : "") +
-      (thin ? '<p class="nn-warn">' + esc(c.ticker) + " is thinly traded. Large positions in low-liquidity stocks are harder to exit if the price turns.</p>" : "") +
-      '<div style="display:flex;gap:10px;margin-top:18px">' +
-      '<button id="nnGo" style="flex:1;padding:13px 20px;border:0;border-radius:999px;' +
-      'background:#4E0000;color:#fff;font-weight:700;font-size:15px;cursor:pointer">Confirm</button>' +
-      '<button id="nnNo" style="flex:1;padding:13px 20px;border:1px solid #d9d6cf;border-radius:999px;' +
-      'background:#fff;color:#13273F;font-weight:700;font-size:15px;cursor:pointer">Cancel</button>' +
-      '</div></div>';
-    // Inline styles, not classes. If the deployed stylesheet is older than this
-    // script the panel renders unstyled and invisible behind the dim overlay,
-    // which looks exactly like "the page froze and I cannot buy". Inlining
-    // removes that dependency entirely.
-    box.style.cssText =
-      "position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;" +
-      "display:flex;align-items:center;justify-content:center;padding:20px;" +
-      "background:rgba(7,17,31,.72);margin:0;transform:none";
-    var panel = box.firstChild;
-    if (panel && panel.style) {
-      panel.style.cssText =
-        "background:#fff;border-radius:20px;padding:24px;max-width:420px;width:100%;" +
-        "max-height:88vh;overflow-y:auto;box-shadow:0 30px 80px rgba(7,17,31,.4);" +
-        "color:#51443d;font-size:16px;transform:none";
-    }
-    document.body.appendChild(box);          // body-level: no transformed ancestor
-    document.documentElement.style.overflow='hidden';
-    function closeBox(){ box.remove(); document.documentElement.style.overflow=""; }
-    // If the panel is not actually on screen for any reason, do not leave the
-    // participant staring at a dimmed page they cannot dismiss.
-    setTimeout(function(){
-      if (!document.body.contains(box)) return;
-      var r = box.firstChild && box.firstChild.getBoundingClientRect
-              ? box.firstChild.getBoundingClientRect() : null;
-      if (!r || r.width < 40 || r.height < 40) {
-        closeBox();
-        var m = el("nnMsg");
-        if (m) { m.textContent = "The confirmation box could not open. Tap Buy again, or refresh the page."; m.className = "nn-msg is-err"; }
-        pending = null;
-      }
-    }, 400);
-    el("nnNo").addEventListener("click", function () { closeBox(); pending = null; });
-    box.addEventListener("click", function(e){ if(e.target===box){ closeBox(); pending=null; } });
-    document.addEventListener("keydown", function esc2(e){ if(e.key==="Escape"){ closeBox(); pending=null; document.removeEventListener("keydown", esc2); } });
-    el("nnGo").addEventListener("click", function () { closeBox(); doTrade(); });
+    doTrade();
   }
 
   async function doTrade() {
