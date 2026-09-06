@@ -17,6 +17,13 @@ window.ELAN_PARTNERS = [
     type: "school",
     note: "Host school and Cent$ible collaborator \u00b7 Pune and Kolhapur campuses",
     url: "https://sgischool.in/"
+  },
+  {
+    name: "Quad AI School of Technology and Management",
+    logo: "assets/img/partners/quad-ai-logo.png",
+    type: "organisation",
+    note: "Platinum sponsor \u00b7 Build. Belong. Become",
+    url: "https://www.quadcse.com"
   }
   // Add further partners below as they are confirmed.
 ];

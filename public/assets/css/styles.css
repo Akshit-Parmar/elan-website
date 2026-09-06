@@ -1396,3 +1396,23 @@ a.partner-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(19,3
   display:flex!important;align-items:center!important;justify-content:center!important;
   transform:none!important;margin:0!important;padding:20px}
 .nn-confirm-panel{transform:none!important;max-height:88vh;overflow-y:auto}
+
+/* ---- Platinum sponsor: Quad AI ---- */
+.quad-card{padding:30px}
+.quad-head{display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid rgba(233,212,195,.16)}
+.quad-logo{width:260px;max-width:60vw;height:auto;display:block}
+.quad-tagline{font-family:"Cormorant Garamond",serif;font-size:22px;color:var(--gold-2);
+  letter-spacing:.01em}
+.quad-copy{color:rgba(244,228,213,.8);line-height:1.7;font-size:16px;max-width:70ch;margin:0 0 14px}
+.quad-progs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.quad-prog{background:rgba(255,255,255,.04);border:1px solid rgba(233,212,195,.14);
+  border-radius:14px;padding:14px 16px}
+.quad-prog strong{display:block;font-family:"Cormorant Garamond",serif;font-size:22px;
+  color:var(--gold-2);line-height:1.1;margin-bottom:4px}
+.quad-prog span{font-size:14px;color:rgba(244,228,213,.72);line-height:1.45}
+@media(max-width:760px){
+  .quad-progs{grid-template-columns:1fr}
+  .quad-card{padding:22px}
+  .quad-tagline{font-size:19px}
+}
