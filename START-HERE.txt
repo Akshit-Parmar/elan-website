@@ -1,0 +1,37 @@
+ELAN SUMMIT - LAPTOP PACKAGE - 28 OCTOBER 2026
+
+1. Download the ZIP to your laptop.
+2. Right-click it and choose Extract All. Extract everything together.
+3. Open the extracted Elan-Laptop-Package folder.
+4. Double-click OPEN-WEBSITE.html. It opens in your default browser.
+
+No installation is needed for this browsing copy. All website pages, local photos,
+logo, favicon, biographies, terms and visual scripts are included. Internal
+links have been adapted to work directly from files. Keep the folders together.
+Google web fonts load when connected; offline the site uses fallback fonts.
+
+LIVE-CONNECTED MODE
+For login, enquiries and database features, install Python 3 if needed, then
+double-click START-WEBSITE-WINDOWS.bat. This starts a local-only web server and
+opens your browser. Keep its terminal window open while browsing. On Mac/Linux,
+run python3 start_website.py from this folder.
+
+The server uses the actual prebuilt application and its existing Supabase
+connection. Internet is required. Changes submitted here can affect the live
+project. Auth email links also depend on Supabase redirect/SMTP configuration.
+Registration remains closed and payments require merchant setup; downloading
+this ZIP does not activate those features.
+
+WHAT IS INCLUDED
+Browse-Website: direct-file browsing copy, with live submissions disabled.
+Full-Project: current source, unmodified deployable dist, Supabase API,
+migrations, content seeds, tests, docs, assets and retained original reference.
+Full-Project/docs/SETUP.md: complete backend/deployment setup instructions.
+
+The current contact email is the.elan.summit@gmail.com. The two Crisis Command
+judges and Shreeni's portrait are included. Devika's supplied portrait is included.
+
+This includes backend SOURCE and setup files, not a running offline Supabase
+service or a backup of managed accounts, private database data, secrets or
+merchant credentials. Backend services remain hosted. It does not include the
+entire 30+ GB event-photo collection; it includes the website's selected assets.

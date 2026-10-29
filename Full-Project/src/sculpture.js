@@ -1,0 +1,30 @@
+/* Original parametric ribbon sculpture. Real 3D geometry, camera projection,
+   surface normals and two-sided lighting. Canvas triangle renderer is fallback. */
+(()=>{
+const canvas=document.querySelector('#sculpture');if(!canvas)return;
+let gl=canvas.getContext('webgl',{alpha:true,antialias:true});let ctx;
+if(!gl){const next=canvas.cloneNode();canvas.replaceWith(next);ctx=next.getContext('2d');canvasRef=next;}else canvasRef=canvas;
+var canvasRef=canvasRef||canvas;
+const N=144,M=10,positions=[],normals=[];let w=0,h=0,frame=0,last=0,lastState='',smooth=0;
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+function point(u,v,open){const r=1.45+v*Math.cos(u/2);return [r*Math.cos(u)*(1-open*.3),r*Math.sin(u),v*Math.sin(u/2)+Math.sin(u*2)*open*.85];}
+function sub(a,b){return a.map((v,i)=>v-b[i])}function cross(a,b){return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}function norm(v){let l=Math.hypot(...v);return v.map(x=>x/l)}
+function mesh(open){positions.length=normals.length=0;function vert(u,v){let p=point(u,v,open),n=norm(cross(sub(point(u+.001,v,open),p),sub(point(u,v+.001,open),p)));positions.push(...p);normals.push(...n)}for(let i=0;i<N;i++)for(let j=0;j<M;j++){const a=i/N*Math.PI*2,b=(i+1)/N*Math.PI*2,c=(j/M-.5)*1.2,d=((j+1)/M-.5)*1.2;vert(a,c);vert(b,c);vert(b,d);vert(a,c);vert(b,d);vert(a,d);}}
+let program,bp,bn,uniforms={};
+if(gl){function shader(type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,`attribute vec3 p;attribute vec3 n;uniform vec3 angles;uniform float aspect;uniform float zoom;uniform float center;varying vec3 normal;varying vec3 pos;
+vec3 rot(vec3 v){float a=angles.x,b=angles.y,c=angles.z;v=vec3(v.x,v.y*cos(a)-v.z*sin(a),v.y*sin(a)+v.z*cos(a));v=vec3(v.x*cos(b)+v.z*sin(b),v.y,-v.x*sin(b)+v.z*cos(b));return vec3(v.x*cos(c)-v.y*sin(c),v.x*sin(c)+v.y*cos(c),v.z);}
+void main(){vec3 v=rot(p);normal=rot(n);pos=v;float z=5.7-v.z;gl_Position=vec4(v.x*zoom/aspect+center*z,v.y*zoom,-v.z*.1,z);}`));
+gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`precision mediump float;varying vec3 normal;varying vec3 pos;uniform float pearl;void main(){vec3 n=normalize(normal);if(!gl_FrontFacing)n=-n;vec3 light=normalize(vec3(-1.,2.,3.));float d=max(dot(n,light),0.);float spec=pow(max(dot(reflect(-light,n),normalize(vec3(0.,0.,5.)-pos)),0.),35.);float rim=pow(1.-abs(n.z),2.);vec3 base=mix(vec3(.31,.012,.035),vec3(.72,.58,.46),pearl);vec3 color=base*(.42+d*.85)+vec3(.92,.79,.66)*spec*.85+vec3(.18,.10,.08)*rim;gl_FragColor=vec4(color,1.);}`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error('Sculpture program link failed');gl.useProgram(program);bp=gl.createBuffer();bn=gl.createBuffer();for(const key of ['angles','aspect','zoom','center','pearl'])uniforms[key]=gl.getUniformLocation(program,key);gl.enable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);}
+function rotate(v,a,b,c){let [x,y,z]=v;[y,z]=[y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)];[x,z]=[x*Math.cos(b)+z*Math.sin(b),-x*Math.sin(b)+z*Math.cos(b)];return [x*Math.cos(c)-y*Math.sin(c),x*Math.sin(c)+y*Math.cos(c),z]}
+function draw(time){frame=requestAnimationFrame(draw);if(document.hidden||time-last<32)return;last=time;const still=document.body.classList.contains('story-still');const sections=[...document.querySelectorAll('.story-chapter')];let target=0;for(let i=0;i<sections.length;i++){const r=sections[i].getBoundingClientRect();if(r.top<=innerHeight*.5)target=i+clamp(-r.top/r.height);}
+smooth=still?target:smooth+(target-smooth)*.12;const mobile=innerWidth<681;const state=[smooth.toFixed(4),still,innerWidth,innerHeight].join(':');if(lastState===state)return;lastState=state;
+const ratio=Math.min(devicePixelRatio||1,1.6);if(w!==innerWidth||h!==innerHeight){w=innerWidth;h=innerHeight;canvasRef.width=w*ratio;canvasRef.height=h*ratio;}
+const s=still?0:smooth,a=.45+s*.52,b=-.65+s*1.4,c=-.35+s*.35,open=(1-Math.cos(s*Math.PI))*.5,center=mobile?0:.48,zoom=(mobile?2.05:2.65)+Math.sin(s*Math.PI)*.45;mesh(open);
+canvasRef.dataset.renderer=gl?'webgl':'canvas-3d';canvasRef.dataset.progress=s.toFixed(2);
+canvasRef.style.opacity=mobile?(target<1?'0.75':'.26'):'1';
+if(gl){gl.viewport(0,0,canvas.width,canvas.height);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);for(const [name,buffer,data]of [['p',bp,positions],['n',bn,normals]]){gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);let loc=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,3,gl.FLOAT,false,0,0);}gl.uniform3f(uniforms.angles,a,b,c);gl.uniform1f(uniforms.aspect,w/h);gl.uniform1f(uniforms.zoom,zoom);gl.uniform1f(uniforms.center,center);gl.uniform1f(uniforms.pearl,clamp(s-1,0,1));gl.drawArrays(gl.TRIANGLES,0,positions.length/3);}
+else{ctx.clearRect(0,0,canvasRef.width,canvasRef.height);const tris=[];for(let i=0;i<positions.length;i+=9){const ps=[0,3,6].map(j=>rotate(positions.slice(i+j,i+j+3),a,b,c));tris.push({ps,z:ps.reduce((v,p)=>v+p[2],0),n:rotate(normals.slice(i,i+3),a,b,c)})}tris.sort((a,b)=>a.z-b.z);ctx.lineWidth=.5;for(const t of tris){const light=.36+.64*Math.abs((t.n[0]*-.3+t.n[1]*.6+t.n[2]*.74));const base=s>1.5?[205,170,140]:[165,40,55];ctx.fillStyle=ctx.strokeStyle=`rgb(${base.map(v=>Math.round(v*light)).join(',')})`;ctx.beginPath();t.ps.forEach((p,i)=>{const z=5.7-p[2],x=(p[0]*zoom/(w/h)/z+center+1)*canvasRef.width/2,y=(1-p[1]*zoom/z)*canvasRef.height/2;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();ctx.fill();ctx.stroke();}}
+sections.forEach((el,i)=>{const rect=el.getBoundingClientRect(),q=clamp((innerHeight-rect.top)/(innerHeight*.7));el.style.setProperty('--reveal',still?1:q);el.style.setProperty('--travel',still?'0px':Math.max(-100,Math.min(130,rect.top*.13))+'px');});
+}requestAnimationFrame(draw);window.addEventListener('pagehide',()=>cancelAnimationFrame(frame));
+})();

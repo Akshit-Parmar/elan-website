@@ -1,0 +1,185 @@
+{
+  "original_pages": 37,
+  "pages": [
+    {
+      "path": "about.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "4c4cfd20eaab90934189ec1cce0aface0295ddc313e14888157fb8b4ee6f27fb"
+    },
+    {
+      "path": "centsible.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "644e06af0d1f0412ae4f033de8bae8acfe1bec9eb924ac7749e7eeb06229509b"
+    },
+    {
+      "path": "code-of-conduct.html",
+      "status": "legal text preserved exactly",
+      "source_sha256": "544bb55ecce86f00d0a21c17460ee92dbaa269400ac334a3a5e39f1eb8eacebf"
+    },
+    {
+      "path": "contact.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "3f4ff090e254a10032f5ba04d83fafa8b37f24b4dcfebb7330a76d470e5a19b1"
+    },
+    {
+      "path": "event-details.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "3aac69f21cdbb9ec2cfd59b9ada45cc53425a737a2bfeee6d03a25c4114cd11f"
+    },
+    {
+      "path": "event-flow.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "462644e33148ff6c42e06977d476f95544914d41bbe4707cddcb96916bdbc688"
+    },
+    {
+      "path": "faqs.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "d0456bead84983ae8694aeea0566a11f9aa5d3fdcd6da0395e7a3f84b7958229"
+    },
+    {
+      "path": "flagship.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "146a9afd2255e608fd8980068e2ced08d956a2e77dd86c0b51e445fc04e67519"
+    },
+    {
+      "path": "gallery.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "67084804a1511286b7e002052946340b2cef8b9a0246edb2f2dd4b653caa274a"
+    },
+    {
+      "path": "guests.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "d2218bfab0e858d178bef16c1abb7e362a2ed6bc1f31beae612bdf9665f1d4f1"
+    },
+    {
+      "path": "partners.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "16a13a7976b1a6a4d79ccf7cecbe413292aad218d7f07981f9ef11bd7d54724d"
+    },
+    {
+      "path": "privacy.html",
+      "status": "legal text preserved exactly",
+      "source_sha256": "6d9b01db2da62449425aab9ec61f429259a3c761ec55425007661fba3d6e9fac"
+    },
+    {
+      "path": "refund.html",
+      "status": "legal text preserved exactly",
+      "source_sha256": "5d5278e63a02ca79a9cca93bb6ab02d9cdf99e2428782970ebae3e36f7d33fe0"
+    },
+    {
+      "path": "schedule.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "61c492d4789c8059948181a9283e0aeb49801387e7b72fd8a096d8c35bd5324e"
+    },
+    {
+      "path": "school-collaboration.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "974c93fa86b42c040416cf0db750bd4554d62fe5f026a21cfedd8e8055798fd9"
+    },
+    {
+      "path": "schools.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "dd3141b1637ed49fd96e17c23b5033a19bd8f4460f5dcbf8c6df0e37a7cfc27c"
+    },
+    {
+      "path": "speakers.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "14c6b02fa8a9b39f7a471a4a191e71e561b5ab9a70771474c0136dfcc382048b"
+    },
+    {
+      "path": "terms.html",
+      "status": "legal text preserved exactly",
+      "source_sha256": "bb6785f8c3b597c693faec4eb5a9e4def74e092774ead3a8dd555895ed19e710"
+    },
+    {
+      "path": "tickets.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "4feb7d8e2966bb05aa03517a469d5fcfcbeee3f8ec87f03eca573123533f2748"
+    },
+    {
+      "path": "volunteers.html",
+      "status": "content retained; shared design renewed",
+      "source_sha256": "138463f0b9587d628452871cb73af4648743c1f4171cb8e09583e7936c911333"
+    },
+    {
+      "path": "portal/dashboard.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/ticket.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/profile.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/announcements.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/portal-schedule.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/flagship.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/centsible.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/participant-guide.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/report.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/help-desk.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/login.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/set-password.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "portal/link-expired.html",
+      "status": "route preserved; original code retained in reference/v1; integration pending"
+    },
+    {
+      "path": "index.html",
+      "status": "redesigned"
+    },
+    {
+      "path": "pay.html",
+      "status": "route preserved; original source retained"
+    },
+    {
+      "path": "admin.html",
+      "status": "route preserved; original source retained"
+    },
+    {
+      "path": "google93c0d60b076d9bb6.html",
+      "status": "route preserved; original source retained"
+    }
+  ],
+  "preserved_assets": [
+    "favicon.ico",
+    "all original assets/img files"
+  ],
+  "legal_policy": "Original legal main content is preserved except the explicitly requested contact email replacement.",
+  "launch_configuration_required": [
+    "Auth email delivery and redirect URLs",
+    "First administrator assignment",
+    "Next-edition dates, prices and terms",
+    "Payment merchant credentials and provider test"
+  ],
+  "preview_forms": "Enquiries are saved through the authenticated server API with rate limiting."
+}

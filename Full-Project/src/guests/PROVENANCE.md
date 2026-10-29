@@ -1,0 +1,15 @@
+Prof. Vinod Vidwans: portrait and biography supplied by the organiser in chat on 23 October 2026. Organiser confirmed Chief Guest for Day 1, first edition. Biography abridged from supplied material; no event speech or judging participation inferred. Portrait copied unchanged. Professional affiliation recorded from supplied biography, not independently verified as a current appointment.
+
+Unnikrishnan Nair and Rahul Kotha: biographies abridged from organiser-supplied Begaana Leaders Profile.pdf on 23 October 2026. Organiser confirmed both as Cent$ible judges for 2026 and explicitly mapped DSC02898.JPG (blue suit) to Unnikrishnan, DSC02853.JPG (grey suit) to Rahul. Original photo bytes copied unchanged; display framing is CSS only. Project-level client and production credits were not assigned to individuals.
+
+Sasmita Mohanty: portrait and role supplied by organiser. Bio researched 23 October 2026 from https://sgischool.in/sgis-management/ and https://sgischool.in/sgis-kolhapur/director-principals-message/. Role, advisory committee membership and education philosophy verified. No unverified degrees, tenure, awards or specific event duties asserted. Original portrait copied unchanged.
+
+Revised Sasmita biography following organiser feedback: career profile, not a summary of school philosophy. Qualifications, prior posts, CBSE training and SGIS curriculum milestones sourced from Brainfeed, 15 April 2023: https://brainfeedmagazine.com/steering-sanjay-ghodawat-like-never-before-sasmita-mohanty-director-principal-sanjay-ghodawat-international-school-kolhapur-maharashtra/. More than three decades inferred from documented school leadership starting in 1992. Source links removed from visitor-facing biography; retained here.
+
+## Day 2 guests — 23 October 2026
+User supplied both biographies and confirmed the photo pairing: red-background portrait = Hon. Lav Gaikwad; seated portrait = Shri Bapurao Trimbak Pawar. Source images copied unchanged as lav-gaikwad.jpg and bapurao-pawar.jpg. Event roles: Day 2 Chief Guest and Day 2 Guest of Honor respectively. Bios edited from supplied text, without external research. Award names not supplied for Gaikwad’s two national-level awards, so no titles or awarding bodies invented. Pawar’s career phrased as since 1994 / more than three decades, avoiding rounding the February 1994 start to 33 completed years in 2026. Birth date omitted as unnecessary for the event bio.
+
+## Crisis Command judges — 28 October 2026
+Organiser confirmed Devika Nair and Shreeni Yelwande as the first-edition Crisis Command judges. Bios condensed from Devika Nair_Profile(1).pdf and Shreeni Yelwande MUN CV(1).pdf supplied this turn. Private phone/email and reference details omitted. Devika’s institution name is not reproduced because its spelling in the CV is ambiguous; no institution or current qualification has been inferred. Shreeni’s portrait supplied as shreeeni mam.jpeg, copied unchanged. Devika has no portrait yet and is displayed text-only.
+
+Devika Nair portrait: user-supplied WhatsApp photograph, 28 October 2026. Original bytes retained in devika-nair.jpg; CSS controls display crop.
