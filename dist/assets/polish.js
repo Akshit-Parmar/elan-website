@@ -25,3 +25,12 @@
  const observer=new IntersectionObserver(entries=>{for(const e of entries)e.isIntersecting?visible.add(e.target):visible.delete(e.target);queue();},{rootMargin:'100px'});
  targets.forEach(el=>observer.observe(el));addEventListener('scroll',queue,{passive:true});addEventListener('resize',queue);media.addEventListener('change',queue);document.querySelector('.motion-toggle')?.addEventListener('click',queue);
 })();
+
+// Keep sticky offsets and story sections in sync with text zoom and font loading.
+(()=>{
+ const header=document.querySelector('.ed-header');
+ const frames=[...document.querySelectorAll('.act-frame')];
+ if(!('ResizeObserver' in window))return;
+ const observer=new ResizeObserver(entries=>{for(const e of entries){const height=Math.ceil(e.target.getBoundingClientRect().height);if(e.target===header)document.documentElement.style.setProperty('--header-height',`${height}px`);else e.target.closest('.journey-act')?.style.setProperty('--frame-height',`${height}px`);}});
+ if(header)observer.observe(header);frames.forEach(frame=>observer.observe(frame));
+})();

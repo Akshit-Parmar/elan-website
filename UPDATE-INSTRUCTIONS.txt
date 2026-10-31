@@ -1,0 +1,9 @@
+Layout fixes — 31 October 2026
+
+Extract this ZIP. Its contents match the current repository ROOT (no Full-Project folder).
+Copy the contents into your existing repository, replacing matching files, then commit and push to the Cloudflare-connected branch. Do not upload the ZIP itself as the website.
+
+Changed source: src/home.html, src/editorial.css, src/polish.js.
+Corresponding built files: dist/index.html, dist/assets/editorial.css, dist/assets/polish.js.
+
+Removed the homepage founder story; kept the dedicated Founders page. Fixed hero overlap, sticky offsets, mobile columns and captions. Build verification passes; 13 primary page layouts checked at phone width with no horizontal overflow. Backend configuration unchanged.
