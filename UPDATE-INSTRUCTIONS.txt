@@ -1,9 +1,13 @@
-Layout fixes — 31 October 2026
+Élan update | 31 October 2026
 
-Extract this ZIP. Its contents match the current repository ROOT (no Full-Project folder).
-Copy the contents into your existing repository, replacing matching files, then commit and push to the Cloudflare-connected branch. Do not upload the ZIP itself as the website.
+Extract this ZIP and replace matching files at the ROOT of Akshit-Parmar/elan-website. Commit and push to the Cloudflare-connected branch. Do not upload the ZIP itself.
 
-Changed source: src/home.html, src/editorial.css, src/polish.js.
-Corresponding built files: dist/index.html, dist/assets/editorial.css, dist/assets/polish.js.
+Includes source, built dist files, assets, tests and Supabase code.
 
-Removed the homepage founder story; kept the dedicated Founders page. Fixed hero overlap, sticky offsets, mobile columns and captions. Build verification passes; 13 primary page layouts checked at phone width with no horizontal overflow. Backend configuration unchanged.
+Changed: stronger colour variation, readable council and judging cards, coloured ticket panels, simpler public copy, one archive link in the footer, removal of homepage archive promotion, direct organiser sign-in, improved admin layout and pagination.
+
+Already applied to Supabase: the selected verified owner now has the admin role. elan-api version 4 accepts elansummit.com and www.elansummit.com. Other authentication and permissions remain in place.
+
+After deploying: open /admin.html and use your existing verified email and password. Your password has not changed.
+
+Verified: build and route checks, legal text preservation, backend validation tests, mobile layouts, live API health, CORS and unauthenticated access rejection. An authenticated browser dashboard session was not tested. Payments remain unconfigured and are not enabled by this update.

@@ -17,7 +17,7 @@ ROUTES={
  'portal/help-desk.html':('support','A person, when you need one.','Send a question and follow the team’s reply here.'),
  'register.html':('register','Take your place.','Individual registration and school delegations for the next edition.'),
  'pay.html':('dashboard','Your registration.','Review payment and confirmation status in your account.'),
- 'admin.html':('admin','Behind the scenes.','The Élan organiser workspace.'),
+ 'admin.html':('admin','Organiser workspace.','Manage enquiries, registrations and event updates.'),
 }
 def app_page(mode,title,description):
  return f'''<main id="main" class="app-shell wrap" data-app="{mode}"><header class="app-heading"><p class="section-label">ÉLAN / {'ORGANISER WORKSPACE' if mode=='admin' else 'YOUR ACCOUNT'}</p><h1>{escape(title)}</h1><p>{escape(description)}</p></header><nav class="app-nav" aria-label="Account navigation"><a href="/portal/index.html">Overview</a><a href="/register.html">Register</a><a href="/portal/profile.html">Profile</a><a href="/portal/schedule.html">Programme</a><a href="/portal/report.html">Submissions</a><a href="/portal/help-desk.html">Help desk</a><a id="admin-link" href="/admin.html" hidden>Organiser workspace</a><button id="sign-out" hidden>Sign out</button></nav><p id="app-status" role="status" aria-live="polite">Loading your workspace…</p><div id="app-content"></div></main>'''

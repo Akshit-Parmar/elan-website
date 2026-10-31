@@ -3,7 +3,7 @@ import {ApiError,text,uuid,integer,oneOf,email,slug,safeImage,attendees,validSig
 const env=(k:string)=>Deno.env.get(k)||'';
 const url=env('SUPABASE_URL');
 const db=createClient(url,env('SUPABASE_SERVICE_ROLE_KEY'),{auth:{persistSession:false,autoRefreshToken:false}});
-const origins=(env('ALLOWED_ORIGINS')||'https://elan-next-chapter.akshit-parmar.chatgpt.site,http://localhost:8000,http://127.0.0.1:8000,http://terminal.local:4173').split(',').map(x=>x.trim());
+const origins=[...new Set(['https://elansummit.com','https://www.elansummit.com',...(env('ALLOWED_ORIGINS')||'https://elan-next-chapter.akshit-parmar.chatgpt.site,http://localhost:8000,http://127.0.0.1:8000,http://terminal.local:4173').split(',').map(x=>x.trim()).filter(Boolean)])];
 function checked(r:any){if(r.error)throw new ApiError('The request could not be saved. Check the details and try again.',409);return r.data;}
 async function rate(key:string,limit=30,seconds=60){const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key)))).map(x=>x.toString(16).padStart(2,'0')).join('');if(!checked(await db.rpc('elan_rate_check',{p_key:hash,p_limit:limit,p_seconds:seconds})))throw new ApiError('Too many requests. Please try again later.',429);}
 async function audit(actor:string,action:string,target:string){checked(await db.from('elan_audit').insert({actor_id:actor,action,target}));}
