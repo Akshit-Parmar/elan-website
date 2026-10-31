@@ -1,0 +1,35 @@
+/portal/*
+  X-Robots-Tag: noindex, follow
+
+/admin
+  X-Robots-Tag: noindex, follow
+
+/admin.html
+  X-Robots-Tag: noindex, follow
+
+/pay
+  X-Robots-Tag: noindex, follow
+
+/pay.html
+  X-Robots-Tag: noindex, follow
+
+/register
+  X-Robots-Tag: noindex, follow
+
+/register.html
+  X-Robots-Tag: noindex, follow
+
+/speakers
+  X-Robots-Tag: noindex, follow
+
+/speakers.html
+  X-Robots-Tag: noindex, follow
+
+/site-directory
+  X-Robots-Tag: noindex, follow
+
+/site-directory.html
+  X-Robots-Tag: noindex, follow
+
+/llms.txt
+  Content-Type: text/plain; charset=utf-8

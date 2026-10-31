@@ -2,6 +2,7 @@ from pathlib import Path
 import shutil, re, json, hashlib, html
 from visitor_pages import make_page, current_faq
 from application_pages import ROUTES, app_page
+from search_metadata import metadata, structured_data, write_search_files
 
 ROOT = Path(__file__).resolve().parents[1]
 OLD = ROOT / 'reference/v1/public'
@@ -15,7 +16,7 @@ shutil.copytree(SRC/'art', OUT/'assets/art', dirs_exist_ok=True)
 shutil.copytree(SRC/'founders', OUT/'assets/founders', dirs_exist_ok=True)
 (OUT/'assets/guests').mkdir(exist_ok=True)
 for portrait in [*(SRC/'guests').glob('*.png'), *(SRC/'guests').glob('*.jpg')]: shutil.copyfile(portrait,OUT/'assets/guests'/portrait.name)
-for file in ['site.css','inner.css','site.js','motion.css','motion.js','sculpture.js','enhancements.css','enhancements.js','public-config.json','story.css','story.js','refinement.css','flagships.css','flagships.js','journal.css','journal.js','visitor.css','app.css','app.js','guest-content.js','polish.css','polish.js','editorial.css','colour.css']:
+for file in ['site.css','inner.css','site.js','motion.css','motion.js','sculpture.js','enhancements.css','enhancements.js','public-config.json','story.css','story.js','refinement.css','flagships.css','flagships.js','journal.css','journal.js','visitor.css','app.css','app.js','guest-content.js','polish.css','polish.js','editorial.css']:
     shutil.copyfile(SRC/file, OUT/'assets'/file)
 
 shutil.copytree(SRC/'vendor',OUT/'assets/vendor',dirs_exist_ok=True)
@@ -23,56 +24,28 @@ shutil.copytree(SRC/'vendor',OUT/'assets/vendor',dirs_exist_ok=True)
 (OUT/'assets/edition-2026').mkdir(exist_ok=True)
 for photo in (SRC/'edition-2026').glob('*.webp'): shutil.copyfile(photo,OUT/'assets/edition-2026'/photo.name)
 
-ORIGIN='https://elan-next-chapter.akshit-parmar.chatgpt.site'
+ORIGIN='https://elansummit.com'
 def nav(path):
     def link(url,label):
         return f'<a href="{url}"'+(' aria-current="page"' if url=='/'+path else '')+f'>{label}</a>'
     archive=[('/first-edition.html','The first edition'),('/guests.html','Guests & judges'),('/gallery.html','Photo journal'),('/centsible.html','Cent$ible · 2026'),('/archive.html','Explore the archive')]
-    join=[('/next-edition.html','Tickets & participation'),('/schools.html','Students & schools'),('/school-collaboration.html','School collaboration'),('/volunteers.html','Volunteer'),('/faqs.html','FAQs')]
+    join=[('/tickets.html','Tickets & participation'),('/schools.html','Students & schools'),('/school-collaboration.html','School collaboration'),('/volunteers.html','Volunteer'),('/faqs.html','FAQs')]
     def group(label,kicker,items):
         active=' nav-group-current' if any(url=='/'+path for url,_ in items) else ''
         return '<details class="nav-group'+active+'"><summary>'+label+'<span aria-hidden="true">+</span></summary><div class="nav-dropdown"><small>'+kicker+'</small>'+''.join(link(*item) for item in items)+'</div></details>'
-    primary=group('About Élan','THE STORY & THE PEOPLE',[('/about.html','About the summit'),('/founders.html','Meet the founding team')])+link('/flagship.html','Crisis Command')+group('Take part','YOUR NEXT MOVE',join)+link('/contact.html','Contact')
+    primary=group('About Élan','THE STORY & THE PEOPLE',[('/about.html','About the summit'),('/founders.html','Meet the founding team')])+link('/flagship.html','Crisis Command')+group('First edition','THE 2026 ARCHIVE',archive)+group('Take part','YOUR NEXT MOVE',join)+link('/contact.html','Contact')
     mobile=link('/index.html','Home')+primary+link('/portal/login.html','Participant login')
     return '<a class="skip-link" href="#main">Skip to content</a><header class="ed-header editorial-header"><div class="header-inner wrap"><a class="wordmark" href="/index.html" aria-label="Élan Summit home"><span class="wordmark-crop"><img src="/assets/img/elan-horse-logo-512.png" alt="" width="838" height="898"></span><span><span class="wordmark-text">Élan.</span><small>YOUTH SUMMIT</small></span></a><nav class="desktop-nav" aria-label="Main navigation">'+primary+'</nav><div class="header-actions">'+link('/portal/login.html','Login')+'<a class="nav-next" href="/register.html">Register <span aria-hidden="true">↗</span></a><button class="menu-button" aria-expanded="false" aria-controls="mobile-navigation">Menu +</button></div></div><nav class="mobile-nav" id="mobile-navigation" aria-label="Main navigation on mobile" hidden>'+mobile+'</nav></header>'
 
 def footer():
-    groups=[('EXPLORE',[('about','About Élan'),('founders','Founding team'),('flagship','Crisis Command'),('archive','2026 archive')]),('GET INVOLVED',[('schools','Students & schools'),('volunteers','Join the team'),('contact','Contact'),('faqs','FAQs'),('portal/login','Participant login'),('admin','Organiser login')])]
+    groups=[('DISCOVER',[('about','The story of Élan'),('founders','Founding team'),('flagship','Crisis Command'),('centsible','Cent$ible · 2026 archive'),('event-flow','2026 experience'),('guests','Guests & judges'),('gallery','Gallery')]),('BE PART OF IT',[('schools','For students & schools'),('school-collaboration','School collaboration'),('volunteers','Volunteer'),('partners','Our partners'),('contact','Contact the team'),('portal/login','Participant portal')]),('THE DETAILS',[('archive','2026 edition'),('event-details','2026 venue & details'),('schedule','2026 programme'),('next-edition','Upcoming registration'),('faqs','Your questions'),('site-directory','All pages')])]
     content=''.join('<div class="footer-column"><h3>'+title+'</h3>'+''.join(f'<a href="/{slug if "#" in slug else slug+".html"}">{label}</a>' for slug,label in links)+'</div>' for title,links in groups)
-    return '<footer class="ed-footer"><div class="wrap"><div class="footer-top"><div class="footer-identity"><a class="footer-brand" href="/" aria-label="Élan Summit home"><span class="brand-horse"><img src="/assets/img/elan-horse-logo-512.png" alt="" width="838" height="898" loading="lazy"></span><span class="wordmark-text">Élan.</span></a><p>Debate, create and meet people<br>you would never meet in class.</p><a href="mailto:the.elan.summit@gmail.com">the.elan.summit@gmail.com ↗</a></div>'+content+'</div><div class="footer-bottom"><span>© 2026 Élan Summit.</span><div class="footer-legal"><a href="/terms.html">Terms & conditions</a><a href="/privacy.html">Privacy policy</a><a href="/refund.html">Refund policy</a><a href="/code-of-conduct.html">Code of conduct</a></div></div></div></footer>'
-
-def natural_copy(main):
-    substitutions={
-        'feels—and what people remember':'feels and what people remember',
-        'edition—from the opening ceremony':'edition, from the opening ceremony',
-        'Owns the trade-offs between the two ministers':'Resolves disagreements between the two ministers',
-        'De-escalates when the crisis crosses borders':'Works to reduce tensions when the crisis crosses borders',
-        'de-escalation':'reducing tensions',
-        'This is not a debate and not an MUN. It is a live crisis, and it asks for all of these at once.':'Teams research, negotiate and make decisions as new information arrives.',
-        'It is not a debate, not a prepared speech, and not a normal quiz. It is a live strategy experience where every team must adapt when new information arrives.':'There is no script to follow. Teams revise their plans as the situation changes.',
-        'Not an MUN. Not a debate. Not a conference.':'A cabinet simulation shaped by your decisions.',
-        'Each team works like an emergency cabinet. Every role has a different responsibility, so the strongest teams are not just loud, they are balanced, strategic, and coordinated.':'Each student takes a cabinet role. You will need to share information, resolve disagreements and agree on a response together.',
-        'The best team is not the one with the most dramatic speech. The winning response must be realistic, ethical, coordinated, strategic, and clearly communicated.':'Judges look for a practical response, sound reasoning and a team that can explain its decisions.',
-        "The nation's face to the outside world. Alliances, negotiations and reducing tensions all run through this post.":'Represents the country in talks with other teams, negotiates support and works to reduce tensions.',
-        'All student passes include access to the event flow, cultural moments, networking blocks, and participation in your chosen flagship, Crisis Command or Cent$ible, subject to registration category and capacity.':'Passes covered the sessions, performances and activities listed for each category, including participation in Crisis Command or Cent$ible.',
-        'Read the situation, weigh trade-offs, and choose a direction under uncertainty.':'Read the situation, weigh the options and decide how to respond.',
-        'Clear priorities, practical planning, smart trade-offs, and long-term thinking.':'Clear priorities and a practical plan that considers what happens next.',
-        'Calm direction, team coordination, initiative, and decision-making under pressure.':'Guide the team, listen to each member and make decisions under pressure.',
-        'high-pressure':'demanding', 'real-world':'practical',
-        'student-led':'run by students', 'student-friendly':'accessible to students',
-        'Mixed-school teams':'Teams from different schools',
-        'Next-edition dates':'Dates for the next edition',
-    }
-    for old,new in substitutions.items(): main=main.replace(old,new)
-    # Em dashes used as layout separators become a simple dot. Preserve dates.
-    main=main.replace(' — ', ' · ')
-    return main
+    return '<footer class="ed-footer"><div class="wrap"><div class="footer-top"><div class="footer-identity"><a class="footer-brand" href="/" aria-label="Élan Summit home"><span class="brand-horse"><img src="/assets/img/elan-horse-logo-512.png" alt="" width="838" height="898" loading="lazy"></span><span class="wordmark-text">Élan.</span></a><p>A meeting point for young minds.<br>A starting point for something bigger.</p><a href="mailto:the.elan.summit@gmail.com">the.elan.summit@gmail.com ↗</a></div>'+content+'</div><div class="footer-bottom"><span>© 2026 Élan Summit. Made for your next move.</span><div class="footer-legal"><a href="/terms.html">Terms & conditions</a><a href="/privacy.html">Privacy policy</a><a href="/refund.html">Refund policy</a><a href="/code-of-conduct.html">Code of conduct</a></div></div></div></footer>'
 
 def page(path,title,main,legacy=False,banner=None):
-    description='Élan Summit brings young minds together through leadership, business, creativity and connection. Discover Crisis Command, our second-edition plans and the story of our first edition.'
-    body='<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+' | Élan Summit</title><meta name="description" content="'+description+'"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#13273F"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="'+ORIGIN+'/'+path+'"><meta property="og:type" content="website"><meta property="og:title" content="'+html.escape(title)+' | Élan Summit"><meta property="og:description" content="'+description+'"><meta property="og:image" content="'+ORIGIN+'/assets/img/elan-og.png"><meta property="og:url" content="'+ORIGIN+'/'+path+'"><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/enhancements.css"><link rel="stylesheet" href="/assets/story.css">'+('<link rel="stylesheet" href="/assets/inner.css">' if legacy else '')+'<script src="/assets/site.js" defer></script>'+('<link rel="stylesheet" href="/assets/motion.css">' if path=='index.html' else '')+'<link rel="stylesheet" href="/assets/refinement.css"><link rel="stylesheet" href="/assets/flagships.css"><link rel="stylesheet" href="/assets/journal.css"><link rel="stylesheet" href="/assets/visitor.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/polish.css"><link rel="stylesheet" href="/assets/editorial.css"><link rel="stylesheet" href="/assets/colour.css"><script src="/assets/polish.js" defer></script></head><body'+(' class="motion-home"' if path=='index.html' else '')+'>'+nav(path)
+    title,description,canonical_url,robots=metadata(path,title)
+    body='<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+'</title><meta name="description" content="'+description+'"><meta name="robots" content="'+robots+'"><meta name="theme-color" content="#13273F"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="'+canonical_url+'"><meta property="og:type" content="website"><meta property="og:title" content="'+html.escape(title)+'"><meta property="og:description" content="'+description+'"><meta property="og:image" content="'+ORIGIN+'/assets/img/elan-og.png"><meta property="og:url" content="'+canonical_url+'"><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/enhancements.css"><link rel="stylesheet" href="/assets/story.css">'+('<link rel="stylesheet" href="/assets/inner.css">' if legacy else '')+'<script src="/assets/site.js" defer></script>'+('<link rel="stylesheet" href="/assets/motion.css">' if path=='index.html' else '')+'<link rel="stylesheet" href="/assets/refinement.css"><link rel="stylesheet" href="/assets/flagships.css"><link rel="stylesheet" href="/assets/journal.css"><link rel="stylesheet" href="/assets/visitor.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/polish.css"><link rel="stylesheet" href="/assets/editorial.css"><script src="/assets/polish.js" defer></script>'+structured_data(path,title,description)+'</head><body'+(' class="motion-home"' if path=='index.html' else '')+'>'+nav(path)
     if banner: body+='<aside class="edition-banner">'+banner+'</aside>'
-    if path not in POLICIES: main=natural_copy(main)
     body+=main+footer()+'</body></html>\n'
     body=body.replace('elan@sgischool.in','the.elan.summit@gmail.com')
     dest=OUT/path;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(body)
@@ -219,16 +192,17 @@ for slug,label,title,description in portal_pages:
     manifest.append({'path':'portal/'+slug+'.html','status':'route preserved; original code retained in reference/v1; integration pending'})
 
 page('pay.html','Payment',status_main('ÉLAN / REGISTRATION','Your next chapter.<br>Your next <em>pass.</em>','Payments for the new edition are not open. No payment is required to explore this preview.','<div class="status-panel"><h2>Need help with a 2026 payment?</h2><p>Contact the organising team with your registration reference. The original pass details and payment policies remain available.</p><a class="button solid" href="/contact.html">Contact the team <span aria-hidden="true">↗</span></a><p style="margin-top:20px"><a class="text-link" href="/tickets.html">2026 pass details →</a> &nbsp; <a class="text-link" href="/refund.html">Refund policy →</a></p></div>'))
+page('admin.html','Organiser access',status_main('ÉLAN / ORGANISER AREA','Behind the <em>scenes.</em>','The organiser dashboard is reserved for authorised team members. Administration for this new project has not been activated.','<div class="status-panel"><h2>New project, new access.</h2><p>Existing administrator accounts have not been transferred. Contact the director for access once the new edition opens.</p><a class="button outline" href="/contact.html">Contact the director <span aria-hidden="true">↗</span></a></div>'))
 for route,(mode,title,description) in ROUTES.items():
     page(route,title,app_page(mode,title,description))
 
 directory_content = directory([('Start here',[('index','Home'),('register','Registration'),('next-edition','The next edition'),('archive','The 2026 archive'),('first-edition','Inside the first edition')])]) + directory(directory_groups) + directory([('Participant area',portal_links),('For the team',[('admin','Organiser access')])])
 page('site-directory.html','All pages',status_main('ÉLAN / FIND YOUR WAY','Everything,<br>in its <em>place.</em>','The complete website directory. The 2026 content remains available; account tools and next-edition registration are available through the portal.',directory_content))
 shutil.copyfile(OLD/'google93c0d60b076d9bb6.html',OUT/'google93c0d60b076d9bb6.html')
-(OUT/'robots.txt').write_text('User-agent: *\nDisallow: /\n')
 (OUT/'site.webmanifest').write_text(json.dumps({'name':'Élan Summit','short_name':'Élan','start_url':'/','display':'browser','background_color':'#E9D4C3','theme_color':'#13273F','icons':[{'src':'/assets/img/favicon-192.png','sizes':'192x192','type':'image/png'},{'src':'/assets/img/favicon-512.png','sizes':'512x512','type':'image/png'}]},ensure_ascii=False,indent=2))
-(OUT/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+''.join('<url><loc>'+ORIGIN+'/'+p.name+'</loc></url>' for p in sorted(OUT.glob('*.html')) if p.name not in ['admin.html','google93c0d60b076d9bb6.html'])+'</urlset>')
 for name in SPECIAL:
     manifest.append({'path':name,'status':'redesigned' if name=='index.html' else 'route preserved; original source retained'})
 (ROOT/'parity-manifest.json').write_text(json.dumps({'original_pages':len(list(OLD.rglob('*.html'))),'pages':manifest,'preserved_assets':['favicon.ico','all original assets/img files'],'legal_policy':'Original legal main content is preserved except the explicitly requested contact email replacement.','launch_configuration_required':['Auth email delivery and redirect URLs','First administrator assignment','Next-edition dates, prices and terms','Payment merchant credentials and provider test'],'preview_forms':'Enquiries are saved through the authenticated server API with rate limiting.'},ensure_ascii=False,indent=2))
 print(f'Built {len(list(OUT.rglob("*.html")))} pages; all {len(list(OLD.rglob("*.html")))} original routes preserved.')
+
+write_search_files(OUT)

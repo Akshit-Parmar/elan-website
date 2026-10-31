@@ -1,2 +1,11 @@
 User-agent: *
+Allow: /
+
+# Search discovery is enabled. Model training remains disabled.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
 Disallow: /
+
+Sitemap: https://elansummit.com/sitemap.xml

@@ -1,13 +1,9 @@
-Élan update | 31 October 2026
+Restored Élan design + search update
 
-Extract this ZIP and replace matching files at the ROOT of Akshit-Parmar/elan-website. Commit and push to the Cloudflare-connected branch. Do not upload the ZIP itself.
+The website design and public copy have been restored to the version before the colour changes. The earlier overlap repair is retained. The newer admin access and API connection fixes remain.
 
-Includes source, built dist files, assets, tests and Supabase code.
+Extract and replace matching files at the repository root, then commit to your Cloudflare-connected branch. Do not upload the ZIP itself. The old colour.css files may be deleted; they are no longer referenced.
 
-Changed: stronger colour variation, readable council and judging cards, coloured ticket panels, simpler public copy, one archive link in the footer, removal of homepage archive promotion, direct organiser sign-in, improved admin layout and pagination.
+Search changes: production canonical URLs, sitemap with 25 public pages, crawlable robots.txt, unique descriptions, structured data and llms.txt. See docs/SEARCH-SETUP.txt for the Google Search Console steps after deployment.
 
-Already applied to Supabase: the selected verified owner now has the admin role. elan-api version 4 accepts elansummit.com and www.elansummit.com. Other authentication and permissions remain in place.
-
-After deploying: open /admin.html and use your existing verified email and password. Your password has not changed.
-
-Verified: build and route checks, legal text preservation, backend validation tests, mobile layouts, live API health, CORS and unauthenticated access rejection. An authenticated browser dashboard session was not tested. Payments remain unconfigured and are not enabled by this update.
+These frontend changes have not been pushed or deployed. GitHub access remains read-only.

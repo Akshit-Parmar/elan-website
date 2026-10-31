@@ -1,0 +1,22 @@
+Élan search setup
+
+Deploy this version before submitting the sitemap.
+
+1. In Google Search Console, select the elansummit.com property. If not verified, add the Domain property and use the DNS TXT record Google supplies in Cloudflare. The existing Google HTML verification file has also been preserved for URL-prefix verification.
+2. In Sitemaps, submit https://elansummit.com/sitemap.xml. It contains 25 public canonical URLs.
+3. Use URL Inspection and Test live URL for the homepage, About, Crisis Command and the next-edition page. Request indexing after the live test succeeds.
+4. If the live test returns 403, inspect Cloudflare security events for that request. Ensure verified search crawlers can access public pages. Do not disable protection on account pages.
+5. Recheck Pages and Sitemaps reports after Google recrawls. No instant indexing or rankings are promised.
+
+Implementation
+Public pages: unique descriptions, correct production canonical URLs, social metadata, Organization, WebSite, WebPage and breadcrumb structured data. Account, payment and admin pages remain noindex and are excluded from the sitemap.
+robots.txt allows public crawling and OAI-SearchBot. GPTBot training remains blocked. llms.txt is a factual reference summary, not a Google ranking requirement. No next-edition dates, prices or Event offers are invented.
+
+Validation
+Build, route, legal-text and search-metadata tests pass. Live HTTP checks from this environment returned 403, so Cloudflare access and sitemap submission remain unverified. Search Console was not accessed and the sitemap was not submitted on your behalf.
+
+References
+https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap
+https://developers.google.com/search/docs/appearance/ai-features
+https://support.google.com/webmasters/answer/34592
+https://developers.openai.com/api/docs/bots

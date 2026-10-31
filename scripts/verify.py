@@ -41,7 +41,7 @@ for path,doc in docs.items():
         if target.is_dir():target=target/'index.html'
         if not target.exists():errors.append(f'Broken local reference {path.relative_to(OUT)} -> {ref}')
         elif url.fragment and target in docs and url.fragment not in docs[target].ids:errors.append(f'Broken anchor {path.relative_to(OUT)} -> {ref}')
-    scripts=[a.get('src','') for tag,a in doc.tags if tag=='script']
+    scripts=[a.get('src','') for tag,a in doc.tags if tag=='script' and a.get('type')!='application/ld+json']
     if scripts!=['/assets/site.js','/assets/polish.js']:errors.append(f'Unexpected script in {path.name}: {scripts}')
     if not any(tag=='link' and a.get('rel')=='icon' for tag,a in doc.tags):errors.append(f'No favicon on {path.name}')
     if 'elan@sgischool.in' in path.read_text():errors.append(f'Old contact email in {path.name}')
