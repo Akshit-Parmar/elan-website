@@ -54,3 +54,5 @@ for(const group of groups)group.addEventListener('toggle',()=>{if(group.open)for
 document.addEventListener('click',e=>{for(const group of groups)if(!group.contains(e.target))group.open=false;});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')for(const group of groups)if(group.open){group.open=false;group.querySelector('summary').focus();}});
 })();
+
+if(location.protocol!=='file:')import('/assets/site-photos.js');

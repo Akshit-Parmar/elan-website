@@ -1,9 +1,0 @@
-Restored Élan design + search update
-
-The website design and public copy have been restored to the version before the colour changes. The earlier overlap repair is retained. The newer admin access and API connection fixes remain.
-
-Extract and replace matching files at the repository root, then commit to your Cloudflare-connected branch. Do not upload the ZIP itself. The old colour.css files may be deleted; they are no longer referenced.
-
-Search changes: production canonical URLs, sitemap with 25 public pages, crawlable robots.txt, unique descriptions, structured data and llms.txt. See docs/SEARCH-SETUP.txt for the Google Search Console steps after deployment.
-
-These frontend changes have not been pushed or deployed. GitHub access remains read-only.

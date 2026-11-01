@@ -1,0 +1,55 @@
+ELAN: GITHUB + CLOUDFLARE DEPLOYMENT
+
+1. Extract this ZIP. Open Elan-GitHub-Deployment.
+2. Upload the CONTENTS of that folder to the ROOT of Akshit-Parmar/elan-website.
+   Replace matching files. Do not upload the ZIP or nest this folder inside the repo.
+   The repository root should contain src, scripts, supabase, reference, docs,
+   tests, dist, README.md and DEPLOY-FIRST.txt.
+3. For testing without changing the live site, upload to a new GitHub branch
+   (for example website-test), not the production branch.
+4. Cloudflare Pages settings:
+   Framework preset: None
+   Root directory: blank (repository root)
+   Build command: python3 scripts/build.py
+   Build output directory: dist
+   The reference folder is required by the build. Keep it in GitHub.
+5. A production-branch commit triggers your existing Cloudflare deployment.
+   A test-branch preview requires preview deployments enabled in Cloudflare.
+   GitHub hosts the source; Cloudflare serves the site.
+
+CONNECTED ADMIN AND FORMS
+This dist folder is the connected build, not the disabled offline preview.
+It points to the existing Supabase project aptaodflhiopzjibyyzn.
+The backend source and migrations are included for maintenance. Do NOT run
+fresh-project.sql or bootstrap-admin.sql against the existing database.
+No database reset, reseeding or new Supabase project is needed for this update.
+Uploading backend files to GitHub does not deploy Supabase functions; the existing
+hosted function is reused. This update does not require a backend redeployment.
+Never put a service-role key, database password or payment secret in GitHub.
+The included browser publishable key is intentionally public.
+
+PHOTO EDITING
+Sign in with your existing administrator account at /admin.html.
+Open Website photos, filter by page, choose Change photo, select a JPEG, PNG
+or WebP under 8 MB, inspect the preview, describe the image and save.
+The card lists all pages affected by a shared image. Restore original reverses it.
+Guest and gallery records also have their existing editing tabs.
+Refresh the public page after saving. No GitHub commit is needed for photo edits.
+
+TEST BEFORE RELYING ON IT
+Check desktop/mobile pages, login, one enquiry and one photo replacement plus
+Restore original. Confirm the enquiry appears in the admin list. The new signed-in
+photo upload/save flow has not yet been verified with your admin session.
+Registrations remain governed by existing settings; this update does not open them.
+Payments are not ready merely because the frontend is deployed.
+
+PREVIEW DOMAIN AUTH
+A new Cloudflare preview domain may need its exact origin added to the Supabase
+Edge function ALLOWED_ORIGINS setting, and login/reset destinations allowed in
+Supabase Auth redirect URLs. The existing elansummit.com domain is already supported.
+If a preview cannot log in or save, check these settings rather than changing keys.
+
+LOCAL TEST
+Run: python -m http.server 8000 --directory dist
+Open http://localhost:8000. On Windows, use py instead of python if needed.
+Do not double-click dist/index.html for connected testing.

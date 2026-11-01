@@ -44,13 +44,13 @@ The second edition supports Crisis Command. Cent$ible is retained only in the 20
 
 ## What is implemented versus configured
 
-The backend schema and Edge API have been deployed to `aptaodflhiopzjibyyzn`. The current project has no real user accounts or administrator assignment. Sign-up and recovery depend on correctly configured Supabase Auth redirect URLs and email delivery. Registration stays closed until dates, capacity, age rules, deadline, price and participation terms are supplied. Paid registration additionally requires Razorpay keys and a webhook secret. No real payment has been attempted. The original provider was Easebuzz; this new adapter is Razorpay and does not reuse or migrate the original merchant account. If Easebuzz must remain the provider, replace the adapter before payment launch.
+The backend schema and Edge API have been deployed to `aptaodflhiopzjibyyzn`. Administrator access has been configured separately in the existing hosted project. Accounts and roles are not distributed in this download. Sign-up and recovery depend on correctly configured Supabase Auth redirect URLs and email delivery. Registration stays closed until dates, capacity, age rules, deadline, price and participation terms are supplied. Paid registration additionally requires Razorpay keys and a webhook secret. No real payment has been attempted. The original provider was Easebuzz; this new adapter is Razorpay and does not reuse or migrate the original merchant account. If Easebuzz must remain the provider, replace the adapter before payment launch.
 
 This is source code and setup data, not an export of Supabase's managed Auth service, SMTP account, secrets or merchant credentials. Those must remain in their services. Existing public content is included as SQL seeds and local assets. No historical participants, payments or accounts have been imported from the old project.
 
 ## Deploy
 
-Host `dist/` with a static host and deploy the API/database to Supabase. See `docs/SETUP.md`. The `.openai/hosting.json` file identifies the existing Sites project; it is not needed on an independent host.
+Host `dist/` with a static host and deploy the API/database to Supabase. See `docs/SETUP.md`. For this GitHub/Cloudflare package, follow DEPLOY-FIRST.txt. No Sites hosting metadata is included.
 
 ## Downloadable laptop edition
 Build a ZIP containing the full source and a direct-file browsing edition:

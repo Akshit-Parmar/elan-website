@@ -16,7 +16,7 @@ shutil.copytree(SRC/'art', OUT/'assets/art', dirs_exist_ok=True)
 shutil.copytree(SRC/'founders', OUT/'assets/founders', dirs_exist_ok=True)
 (OUT/'assets/guests').mkdir(exist_ok=True)
 for portrait in [*(SRC/'guests').glob('*.png'), *(SRC/'guests').glob('*.jpg')]: shutil.copyfile(portrait,OUT/'assets/guests'/portrait.name)
-for file in ['site.css','inner.css','site.js','motion.css','motion.js','sculpture.js','enhancements.css','enhancements.js','public-config.json','story.css','story.js','refinement.css','flagships.css','flagships.js','journal.css','journal.js','visitor.css','app.css','app.js','guest-content.js','polish.css','polish.js','editorial.css']:
+for file in ['site-photos.js','site.css','inner.css','site.js','motion.css','motion.js','sculpture.js','enhancements.css','enhancements.js','public-config.json','story.css','story.js','refinement.css','flagships.css','flagships.js','journal.css','journal.js','visitor.css','app.css','app.js','guest-content.js','polish.css','polish.js','editorial.css']:
     shutil.copyfile(SRC/file, OUT/'assets'/file)
 
 shutil.copytree(SRC/'vendor',OUT/'assets/vendor',dirs_exist_ok=True)
@@ -29,6 +29,23 @@ def nav(path):
     def link(url,label):
         return f'<a href="{url}"'+(' aria-current="page"' if url=='/'+path else '')+f'>{label}</a>'
     archive=[('/first-edition.html','The first edition'),('/guests.html','Guests & judges'),('/gallery.html','Photo journal'),('/centsible.html','Cent$ible · 2026'),('/archive.html','Explore the archive')]
+    join=[('/next-edition.html','Tickets & participation'),('/schools.html','Students & schools'),('/school-collaboration.html','School collaboration'),('/volunteers.html','Volunteer'),('/faqs.html','FAQs')]
+    def group(label,kicker,items):
+        active=' nav-group-current' if any(url=='/'+path for url,_ in items) else ''
+        return '<details class="nav-group'+active+'"><summary>'+label+'<span aria-hidden="true">+</span></summary><div class="nav-dropdown"><small>'+kicker+'</small>'+''.join(link(*item) for item in items)+'</div></details>'
+    primary=group('About Élan','THE STORY & THE PEOPLE',[('/about.html','About the summit'),('/founders.html','Meet the founding team')])+link('/flagship.html','Crisis Command')+group('Take part','YOUR NEXT MOVE',join)+link('/contact.html','Contact')
+    mobile=link('/index.html','Home')+primary+link('/portal/login.html','Participant login')
+    return '<a class="skip-link" href="#main">Skip to content</a><header class="ed-header editorial-header"><div class="header-inner wrap"><a class="wordmark" href="/index.html" aria-label="Élan Summit home"><span class="wordmark-crop"><img src="/assets/img/elan-horse-logo-512.png" alt="" width="838" height="898"></span><span><span class="wordmark-text">Élan.</span><small>YOUTH SUMMIT</small></span></a><nav class="desktop-nav" aria-label="Main navigation">'+primary+'</nav><div class="header-actions">'+link('/portal/login.html','Login')+'<a class="nav-next" href="/register.html">Register <span aria-hidden="true">↗</span></a><button class="menu-button" aria-expanded="false" aria-controls="mobile-navigation">Menu +</button></div></div><nav class="mobile-nav" id="mobile-navigation" aria-label="Main navigation on mobile" hidden>'+mobile+'</nav></header>'
+
+def footer():
+    groups=[('ÉLAN',[('about','About the summit'),('founders','Founding team'),('flagship','Crisis Command'),('archive','2026 archive')]),('TAKE PART',[('schools','Students & schools'),('volunteers','Join the team'),('contact','Contact'),('faqs','FAQs'),('portal/login','Participant login')])]
+    content=''.join('<div class="footer-column"><h3>'+title+'</h3>'+''.join(f'<a href="/{slug if "#" in slug else slug+".html"}">{label}</a>' for slug,label in links)+'</div>' for title,links in groups)
+    return '<footer class="ed-footer"><div class="wrap"><div class="footer-top"><div class="footer-identity"><a class="footer-brand" href="/" aria-label="Élan Summit home"><span class="brand-horse"><img src="/assets/img/elan-horse-logo-512.png" alt="" width="838" height="898" loading="lazy"></span><span class="wordmark-text">Élan.</span></a><p>A meeting point for young minds.<br>A starting point for something bigger.</p><a href="mailto:the.elan.summit@gmail.com">the.elan.summit@gmail.com ↗</a></div>'+content+'</div><div class="footer-bottom"><span>© 2026 Élan Summit. Made for your next move.</span><div class="footer-legal"><a href="/terms.html">Terms & conditions</a><a href="/privacy.html">Privacy policy</a><a href="/refund.html">Refund policy</a><a href="/code-of-conduct.html">Code of conduct</a></div></div></div></footer>'
+
+def original_nav(path):
+    def link(url,label):
+        return f'<a href="{url}"'+(' aria-current="page"' if url=='/'+path else '')+f'>{label}</a>'
+    archive=[('/first-edition.html','The first edition'),('/guests.html','Guests & judges'),('/gallery.html','Photo journal'),('/centsible.html','Cent$ible · 2026'),('/archive.html','Explore the archive')]
     join=[('/tickets.html','Tickets & participation'),('/schools.html','Students & schools'),('/school-collaboration.html','School collaboration'),('/volunteers.html','Volunteer'),('/faqs.html','FAQs')]
     def group(label,kicker,items):
         active=' nav-group-current' if any(url=='/'+path for url,_ in items) else ''
@@ -37,16 +54,18 @@ def nav(path):
     mobile=link('/index.html','Home')+primary+link('/portal/login.html','Participant login')
     return '<a class="skip-link" href="#main">Skip to content</a><header class="ed-header editorial-header"><div class="header-inner wrap"><a class="wordmark" href="/index.html" aria-label="Élan Summit home"><span class="wordmark-crop"><img src="/assets/img/elan-horse-logo-512.png" alt="" width="838" height="898"></span><span><span class="wordmark-text">Élan.</span><small>YOUTH SUMMIT</small></span></a><nav class="desktop-nav" aria-label="Main navigation">'+primary+'</nav><div class="header-actions">'+link('/portal/login.html','Login')+'<a class="nav-next" href="/register.html">Register <span aria-hidden="true">↗</span></a><button class="menu-button" aria-expanded="false" aria-controls="mobile-navigation">Menu +</button></div></div><nav class="mobile-nav" id="mobile-navigation" aria-label="Main navigation on mobile" hidden>'+mobile+'</nav></header>'
 
-def footer():
+
+def original_footer():
     groups=[('DISCOVER',[('about','The story of Élan'),('founders','Founding team'),('flagship','Crisis Command'),('centsible','Cent$ible · 2026 archive'),('event-flow','2026 experience'),('guests','Guests & judges'),('gallery','Gallery')]),('BE PART OF IT',[('schools','For students & schools'),('school-collaboration','School collaboration'),('volunteers','Volunteer'),('partners','Our partners'),('contact','Contact the team'),('portal/login','Participant portal')]),('THE DETAILS',[('archive','2026 edition'),('event-details','2026 venue & details'),('schedule','2026 programme'),('next-edition','Upcoming registration'),('faqs','Your questions'),('site-directory','All pages')])]
     content=''.join('<div class="footer-column"><h3>'+title+'</h3>'+''.join(f'<a href="/{slug if "#" in slug else slug+".html"}">{label}</a>' for slug,label in links)+'</div>' for title,links in groups)
     return '<footer class="ed-footer"><div class="wrap"><div class="footer-top"><div class="footer-identity"><a class="footer-brand" href="/" aria-label="Élan Summit home"><span class="brand-horse"><img src="/assets/img/elan-horse-logo-512.png" alt="" width="838" height="898" loading="lazy"></span><span class="wordmark-text">Élan.</span></a><p>A meeting point for young minds.<br>A starting point for something bigger.</p><a href="mailto:the.elan.summit@gmail.com">the.elan.summit@gmail.com ↗</a></div>'+content+'</div><div class="footer-bottom"><span>© 2026 Élan Summit. Made for your next move.</span><div class="footer-legal"><a href="/terms.html">Terms & conditions</a><a href="/privacy.html">Privacy policy</a><a href="/refund.html">Refund policy</a><a href="/code-of-conduct.html">Code of conduct</a></div></div></div></footer>'
 
+
 def page(path,title,main,legacy=False,banner=None):
     title,description,canonical_url,robots=metadata(path,title)
-    body='<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+'</title><meta name="description" content="'+description+'"><meta name="robots" content="'+robots+'"><meta name="theme-color" content="#13273F"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="'+canonical_url+'"><meta property="og:type" content="website"><meta property="og:title" content="'+html.escape(title)+'"><meta property="og:description" content="'+description+'"><meta property="og:image" content="'+ORIGIN+'/assets/img/elan-og.png"><meta property="og:url" content="'+canonical_url+'"><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/enhancements.css"><link rel="stylesheet" href="/assets/story.css">'+('<link rel="stylesheet" href="/assets/inner.css">' if legacy else '')+'<script src="/assets/site.js" defer></script>'+('<link rel="stylesheet" href="/assets/motion.css">' if path=='index.html' else '')+'<link rel="stylesheet" href="/assets/refinement.css"><link rel="stylesheet" href="/assets/flagships.css"><link rel="stylesheet" href="/assets/journal.css"><link rel="stylesheet" href="/assets/visitor.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/polish.css"><link rel="stylesheet" href="/assets/editorial.css"><script src="/assets/polish.js" defer></script>'+structured_data(path,title,description)+'</head><body'+(' class="motion-home"' if path=='index.html' else '')+'>'+nav(path)
+    body='<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+'</title><meta name="description" content="'+description+'"><meta name="robots" content="'+robots+'"><meta name="theme-color" content="#13273F"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="'+canonical_url+'"><meta property="og:type" content="website"><meta property="og:title" content="'+html.escape(title)+'"><meta property="og:description" content="'+description+'"><meta property="og:image" content="'+ORIGIN+'/assets/img/elan-og.png"><meta property="og:url" content="'+canonical_url+'"><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/enhancements.css"><link rel="stylesheet" href="/assets/story.css">'+('<link rel="stylesheet" href="/assets/inner.css">' if legacy else '')+'<script src="/assets/site.js" defer></script>'+('<link rel="stylesheet" href="/assets/motion.css">' if path=='index.html' else '')+'<link rel="stylesheet" href="/assets/refinement.css"><link rel="stylesheet" href="/assets/flagships.css"><link rel="stylesheet" href="/assets/journal.css"><link rel="stylesheet" href="/assets/visitor.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/polish.css"><link rel="stylesheet" href="/assets/editorial.css"><script src="/assets/polish.js" defer></script>'+structured_data(path,title,description)+'</head><body'+(' class="motion-home"' if path=='index.html' else '')+'>'+original_nav(path)
     if banner: body+='<aside class="edition-banner">'+banner+'</aside>'
-    body+=main+footer()+'</body></html>\n'
+    body+=main+(footer() if path=='index.html' else original_footer())+'</body></html>\n'
     body=body.replace('elan@sgischool.in','the.elan.summit@gmail.com')
     dest=OUT/path;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(body)
 
@@ -143,6 +162,7 @@ for src in sorted(OLD.glob('*.html')):
             main=main.replace('<nav class="flagship-subnav"', '<div class="container archive-judges-link"><span class="eyebrow">THE 2026 JUDGING PANEL</span><a class="text-link" href="/guests.html#centsible-judges">Meet Unnikrishnan Nair &amp; Rahul Kotha ↗</a></div><nav class="flagship-subnav"',1)
             main=main.replace('href="/next-edition.html"','href="/archive.html"').replace('Next-edition updates ↗','Explore the 2026 archive ↗')
         main=main.replace('</main>','<section class="flagship-crosslink"><div class="container"><span class="eyebrow">THE 2026 EDITION / TWO ORIGINAL FLAGSHIPS</span><a href="/'+('centsible.html' if kind=='crisis' else 'flagship.html')+'">'+('Enter the idea room. <em>Discover Cent$ible ↗</em>' if kind=='crisis' else 'Enter the decision room. <em>Discover Crisis Command ↗</em>')+'</a></div></section></main>')
+    if name=='flagship.html': main=(SRC/'crisis.html').read_text()
     if name=='about.html': main=(SRC/'about.html').read_text()
     main=make_page(name,main)
     if name in ['guests.html','speakers.html']:
@@ -206,3 +226,16 @@ for name in SPECIAL:
 print(f'Built {len(list(OUT.rglob("*.html")))} pages; all {len(list(OLD.rglob("*.html")))} original routes preserved.')
 
 write_search_files(OUT)
+
+# Public inventory for the administrator's photo picker.
+from html.parser import HTMLParser
+inventory={}
+class PhotoInventory(HTMLParser):
+    def handle_starttag(self,tag,attrs):
+        a=dict(attrs);src=a.get('src','')
+        if tag=='img' and src.startswith('/assets/'):
+            item=inventory.setdefault(src,{'src':src,'alt':a.get('alt',''),'pages':[]})
+            if self.route not in item['pages']:item['pages'].append(self.route)
+for doc in sorted(OUT.rglob('*.html')):
+    parser=PhotoInventory();parser.route=str(doc.relative_to(OUT));parser.feed(doc.read_text())
+(OUT/'assets/photo-inventory.json').write_text(json.dumps(list(inventory.values()),ensure_ascii=False))
