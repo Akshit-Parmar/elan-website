@@ -23,6 +23,8 @@ It points to the existing Supabase project aptaodflhiopzjibyyzn.
 The backend source and migrations are included for maintenance. Do NOT run
 fresh-project.sql or bootstrap-admin.sql against the existing database.
 No database reset, reseeding or new Supabase project is needed for this update.
+The new Page content table and its admin-only write policies have already been
+applied to the existing project. The setup SQL is included for other environments.
 Uploading backend files to GitHub does not deploy Supabase functions; the existing
 hosted function is reused. This update does not require a backend redeployment.
 Never put a service-role key, database password or payment secret in GitHub.
@@ -53,3 +55,12 @@ LOCAL TEST
 Run: python -m http.server 8000 --directory dist
 Open http://localhost:8000. On Windows, use py instead of python if needed.
 Do not double-click dist/index.html for connected testing.
+
+PAGE CONTENT EDITOR
+Admin > Page content lets you edit 290 selected passages and links across 11 pages.
+Choose a page, find the passage, preview your text and Publish change.
+Restore original returns it to the bundled text. Founder biographies are included.
+Guest biographies and announcements retain their own tabs. Legal text, form labels,
+homepage copy and search metadata remain source-managed.
+
+See docs/RELEASE-2026-11-01.md for exactly what was tested and remaining limits.

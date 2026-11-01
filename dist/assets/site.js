@@ -56,3 +56,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')for(const group of g
 })();
 
 if(location.protocol!=='file:')import('/assets/site-photos.js');
+
+if(location.protocol!=='file:')import('/assets/site-content.js');
+import('/assets/finish.js');

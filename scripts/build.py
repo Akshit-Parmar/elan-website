@@ -16,7 +16,7 @@ shutil.copytree(SRC/'art', OUT/'assets/art', dirs_exist_ok=True)
 shutil.copytree(SRC/'founders', OUT/'assets/founders', dirs_exist_ok=True)
 (OUT/'assets/guests').mkdir(exist_ok=True)
 for portrait in [*(SRC/'guests').glob('*.png'), *(SRC/'guests').glob('*.jpg')]: shutil.copyfile(portrait,OUT/'assets/guests'/portrait.name)
-for file in ['site-photos.js','site.css','inner.css','site.js','motion.css','motion.js','sculpture.js','enhancements.css','enhancements.js','public-config.json','story.css','story.js','refinement.css','flagships.css','flagships.js','journal.css','journal.js','visitor.css','app.css','app.js','guest-content.js','polish.css','polish.js','editorial.css']:
+for file in ['admin-content.js','content-rules.js','site-content.js','finish.css','finish.js','site-photos.js','site.css','inner.css','site.js','motion.css','motion.js','sculpture.js','enhancements.css','enhancements.js','public-config.json','story.css','story.js','refinement.css','flagships.css','flagships.js','journal.css','journal.js','visitor.css','app.css','app.js','guest-content.js','polish.css','polish.js','editorial.css']:
     shutil.copyfile(SRC/file, OUT/'assets'/file)
 
 shutil.copytree(SRC/'vendor',OUT/'assets/vendor',dirs_exist_ok=True)
@@ -63,9 +63,9 @@ def original_footer():
 
 def page(path,title,main,legacy=False,banner=None):
     title,description,canonical_url,robots=metadata(path,title)
-    body='<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+'</title><meta name="description" content="'+description+'"><meta name="robots" content="'+robots+'"><meta name="theme-color" content="#13273F"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="'+canonical_url+'"><meta property="og:type" content="website"><meta property="og:title" content="'+html.escape(title)+'"><meta property="og:description" content="'+description+'"><meta property="og:image" content="'+ORIGIN+'/assets/img/elan-og.png"><meta property="og:url" content="'+canonical_url+'"><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/enhancements.css"><link rel="stylesheet" href="/assets/story.css">'+('<link rel="stylesheet" href="/assets/inner.css">' if legacy else '')+'<script src="/assets/site.js" defer></script>'+('<link rel="stylesheet" href="/assets/motion.css">' if path=='index.html' else '')+'<link rel="stylesheet" href="/assets/refinement.css"><link rel="stylesheet" href="/assets/flagships.css"><link rel="stylesheet" href="/assets/journal.css"><link rel="stylesheet" href="/assets/visitor.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/polish.css"><link rel="stylesheet" href="/assets/editorial.css"><script src="/assets/polish.js" defer></script>'+structured_data(path,title,description)+'</head><body'+(' class="motion-home"' if path=='index.html' else '')+'>'+original_nav(path)
+    body='<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+'</title><meta name="description" content="'+description+'"><meta name="robots" content="'+robots+'"><meta name="theme-color" content="#13273F"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="'+canonical_url+'"><meta property="og:type" content="website"><meta property="og:title" content="'+html.escape(title)+'"><meta property="og:description" content="'+description+'"><meta property="og:image" content="'+ORIGIN+'/assets/img/elan-og.png"><meta property="og:url" content="'+canonical_url+'"><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/enhancements.css"><link rel="stylesheet" href="/assets/story.css">'+('<link rel="stylesheet" href="/assets/inner.css">' if legacy else '')+'<script src="/assets/site.js" defer></script>'+('<link rel="stylesheet" href="/assets/motion.css">' if path=='index.html' else '')+'<link rel="stylesheet" href="/assets/refinement.css"><link rel="stylesheet" href="/assets/flagships.css"><link rel="stylesheet" href="/assets/journal.css"><link rel="stylesheet" href="/assets/visitor.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/polish.css"><link rel="stylesheet" href="/assets/editorial.css"><script src="/assets/polish.js" defer></script>'+structured_data(path,title,description)+'<link rel="stylesheet" href="/assets/finish.css">'+'</head><body'+(' class="motion-home"' if path=='index.html' else '')+'>'+original_nav(path)
     if banner: body+='<aside class="edition-banner">'+banner+'</aside>'
-    body+=main+(footer() if path=='index.html' else original_footer())+'</body></html>\n'
+    body+=main+(footer())+'</body></html>\n'
     body=body.replace('elan@sgischool.in','the.elan.summit@gmail.com')
     dest=OUT/path;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(body)
 
@@ -173,6 +173,10 @@ for src in sorted(OLD.glob('*.html')):
         page('faqs-2026.html','2026 questions & answers',main,True,ARCHIVE_BANNER)
         main=current_faq()
     if name=='tickets.html':
+        main=main.replace('class="legacy"','class="legacy ticket-page"',1)
+        if 'ticket-page' not in main: main=main.replace('<main ', '<main class="ticket-page" ',1)
+        main=main.replace('<div class="price-grid">','<div class="ticket-archive-note"><p><strong>These passes belong to the 2026 edition.</strong><br>Dates and prices for the next edition have not been announced.</p><a href="/next-edition.html">Next-edition information ↗</a></div><div class="price-grid">')
+        main=re.sub(r'(<fieldset disabled>.*?</fieldset>)',r'<details class="container"><summary>Original 2026 registration form (closed)</summary>\1</details>',main,flags=re.S)
         main=main.replace('Choose your Élan pass.','The 2026 passes.').replace('Choose a pass for Élan Summit.','Registration is closed. These are the original pass categories for Élan Summit 2026.').replace('Registration closes on 30 August 2026','Registration closed on 30 August 2026').replace('What happens after registration?','How registration worked in 2026.')
     if name=='partners.html':
         main=main.replace('Élan Summit is hosted at','The 2026 edition of Élan Summit was hosted at')
@@ -239,3 +243,6 @@ class PhotoInventory(HTMLParser):
 for doc in sorted(OUT.rglob('*.html')):
     parser=PhotoInventory();parser.route=str(doc.relative_to(OUT));parser.feed(doc.read_text())
 (OUT/'assets/photo-inventory.json').write_text(json.dumps(list(inventory.values()),ensure_ascii=False))
+
+from content_inventory import prepare_content
+print(f"Prepared {prepare_content(OUT)} editable content fields.")
