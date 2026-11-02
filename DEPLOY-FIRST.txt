@@ -1,22 +1,16 @@
-BROWSER PHOTO CAPTIONS UPDATE
+GALLERY WITHOUT CAPTIONS UPDATE
 
-Upload this folder to GitHub and deploy through your existing Cloudflare build. Captions now run on your device. No OpenAI API key or new Supabase setup is needed. First use downloads roughly 250 MB of model files; watch the progress message. Review the suggestions before saving. The old cloud caption endpoint is disabled. See docs/AUTOMATIC-PHOTO-CAPTIONS.md.
+Choose a photo and group. No captions or automatic caption generation. Image descriptions are optional. Public gallery photos have no captions; optional photographer credits remain. No database changes needed. See docs/GALLERY-WITHOUT-CAPTIONS.md.
 
-ÉLAN: GITHUB + CLOUDFLARE UPDATE
+ÉLAN · SIX IMPROVEMENTS UPDATE
 
-1. Extract the ZIP and open Elan-GitHub-Deployment.
-2. Upload its CONTENTS to the root of Akshit-Parmar/elan-website, replacing matching files. Do not upload the ZIP or nest the folder inside the repository.
-3. Use a test branch first. Cloudflare Pages: framework None, root blank, build command python3 scripts/build.py, output dist. Keep reference/ and src/ in GitHub. No npm install is needed.
-4. Test the Cloudflare preview before merging to your production branch.
+1. Extract the ZIP.
+2. Open Elan-GitHub-Deployment and upload its CONTENTS to your GitHub repository root, replacing matching files. Do not upload the ZIP itself or nest the folder inside the repository.
+3. Keep Cloudflare Pages: framework None; root blank; build command python3 scripts/build.py; output dist.
+4. Check a preview deployment before merging to production.
 
-CONNECTED BACKEND
-The existing Supabase project aptaodflhiopzjibyyzn already has the required gallery groups, private drafts, revision history, stories and ordering functions. No manual SQL, database reset, reseeding or Edge Function deployment is required for this package. fresh-project.sql is only for a completely empty project. Never add service-role keys, passwords or payment secrets to GitHub.
+The existing Supabase project already has the new photo display settings. No manual SQL or Edge Function redeployment is needed. Do not run fresh-project.sql on the current database.
 
-WHAT IS NEW
-Gallery: select a group; upload up to 20 photos as drafts; review and publish individually. Drag cards or use Move earlier/later, then Save photo order.
-Edit website: Save draft, Preview mode, Publish and History. Drafts stay private. History begins with this update and covers page text and photo placements. Collection changes have their own draft/publish controls, not page revision history.
-Stories & film: add real testimonials, participant stories and a YouTube/Vimeo highlight-film link. Confirm permission and publish. Unfilled sections remain hidden on the First edition page. No raw video has been edited or uploaded.
+NEW: gallery group covers and featured photos; full-screen keyboard/swipe viewer; reusable photo library with per-placement focus; admin overview with enquiry search, filters and drafts; a next-edition interest form; mobile header and launch checks.
 
-OWNER CHECK
-Close older admin tabs. Sign in to the preview with your existing admin account. Test one photo upload, a draft edit, publishing and history restore. The hosted database checks and local browser tests passed; a real signed-in upload/publication still needs this check.
-Registration remains closed and payments are not configured. See docs/EDITOR-GALLERY-STORIES.md for usage and validation details.
+Read docs/UPGRADE-NOVEMBER-2026.md for controls, verification and limits. The approved homepage and on-device captions are preserved. This ZIP has not been pushed to GitHub or deployed for you.

@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {focalPosition,orderGallery} from '../src/photo-settings.js';
+test('focal points clamp and default without changing source images',()=>{assert.equal(focalPosition(),'50% 50%');assert.equal(focalPosition({focal_x:-20,focal_y:180}),'0% 100%');assert.equal(focalPosition({focal_x:'bad',focal_y:20}),'50% 20%');});
+test('featured photos lead while each group retains editorial order',()=>{const rows=[{id:'a'},{id:'b'},{id:'c'}],settings=new Map([['gallery-c',{featured:true}]]);assert.deepEqual(orderGallery(rows,settings).map(r=>r.id),['c','a','b']);assert.deepEqual(rows.map(r=>r.id),['a','b','c']);});

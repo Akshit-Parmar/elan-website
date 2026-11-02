@@ -301,8 +301,8 @@ Her conference leadership includes secretariat roles at RISMUN, VLPMUN and MGYS,
 She served as a judge for Crisis Command at Élan Summit’s first edition in 2026.','/assets/guests/shreeni-yelwande.jpg',7,true)
 on conflict (slug) do update set edition_slug=excluded.edition_slug,name=excluded.name,role=excluded.role,position=excluded.position,bio=excluded.bio,image_url=excluded.image_url,sort_order=excluded.sort_order,published=excluded.published;
 
--- Page content editor (1 November 2026)
--- Additive setup for page content. Does not modify existing accounts or event data.
+
+-- supabase/page-content.sql
 begin;
 create table if not exists public.elan_page_content (
  key text primary key check(key ~ '^[a-f0-9]{32}$'),
@@ -328,7 +328,8 @@ drop policy if exists admin_content_update on public.elan_page_content;
 create policy admin_content_update on public.elan_page_content for update to authenticated using(exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin')) with check(exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin'));
 commit;
 
--- Editor drafts, history, stories and gallery ordering
+
+-- scripts/editor-workflow.sql
 -- Incremental editor upgrade. Existing published content is retained.
 create table public.elan_page_drafts(page text primary key check(page ~ '^[a-z0-9-]+\.html$'),changes jsonb not null default '[]' check(jsonb_typeof(changes)='array' and octet_length(changes::text)<1000000),version bigint not null default 1,updated_at timestamptz not null default now());
 create table public.elan_page_revisions(id uuid primary key default gen_random_uuid(),page text not null,changes jsonb not null,before_changes jsonb not null,created_at timestamptz not null default now(),created_by uuid not null references auth.users(id));
@@ -410,3 +411,23 @@ create function public.elan_publish_page_draft(p_page text,p_version bigint) ret
 create function public.elan_reorder_gallery(p_ids uuid[]) returns integer language sql security invoker set search_path='' as $$ select elan_private.elan_reorder_gallery(p_ids); $$;
 revoke all on function public.elan_save_page_draft(text,jsonb,bigint),public.elan_publish_page_draft(text,bigint),public.elan_reorder_gallery(uuid[]) from public,anon;
 grant execute on function public.elan_save_page_draft(text,jsonb,bigint),public.elan_publish_page_draft(text,bigint),public.elan_reorder_gallery(uuid[]) to authenticated;
+
+
+-- scripts/photo-settings.sql
+-- Additive upgrade: keeps all existing photos and published content.
+create table public.elan_photo_settings (
+ key text primary key check(length(key) between 1 and 240 and key ~ '^[a-zA-Z0-9_.:-]+$'),
+ focal_x integer not null default 50 check(focal_x between 0 and 100),
+ focal_y integer not null default 50 check(focal_y between 0 and 100),
+ featured boolean not null default false,
+ is_cover boolean not null default false,
+ updated_at timestamptz not null default now()
+);
+alter table public.elan_photo_settings enable row level security;
+revoke all on public.elan_photo_settings from anon,authenticated;
+grant select on public.elan_photo_settings to anon,authenticated;
+grant insert,update,delete on public.elan_photo_settings to authenticated;
+create policy photo_settings_public on public.elan_photo_settings for select to anon,authenticated using(true);
+create policy photo_settings_admin on public.elan_photo_settings for all to authenticated
+ using(exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin'))
+ with check(exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin'));

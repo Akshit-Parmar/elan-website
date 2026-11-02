@@ -12,8 +12,8 @@ export function guestDirectoryEntry(row,base,doc=document){const a=el(doc,'a');a
 export function galleryTemplate(row,base,doc=document){
  if(!safeMediaURL(row.image_url,base))return null;
  const fig=el(doc,'figure','photo-card');fig.dataset.photoCategory=row.category;fig.dataset.collectionTable='elan_media';fig.dataset.collectionRecord=row.id;
- const button=el(doc,'button','photo-open');button.type='button';button.setAttribute('aria-label','Enlarge: '+row.title);
+ const button=el(doc,'button','photo-open');button.type='button';button.setAttribute('aria-label','View photo: '+(row.alt_text||row.category||'Élan Summit'));
  const img=el(doc,'img');img.src=row.image_url;img.alt=row.alt_text;img.loading='lazy';img.width=900;img.height=600;img.dataset.photoSlot='gallery-'+row.id;
  const arrow=el(doc,'span','','↗');arrow.setAttribute('aria-hidden','true');button.append(img,arrow);
- const caption=el(doc,'figcaption');caption.append(el(doc,'small','',(row.category||'People').toUpperCase()+' / '+row.edition_slug),el(doc,'h3','',row.title));if(row.credit)caption.append(el(doc,'p','photo-credit',row.credit));fig.append(button,caption);return fig;
+ fig.append(button);if(row.credit){const credit=el(doc,'figcaption','photo-credit',row.credit);fig.append(credit);}return fig;
 }
