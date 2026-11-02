@@ -1,78 +1,18 @@
-ELAN: GITHUB + CLOUDFLARE DEPLOYMENT
+ÉLAN: GITHUB + CLOUDFLARE UPDATE
 
-1. Extract this ZIP. Open Elan-GitHub-Deployment.
-2. Upload the CONTENTS of that folder to the ROOT of Akshit-Parmar/elan-website.
-   Replace matching files. Do not upload the ZIP or nest this folder inside the repo.
-   The repository root should contain src, scripts, supabase, reference, docs,
-   tests, dist, README.md and DEPLOY-FIRST.txt.
-3. For testing without changing the live site, upload to a new GitHub branch
-   (for example website-test), not the production branch.
-4. Cloudflare Pages settings:
-   Framework preset: None
-   Root directory: blank (repository root)
-   Build command: python3 scripts/build.py
-   Build output directory: dist
-   The reference folder is required by the build. Keep it in GitHub.
-5. A production-branch commit triggers your existing Cloudflare deployment.
-   A test-branch preview requires preview deployments enabled in Cloudflare.
-   GitHub hosts the source; Cloudflare serves the site.
+1. Extract the ZIP and open Elan-GitHub-Deployment.
+2. Upload its CONTENTS to the root of Akshit-Parmar/elan-website, replacing matching files. Do not upload the ZIP or nest the folder inside the repository.
+3. Use a test branch first. Cloudflare Pages: framework None, root blank, build command python3 scripts/build.py, output dist. Keep reference/ and src/ in GitHub. No npm install is needed.
+4. Test the Cloudflare preview before merging to your production branch.
 
-CONNECTED ADMIN AND FORMS
-This dist folder is the connected build, not the disabled offline preview.
-It points to the existing Supabase project aptaodflhiopzjibyyzn.
-The backend source and migrations are included for maintenance. Do NOT run
-fresh-project.sql or bootstrap-admin.sql against the existing database.
-No database reset, reseeding or new Supabase project is needed for this update.
-The new Page content table and its admin-only write policies have already been
-applied to the existing project. The setup SQL is included for other environments.
-Uploading backend files to GitHub does not deploy Supabase functions; the existing
-hosted function is reused. This update does not require a backend redeployment.
-Never put a service-role key, database password or payment secret in GitHub.
-The included browser publishable key is intentionally public.
+CONNECTED BACKEND
+The existing Supabase project aptaodflhiopzjibyyzn already has the required gallery groups, private drafts, revision history, stories and ordering functions. No manual SQL, database reset, reseeding or Edge Function deployment is required for this package. fresh-project.sql is only for a completely empty project. Never add service-role keys, passwords or payment secrets to GitHub.
 
-VISUAL WEBSITE EDITOR
-Sign in with your existing administrator account at /admin.html.
-Open Edit website, choose a page and click its words or photographs.
-Type on the page or use the sidebar. A photo change affects that placement only.
-Use the desktop/mobile view selector to preview the result, then Save changes.
-Restore original is available for selected text and photos.
-Guests and Gallery have Add person / Add photo forms, template previews and
-Show on the website controls. Leave this unchecked to save a draft.
-No GitHub commit is needed for later content changes saved through admin.
+WHAT IS NEW
+Gallery: select a group; upload up to 20 photos as drafts; review and publish individually. Drag cards or use Move earlier/later, then Save photo order.
+Edit website: Save draft, Preview mode, Publish and History. Drafts stay private. History begins with this update and covers page text and photo placements. Collection changes have their own draft/publish controls, not page revision history.
+Stories & film: add real testimonials, participant stories and a YouTube/Vimeo highlight-film link. Confirm permission and publish. Unfilled sections remain hidden on the First edition page. No raw video has been edited or uploaded.
 
-TEST BEFORE RELYING ON IT
-Check desktop/mobile pages, login, one enquiry and one photo replacement plus
-Restore original. Confirm the enquiry appears in the admin list. The new signed-in
-photo upload/save flow has not yet been verified with your admin session.
-Registrations remain governed by existing settings; this update does not open them.
-Payments are not ready merely because the frontend is deployed.
-
-PREVIEW DOMAIN AUTH
-A new Cloudflare preview domain may need its exact origin added to the Supabase
-Edge function ALLOWED_ORIGINS setting, and login/reset destinations allowed in
-Supabase Auth redirect URLs. The existing elansummit.com domain is already supported.
-If a preview cannot log in or save, check these settings rather than changing keys.
-
-LOCAL TEST
-Run: python -m http.server 8000 --directory dist
-Open http://localhost:8000. On Windows, use py instead of python if needed.
-Do not double-click dist/index.html for connected testing.
-
-CONTENT COVERAGE
-Copy on 25 public pages is editable, including navigation, footers, short labels,
-form labels and policy text.
-Guest biographies and gallery captions use their guided collection forms.
-Navigation structure, form behavior, account screens and search metadata remain
-source-managed. This update reuses the existing Supabase backend.
-
-See docs/RELEASE-2026-11-02.md for verification and limitations.
-
-LATEST UPDATE: SIX IMPROVEMENTS
-See docs/RELEASE-SIX-IMPROVEMENTS.md for changes, checks and remaining owner checks.
-Photo uploads now open a crop preview. The uploaded copy is resized and compressed.
-Both editions remain closed for registration; payments are not configured.
-Prepared responsive image copies are included: no build-command change is needed.
-
-GALLERY GROUPS UPDATE
-Six new empty event groups are ready in Gallery and admin.
-The connected Supabase database and API were updated already; no manual SQL or function deployment is needed. See docs/GALLERY-GROUPS.md.
+OWNER CHECK
+Close older admin tabs. Sign in to the preview with your existing admin account. Test one photo upload, a draft edit, publishing and history restore. The hosted database checks and local browser tests passed; a real signed-in upload/publication still needs this check.
+Registration remains closed and payments are not configured. See docs/EDITOR-GALLERY-STORIES.md for usage and validation details.
