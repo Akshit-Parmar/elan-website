@@ -72,3 +72,7 @@ See docs/RELEASE-SIX-IMPROVEMENTS.md for changes, checks and remaining owner che
 Photo uploads now open a crop preview. The uploaded copy is resized and compressed.
 Both editions remain closed for registration; payments are not configured.
 Prepared responsive image copies are included: no build-command change is needed.
+
+GALLERY GROUPS UPDATE
+Six new empty event groups are ready in Gallery and admin.
+The connected Supabase database and API were updated already; no manual SQL or function deployment is needed. See docs/GALLERY-GROUPS.md.

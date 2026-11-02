@@ -1,0 +1,1 @@
+export const galleryGroups = ["Venue", "Opening Ceremony", "Day 1 Committee Sessions", "DJ Night", "Day 2 Committee Sessions", "Closing Ceremony", "Felicitations", "Crisis Command", "Cent$ible", "Stage", "People"];

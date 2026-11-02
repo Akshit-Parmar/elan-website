@@ -17,7 +17,7 @@ create table public.elan_media (
  title text not null check(char_length(title) between 1 and 160),
  alt_text text not null check(char_length(alt_text) between 1 and 400),
  image_url text not null check(image_url like '/assets/img/%' or image_url like 'https://aptaodflhiopzjibyyzn.supabase.co/storage/v1/object/public/%'),
- category text not null check(category in ('Venue','Crisis Command','Cent$ible','Stage','People')),
+ category text not null check(category in ('Venue','Opening Ceremony','Day 1 Committee Sessions','DJ Night','Day 2 Committee Sessions','Closing Ceremony','Felicitations','Crisis Command','Cent$ible','Stage','People')),
  credit text not null default '',
  sort_order integer not null default 0,
  published boolean not null default false
