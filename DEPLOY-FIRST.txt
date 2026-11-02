@@ -30,13 +30,15 @@ hosted function is reused. This update does not require a backend redeployment.
 Never put a service-role key, database password or payment secret in GitHub.
 The included browser publishable key is intentionally public.
 
-PHOTO EDITING
+VISUAL WEBSITE EDITOR
 Sign in with your existing administrator account at /admin.html.
-Open Website photos, filter by page, choose Change photo, select a JPEG, PNG
-or WebP under 8 MB, inspect the preview, describe the image and save.
-The card lists all pages affected by a shared image. Restore original reverses it.
-Guest and gallery records also have their existing editing tabs.
-Refresh the public page after saving. No GitHub commit is needed for photo edits.
+Open Edit website, choose a page and click its words or photographs.
+Type on the page or use the sidebar. A photo change affects that placement only.
+Use the desktop/mobile view selector to preview the result, then Save changes.
+Restore original is available for selected text and photos.
+Guests and Gallery have Add person / Add photo forms, template previews and
+Show on the website controls. Leave this unchecked to save a draft.
+No GitHub commit is needed for later content changes saved through admin.
 
 TEST BEFORE RELYING ON IT
 Check desktop/mobile pages, login, one enquiry and one photo replacement plus
@@ -56,11 +58,10 @@ Run: python -m http.server 8000 --directory dist
 Open http://localhost:8000. On Windows, use py instead of python if needed.
 Do not double-click dist/index.html for connected testing.
 
-PAGE CONTENT EDITOR
-Admin > Page content lets you edit 290 selected passages and links across 11 pages.
-Choose a page, find the passage, preview your text and Publish change.
-Restore original returns it to the bundled text. Founder biographies are included.
-Guest biographies and announcements retain their own tabs. Legal text, form labels,
-homepage copy and search metadata remain source-managed.
+CONTENT COVERAGE
+Main content on 21 public pages is editable, including the homepage and founders.
+Guest biographies and gallery captions use their guided collection forms.
+Legal text, navigation structure, form controls and search metadata remain
+source-managed. This update reuses the existing Supabase backend.
 
-See docs/RELEASE-2026-11-01.md for exactly what was tested and remaining limits.
+See docs/RELEASE-2026-11-02.md for verification and limitations.

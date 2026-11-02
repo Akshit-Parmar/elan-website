@@ -16,7 +16,7 @@ shutil.copytree(SRC/'art', OUT/'assets/art', dirs_exist_ok=True)
 shutil.copytree(SRC/'founders', OUT/'assets/founders', dirs_exist_ok=True)
 (OUT/'assets/guests').mkdir(exist_ok=True)
 for portrait in [*(SRC/'guests').glob('*.png'), *(SRC/'guests').glob('*.jpg')]: shutil.copyfile(portrait,OUT/'assets/guests'/portrait.name)
-for file in ['admin-content.js','content-rules.js','site-content.js','finish.css','finish.js','site-photos.js','site.css','inner.css','site.js','motion.css','motion.js','sculpture.js','enhancements.css','enhancements.js','public-config.json','story.css','story.js','refinement.css','flagships.css','flagships.js','journal.css','journal.js','visitor.css','app.css','app.js','guest-content.js','polish.css','polish.js','editorial.css']:
+for file in ['visual-editor.js','admin-collections.js','admin-visual.css','media-rules.js','content-templates.js','admin-content.js','content-rules.js','site-content.js','finish.css','finish.js','site-photos.js','site.css','inner.css','site.js','motion.css','motion.js','sculpture.js','enhancements.css','enhancements.js','public-config.json','story.css','story.js','refinement.css','flagships.css','flagships.js','journal.css','journal.js','visitor.css','app.css','app.js','guest-content.js','polish.css','polish.js','editorial.css']:
     shutil.copyfile(SRC/file, OUT/'assets'/file)
 
 shutil.copytree(SRC/'vendor',OUT/'assets/vendor',dirs_exist_ok=True)
@@ -243,6 +243,21 @@ class PhotoInventory(HTMLParser):
 for doc in sorted(OUT.rglob('*.html')):
     parser=PhotoInventory();parser.route=str(doc.relative_to(OUT));parser.feed(doc.read_text())
 (OUT/'assets/photo-inventory.json').write_text(json.dumps(list(inventory.values()),ensure_ascii=False))
+
+# A replacement belongs to a placement, never to a shared filename.
+slots=[]
+for doc in sorted(OUT.rglob('*.html')):
+    route=str(doc.relative_to(OUT));counts={}
+    def slot_image(m):
+        tag=m.group();src=re.search(r'\bsrc="([^"]+)"',tag)
+        if not src or not src.group(1).startswith('/assets/'):return tag
+        src=src.group(1);n=counts.get(src,0);counts[src]=n+1
+        key=hashlib.sha256((route+'|'+src+'|'+str(n)).encode()).hexdigest()[:32]
+        alt=re.search(r'\balt="([^"]*)"',tag)
+        slots.append(dict(key=key,page=route,src=src,alt=html.unescape(alt.group(1)) if alt else ''))
+        return tag.replace('<img','<img data-photo-slot="'+key+'"',1)
+    doc.write_text(re.sub(r'<img\b[^>]*>',slot_image,doc.read_text()))
+(OUT/'assets/photo-slots.json').write_text(json.dumps(slots,ensure_ascii=False))
 
 from content_inventory import prepare_content
 print(f"Prepared {prepare_content(OUT)} editable content fields.")

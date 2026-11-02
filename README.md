@@ -60,3 +60,7 @@ python scripts/package-laptop.py --output /path/to/output
 ```
 
 Extract the resulting ZIP and open OPEN-WEBSITE.html. The separate live-connected launcher requires Python 3 and internet. The browsing edition disables backend submissions; web fonts still use the network, with local fallback fonts when offline.
+
+## Visual content editor
+
+Admin > Edit website opens a live page preview for text and individual photo placements. Guests and Gallery have guided forms and the same templates as the public website. See `docs/RELEASE-2026-11-02.md` for coverage and testing. No backend migration is needed for this update.
