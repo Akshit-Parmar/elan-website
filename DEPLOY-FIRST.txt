@@ -1,3 +1,7 @@
+AUTOMATIC PHOTO CAPTIONS UPDATE
+
+The photo-first form and editable AI suggestions are included. AI is NOT active yet: deployment of the new caption function was blocked pending your approval to send photo previews to OpenAI. Once approved, the function also needs an OPENAI_API_KEY server secret. See docs/AUTOMATIC-PHOTO-CAPTIONS.md. Existing backend features remain as described below.
+
 ÉLAN: GITHUB + CLOUDFLARE UPDATE
 
 1. Extract the ZIP and open Elan-GitHub-Deployment.
