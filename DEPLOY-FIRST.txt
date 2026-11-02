@@ -66,3 +66,9 @@ Navigation structure, form behavior, account screens and search metadata remain
 source-managed. This update reuses the existing Supabase backend.
 
 See docs/RELEASE-2026-11-02.md for verification and limitations.
+
+LATEST UPDATE: SIX IMPROVEMENTS
+See docs/RELEASE-SIX-IMPROVEMENTS.md for changes, checks and remaining owner checks.
+Photo uploads now open a crop preview. The uploaded copy is resized and compressed.
+Both editions remain closed for registration; payments are not configured.
+Prepared responsive image copies are included: no build-command change is needed.

@@ -2,7 +2,7 @@ if(document.querySelector('[data-app],form[data-mode="stored-enquiry"]')) import
 if(document.querySelector('.guest-journal')) import('/assets/guest-content.js');
 (() => {
   import("/assets/enhancements.js");
-import("/assets/story.js");
+if(document.querySelector(".edition-story")) import("/assets/story.js");
   if(document.querySelector(".elan-journal")) import("/assets/journal.js");
   if(document.querySelector(".flagship-editorial")) import("/assets/flagships.js");
   if (document.querySelector("#elan-world")) import("/assets/motion.js");

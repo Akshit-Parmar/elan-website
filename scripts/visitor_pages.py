@@ -2,7 +2,8 @@
 import re
 
 def hero(kicker,title,copy,photo=None):
-    media=(f'<figure><img src="/assets/edition-2026/{photo}.webp" alt="Participants at the first Élan Summit" width="1800" height="1013"><figcaption>FROM THE FIRST EDITION / SEPTEMBER 2026</figcaption></figure>' if photo else '<div class="visitor-monogram" aria-hidden="true">É<span>THE NEXT CHAPTER</span></div>')
+    description={'teamwork':'Students working together at Élan Summit 2026','day-two':'Participants during the second day of Élan Summit 2026','opening':'The opening ceremony of Élan Summit 2026'}.get(photo,'Participants at Élan Summit 2026')
+    media=(f'<figure><img src="/assets/edition-2026/{photo}.webp" alt="{description}" width="1800" height="1013"><figcaption>FROM THE FIRST EDITION / SEPTEMBER 2026</figcaption></figure>' if photo else '<div class="visitor-monogram" aria-hidden="true">É<span>THE NEXT CHAPTER</span></div>')
     return f'<section class="visitor-hero container"><div><p class="section-label">{kicker}</p><h1>{title}</h1><p class="visitor-lead">{copy}</p></div>{media}</section>'
 
 def ledger(kicker,title,rows):
@@ -22,11 +23,11 @@ def enquiry(main,title,copy):
 def make_page(name,main):
     body=''
     if name=='schools.html':
-        body=hero('ÉLAN / STUDENTS & SCHOOLS','A place for your<br><em>school to take part.</em>','Explore school participation in the second edition, centred on Crisis Command. Start with a conversation about your students and what they hope to learn.','discussion')
+        body=hero('ÉLAN / STUDENTS & SCHOOLS','A place for your<br><em>school to take part.</em>','Explore school participation in the second edition, centred on Crisis Command. Start with a conversation about your students and what they hope to learn.','teamwork')
         body+=ledger('THE EXPERIENCE','Thinking beyond<br>the classroom.',[('Decisions, with consequences.','Crisis Command asks participants to consider competing priorities, respond to changing information and explain their choices.'),('A team with different strengths.','Research, listening, negotiation and clear communication all have a place alongside public speaking.'),('Planning with your coordinator.','Share your estimated group size and practical needs. Eligibility, pricing, supervision, travel and the programme will be confirmed before registration opens.')])
         body+=enquiry(main,'Tell us about<br>your school.','An enquiry starts the discussion; it does not reserve places. Interested in helping organise the edition? <a href="/school-collaboration.html">Explore school collaboration →</a>')
     elif name=='school-collaboration.html':
-        body=hero('ÉLAN / SCHOOL COLLABORATION','Build Élan<br><em>with us.</em>','Bring your students, your ideas and a clear sense of what your school can contribute. Participation and organising collaboration are separate conversations.','teamwork')
+        body=hero('ÉLAN / SCHOOL COLLABORATION','Build Élan<br><em>with us.</em>','Bring your students, your ideas and a clear sense of what your school can contribute. Participation and organising collaboration are separate conversations.','day-two')
         body+=ledger('A SHARED RESPONSIBILITY','A meaningful role.<br>A clear agreement.',[('One point of contact.','Nominate a coordinator to discuss student participation, communication and the scope of your school’s involvement.'),('A contribution that fits.','Tell us where you can help: outreach, faculty coordination, logistics, venue support or student leadership. Responsibilities are agreed with the organising team.'),('Recognition, agreed together.','Website credit, event visibility and other benefits need to match the agreed contribution. These are discussed individually rather than promised in advance.'),('Student welfare comes first.','Supervision, conduct, consent and emergency communication need clear responsibilities before participation is confirmed.')])
         body+='<section class="visitor-callout container"><div><p class="section-label">BEGIN WITH YOUR SCHOOL</p><h2>Let’s find the right<br><em>way to work together.</em></h2></div><a class="btn btn-dark" href="/schools.html#enquire">Start a school enquiry ↗</a></section>'
     elif name=='volunteers.html':
