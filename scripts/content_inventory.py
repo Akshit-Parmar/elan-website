@@ -1,28 +1,31 @@
 """Stable editable leaf text; exclude forms, navigation, legal and account pages."""
 import re, html, hashlib, json
-PAGES={'centsible.html','partners.html','faqs-2026.html','index.html','tickets.html','gallery.html','guests.html','event-flow.html','event-details.html','schedule.html','about.html','founders.html','flagship.html','schools.html','school-collaboration.html','volunteers.html','contact.html','faqs.html','first-edition.html','archive.html','next-edition.html'}
+from pathlib import Path
+PAGES={'terms.html','privacy.html','refund.html','code-of-conduct.html','centsible.html','partners.html','faqs-2026.html','index.html','tickets.html','gallery.html','guests.html','event-flow.html','event-details.html','schedule.html','about.html','founders.html','flagship.html','schools.html','school-collaboration.html','volunteers.html','contact.html','faqs.html','first-edition.html','archive.html','next-edition.html'}
 def prepare_content(out):
     inventory=[]
+    legacy=json.loads((Path(__file__).resolve().parents[1]/'src/content-keys.json').read_text())
+    prior={(x['page'],x['text'],x['href']):x['key'] for x in legacy}
     for name in sorted(PAGES):
         path=out/name
         if not path.exists():continue
-        text=path.read_text(); match=re.search(r'<main\b[^>]*>.*?</main>',text,re.S)
+        text=path.read_text(); match=re.search(r'<body\b[^>]*>.*?</body>',text,re.S)
         if not match:continue
         protected=[]
         def hold(m):protected.append(m.group());return f'<!--CONTENT-HOLD-{len(protected)-1}-->'
-        main=re.sub(r'<(form|dialog|script|style|nav)\b.*?</\1>',hold,match.group(),flags=re.S)
+        main=re.sub(r'<(script|style|svg|textarea|select)\b.*?</\1>',hold,match.group(),flags=re.S)
         main=re.sub(r'<section\b[^>]*class="[^"]*guest-profile[^"]*"[^>]*>.*?</section>',hold,main,flags=re.S)
         seen=set()
         def leaf(m):
             tag,attrs,raw=m.groups();value=html.unescape(raw).strip()
-            if len(value)<8 or 'aria-hidden="true"' in attrs:return m.group()
+            if not value or not re.search(r'[^\W_]',value) or 'aria-hidden="true"' in attrs:return m.group()
             href=re.search(r'\bhref="([^"]*)"',attrs) if tag=='a' else None
             href=html.unescape(href.group(1)) if href else None
-            key=hashlib.sha256((name+'|'+tag+'|'+value+'|'+str(href)).encode()).hexdigest()[:32]
+            key=prior.get((name,value,href)) or hashlib.sha256((name+'|'+tag+'|'+value+'|'+str(href)).encode()).hexdigest()[:32]
             if key not in seen:inventory.append(dict(key=key,page=name,tag=tag,text=value,href=href));seen.add(key)
             return f'<{tag}{attrs} data-content-key="{key}">{raw}</{tag}>'
-        main=re.sub(r'<(h1|h2|h3|p|li|em|strong|a)(\s[^<>]*|)>([^<>]+)</\1>',leaf,main)
-        # Expose mixed headings a text run at a time without flattening emphasis or links.
+        main=re.sub(r'<(h1|h2|h3|h4|h5|h6|p|li|em|strong|a|span|small|b|figcaption|label|button|summary|td|th|legend)(\s[^<>]*|)>([^<>]+)</\1>',leaf,main)
+        # Comments identify text runs without adding elements or changing CSS selectors.
         stack=[];occurrences={}
         def mixed(m):
             token=m.group()
@@ -38,17 +41,17 @@ def prepare_content(out):
                     stack.append((found.group(1),token))
                 return token
             value=html.unescape(token).strip()
-            if not value or not any(t in {'h1','h2','h3','p','li','a','em','strong','figcaption'} for t,a in stack):return token
+            if not value or not re.search(r'[^\W_]',value) or not stack:return token
             if any('data-content-key=' in a or 'aria-hidden="true"' in a for t,a in stack):return token
             href=None
             for t,a in stack:
                 if t=='a':
                     h=re.search(r'href="([^"]*)"',a);href=html.unescape(h.group(1)) if h else None
             seed=name+'|text-run|'+value+'|'+str(href);n=occurrences.get(seed,0);occurrences[seed]=n+1
-            key=hashlib.sha256((seed+'|'+str(n)).encode()).hexdigest()[:32]
+            key=prior.get((name,value,href)) or hashlib.sha256((seed+'|'+str(n)).encode()).hexdigest()[:32]
             inventory.append(dict(key=key,page=name,tag='span',text=value,href=href))
             lead=token[:len(token)-len(token.lstrip())];trail=token[len(token.rstrip()):]
-            return lead+'<span data-content-key="'+key+'">'+token.strip()+'</span>'+trail
+            return '<!--elan-copy:'+key+'-->'+token+'<!--/elan-copy-->'
         main=re.sub(r'<!--[\s\S]*?-->|<[^>]+>|[^<]+',mixed,main)
         for i,original in enumerate(protected):main=main.replace(f'<!--CONTENT-HOLD-{i}-->',original)
         path.write_text(text[:match.start()]+main+text[match.end():])

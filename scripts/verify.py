@@ -24,6 +24,8 @@ for name in ['terms.html','privacy.html','refund.html','code-of-conduct.html']:
     old=re.search(r'<main\b[^>]*>.*?</main>',(OLD/name).read_text(),re.S).group(0)
     new=re.search(r'<main\b[^>]*>.*?</main>',(OUT/name).read_text(),re.S).group(0)
     old=old.replace('elan@sgischool.in','the.elan.summit@gmail.com')
+    new=re.sub(r' data-content-key="[a-f0-9]{32}"','',new)
+    new=re.sub(r'<!--(?:elan-copy:[a-f0-9]{32}|/elan-copy)-->', '', new)
     if old!=new:errors.append(f'Changed legal main content: {name}')
 for old in [OLD/'favicon.ico',*list((OLD/'assets/img').rglob('*'))]:
     if old.is_file():

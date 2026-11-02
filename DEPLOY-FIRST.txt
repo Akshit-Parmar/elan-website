@@ -59,9 +59,10 @@ Open http://localhost:8000. On Windows, use py instead of python if needed.
 Do not double-click dist/index.html for connected testing.
 
 CONTENT COVERAGE
-Main content on 21 public pages is editable, including the homepage and founders.
+Copy on 25 public pages is editable, including navigation, footers, short labels,
+form labels and policy text.
 Guest biographies and gallery captions use their guided collection forms.
-Legal text, navigation structure, form controls and search metadata remain
+Navigation structure, form behavior, account screens and search metadata remain
 source-managed. This update reuses the existing Supabase backend.
 
 See docs/RELEASE-2026-11-02.md for verification and limitations.

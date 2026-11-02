@@ -1,3 +1,4 @@
+import {mountEditableRuns} from './content-targets.js';
 import {safeContentLink,validContentText} from './content-rules.js';
 import {uploadPhoto,validatePhoto,photoID} from './media-rules.js';
 export function editorStyles(){if(!document.querySelector('[data-admin-visual-css]')){const link=document.createElement('link');link.rel='stylesheet';link.href='/assets/admin-visual.css';link.dataset.adminVisualCss='';document.head.append(link);}}
@@ -33,15 +34,15 @@ export async function openVisualEditor({sb,api,host,editor,status,isCurrent,onCo
  function change(fields){node.dataset.editorLocked='true';const old=pending.get('image:'+key)||{type:'image',original,url:node.getAttribute('src'),alt:node.alt};pending.set('image:'+key,{...old,...fields});count();}
  q('#visual-photo').onchange=e=>{const file=e.target.files[0];if(!file)return;try{validatePhoto(file);const url=URL.createObjectURL(file);urls.add(url);change({file,url:null,uploaded:null});node.removeAttribute('srcset');node.src=url;q('.visual-photo-preview').src=url;status('Photo ready. Save changes to publish it.');}catch(err){status(err.message,true);e.target.value='';}};
  q('#visual-alt').oninput=e=>{change({alt:e.target.value});node.alt=e.target.value;};
- q('#visual-restore').onclick=()=>{change({file:null,url:original.src,alt:original.alt,uploaded:null});node.src=original.src;node.alt=original.alt;inspectImage(node);};
+ q('#visual-restore').onclick=()=>{change({file:null,url:original.src,alt:original.alt||'Élan Summit photo',uploaded:null});node.src=original.src;node.alt=original.alt;inspectImage(node);};
  }
- frame.onload=()=>{if(disposed||!isCurrent())return;const doc=frame.contentDocument;if(!doc)return;
+ frame.onload=()=>{if(disposed||!isCurrent())return;const doc=frame.contentDocument;if(!doc)return;mountEditableRuns(doc);
  // Delegated selection also works for profiles and gallery cards loaded after the frame.
  const style=doc.createElement('style');style.textContent=`html[data-visual-editing="true"] [data-content-key]:hover,html[data-visual-editing="true"] img[data-photo-slot]:hover{outline:2px dashed #c86c3b!important;outline-offset:4px;cursor:pointer}html[data-visual-editing="true"] [contenteditable]:focus{outline:2px solid #a34d28!important;outline-offset:4px}html[data-visual-editing="true"] img[data-photo-slot]{cursor:pointer}html{scroll-behavior:auto!important}`;doc.head.append(style);doc.documentElement.dataset.visualEditing=String(editing);
  doc.addEventListener('click',e=>{if(!editing){const link=e.target.closest('a');if(link&&!link.getAttribute('href')?.startsWith('#')){e.preventDefault();status('Choose a page above to navigate the preview.');}return;}
  e.preventDefault();e.stopImmediatePropagation();if(busy)return;const image=e.target.closest('img[data-photo-slot]');if(image){inspectImage(image);return;}
  const card=e.target.closest('[data-collection-record]');if(card){onCollection(card.dataset.collectionTable,card.dataset.collectionRecord);return;}
- const node=e.target.closest('[data-content-key]');if(node&&textMap.has(node.dataset.contentKey)){selected?.removeAttribute('contenteditable');node.setAttribute('contenteditable','plaintext-only');node.dataset.editorLocked='true';inspectText(node);node.focus();}
+ const node=e.target.closest('[data-content-key]');if(node&&textMap.has(node.dataset.contentKey)){selected?.removeAttribute('contenteditable');node.closest('details')?.setAttribute('open','');node.setAttribute('contenteditable','plaintext-only');if(node.tagName==='ELAN-COPY')node.style.display='inline';node.dataset.editorLocked='true';inspectText(node);node.focus();}
  },true);
  doc.addEventListener('input',e=>{const node=e.target.closest('[data-content-key]');if(node){updateText(node);if(selected===node&&q('#visual-text'))q('#visual-text').value=node.textContent.trim();}});
  doc.addEventListener('submit',e=>{e.preventDefault();e.stopImmediatePropagation();status('Forms are disabled inside the editor preview.');},true);
@@ -54,7 +55,7 @@ export async function openVisualEditor({sb,api,host,editor,status,isCurrent,onCo
  q('#visual-mode').onclick=()=>{editing=!editing;selected?.removeAttribute('contenteditable');frame.contentDocument.documentElement.dataset.visualEditing=String(editing);q('#visual-mode').textContent=editing?'Editing on':'Preview mode';q('#visual-mode').setAttribute('aria-pressed',String(editing));};
  q('#visual-discard').onclick=()=>{if(!confirm('Discard these unsaved changes?'))return;pending.clear();release();count();reload();status('Unsaved changes discarded.');};
  q('#visual-save').onclick=async()=>{if(busy)return;busy=true;count();inspector.inert=true;frame.style.pointerEvents='none';status('Saving changes…');try{
- const changes=[...pending.entries()];for(const [,c] of changes){if(c.type==='text'&&(!validContentText(c.text)||(c.href!==null&&!safeContentLink(c.href))))throw Error('Use nonempty text (up to 6,000 characters) and a valid link.');}
+ const changes=[...pending.entries()];for(const [,c] of changes){if(c.type==='image'&&!c.alt?.trim())throw Error('Add a description for each changed photo.');if(c.type==='text'&&(!validContentText(c.text)||(c.href!==null&&!safeContentLink(c.href))))throw Error('Use nonempty text (up to 6,000 characters) and a valid link.');}
  const copy=changes.filter(([,c])=>c.type==='text');if(copy.length){const r=await sb.from('elan_page_content').upsert(copy.map(([,c])=>({key:c.original.key,page:c.original.page,text:c.text,href:c.href,published:!c.restore,updated_at:new Date().toISOString()})));if(r.error)throw r.error;for(const [key] of copy)pending.delete(key);}
  for(const [key,c] of changes.filter(([,c])=>c.type==='image')){if(c.file&&!c.uploaded)c.uploaded=await uploadPhoto(c.file,sb,api);await api('admin-save',{table:'elan_media',record:{id:await photoID(c.original.key),edition_slug:'next',title:('Website placement: '+c.original.page).slice(0,160),alt_text:c.alt,image_url:c.uploaded||c.url,category:'People',credit:'site-slot:'+c.original.key,sort_order:10000,published:true}});pending.delete(key);}
  release();reload();status('Saved to the website.');
