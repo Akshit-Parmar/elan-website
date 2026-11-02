@@ -1,26 +1,23 @@
-# Automatic photo captions
+# Browser photo captions
 
-The Gallery upload form now starts with the photo. After choosing and cropping it, the admin sends a resized JPEG preview to a protected caption endpoint. Two editable suggestions fill Caption and Describe the image. The second field is accessibility alt text. Existing words and edits made while a request is running are preserved. Clear a field and choose Generate to refill it. Changing a photo replaces automatically generated text, while retaining your own words. Saving still controls publication.
+Gallery photo uploads now describe the actual image on the admin's device. No OpenAI account, API key or paid caption service is required. The caption model does not receive photos over the network. Saving or publishing still uploads images to the existing Supabase media bucket as before.
 
-Bulk uploads request captions one at a time, for up to 20 photos. Review the suggestions before saving drafts. Category, edition and photographer credit remain yours to choose; the model must not guess identities or event details. Failed requests leave manual editing available.
+Choose a photo and crop it. The model fills Caption and Describe the image with a simple visual description. Both fields start with the same description (the caption is shortened if necessary); no event names, people or detail are added by templates. Review and edit before saving: this small model can misdescribe scenes. Existing text and edits typed while it loads are protected. Clear a field and choose Generate to refill it.
 
-## Activation status
+Bulk uploads run one photo at a time and remain drafts until published. Stop generating cancels the current local operation. The form remains available for manual text. A slow or unsupported browser shows a message instead of calling a cloud AI fallback.
 
-The source is implemented and tested with mocked AI responses. The new `elan-photo-caption` Edge Function has NOT been deployed: automatic approval review blocked deployment pending the owner's explicit approval to send image previews to OpenAI. Existing backend functions and public content were not changed by this update. Uploading this ZIP alone does not activate AI.
+## First use
 
-Once the owner approves that destination:
+A recent Chrome or Edge desktop browser is recommended. The first caption downloads roughly 250 MB of model/runtime files from Hugging Face and jsDelivr. This inbound download uses internet data. The browser caches files when storage permits; clearing browser data, private browsing or browser eviction may trigger another download. Inference runs in a web worker with single-thread WASM so it does not require WebGPU or cross-origin isolation. Low-memory devices can fail; manual editing remains available.
 
-1. Deploy `supabase/functions/elan-photo-caption/index.ts` together with `handler.mjs` to the existing Élan project. The function authenticates the user via Supabase and checks current `elan_staff.role = admin` itself, so its gateway JWT toggle is false (same pattern as the existing API). Do not remove the body authentication or role checks.
-2. In Supabase Dashboard → Edge Functions → Secrets, add `OPENAI_API_KEY` from an OpenAI API project with billing/model access. Never put this value in GitHub, public-config.json, or the chat. Optional `PHOTO_CAPTION_MODEL` defaults to `gpt-4.1-mini`; choose an available model supporting image input and structured JSON responses.
-3. Add any Cloudflare test branch URL to the comma-separated `ALLOWED_ORIGINS` secret if it is not already present. Keep existing origins. Production elansummit.com and www are included.
-4. Deploy this updated frontend using the normal Python build, then sign into admin. Upload one photo, review both suggested fields, edit them and save as a draft. Verify that replacing the image, bulk upload and manual fallback work with the real account.
+The bundled Transformers.js runtime is pinned to 2.17.2, with its Apache license. Model: Xenova/vit-gpt2-image-captioning, revision 077550ae0729f9af280c9d885ea9b0380fc8e815, quantized. Model files are downloaded on demand rather than included in the GitHub ZIP. Runtime WASM is fetched from the matching pinned jsDelivr package. Changing the model requires testing its quality and memory use.
 
-## Data and limits
+## Deployment
 
-Only a re-encoded JPEG preview (longest side at most 1024 pixels, under 400,000 characters as a data URL) is sent to OpenAI. Browser re-encoding does not carry the original EXIF metadata or filename. No image needs to be publicly uploaded merely to generate text. Requests use `store:false`; this does not claim zero provider retention. Normal photo upload/publication still follows the existing storage workflow.
+Upload the updated deployment folder to GitHub using the existing Cloudflare build: python3 scripts/build.py, output dist. No database migration or API secret is needed. Public pages, layout and existing content are unchanged. The previous OpenAI caption endpoint is disabled (returns HTTP 410) and is not called by this frontend.
 
-The OpenAI key stays server-side. The endpoint accepts only inline JPEG data (no user-controlled external fetch URLs), bounds input/output, times out after 30 seconds, and restricts generation to current admins. Persistent rate limits: 120 requests per admin per hour and 500 per project per day. API usage can incur charges. No automated retries; use Generate to retry. No image content or provider error body is written to application logs.
+## Checks
 
-## Verification
+Automated tests cover preserving edits, stale responses, cancellation, and output length. Build, route, image, legal and search checks are retained. The small model provides suggestions, not authoritative descriptions; always review the actual photo before publishing.
 
-Node tests cover authentication, non-admin denial, missing configuration, oversized/malformed requests, rate limits, structured result validation, preserving human edits, ignoring stale replies, replacing photos and leaving the editor. Existing source/build/route/legal/metadata checks pass. Real AI responses and real admin end-to-end generation remain unverified until activation.
+Browser verification: a real local WASM run on discussion.webp filled both fields with “A large group of people sitting at a table.” The test required no API key or caption server. The HTTP preview has no browser cache; the worker correctly continues without cache in that environment.

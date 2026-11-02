@@ -1,6 +1,6 @@
-AUTOMATIC PHOTO CAPTIONS UPDATE
+BROWSER PHOTO CAPTIONS UPDATE
 
-The photo-first form and editable AI suggestions are included. AI is NOT active yet: deployment of the new caption function was blocked pending your approval to send photo previews to OpenAI. Once approved, the function also needs an OPENAI_API_KEY server secret. See docs/AUTOMATIC-PHOTO-CAPTIONS.md. Existing backend features remain as described below.
+Upload this folder to GitHub and deploy through your existing Cloudflare build. Captions now run on your device. No OpenAI API key or new Supabase setup is needed. First use downloads roughly 250 MB of model files; watch the progress message. Review the suggestions before saving. The old cloud caption endpoint is disabled. See docs/AUTOMATIC-PHOTO-CAPTIONS.md.
 
 ÉLAN: GITHUB + CLOUDFLARE UPDATE
 
