@@ -10,14 +10,11 @@ def ledger(kicker,title,rows):
     return '<section class="visitor-ledger container"><div><p class="section-label">'+kicker+'</p><h2>'+title+'</h2></div><div>'+''.join(f'<article><span>{i:02}</span><div><h3>{h}</h3><p>{p}</p></div></article>' for i,(h,p) in enumerate(rows,1))+'</div></section>'
 
 def enquiry(main,title,copy):
-    form=re.search(r'<form\b.*?</form>',main,re.S).group(0)
-    form=form.replace('data-mode="email-draft"','data-mode="stored-enquiry"').replace('Prepare email draft','Send enquiry')
-    form=re.sub(r'<option[^>]*>[^<]*Cent\$ible[^<]*</option>','',form)
-    # An enquiry does not reserve a place or promise an unannounced programme.
-    if 'data-form="school"' in form:
-        form=re.sub(r'(<select[^>]*id="interest"[^>]*>).*?(</select>)',r'\1<option value="">Select interest</option><option>Crisis Command delegation</option><option>School collaboration</option><option>General school enquiry</option>\2',form,flags=re.S)
-    form=form.replace('</form>','<div class="field full"><label class="checkbox"><input type="checkbox" name="contact_consent" required>I consent to the Élan team storing these details and contacting me about this enquiry.</label></div></form>')
-    form=re.sub(r'(<div class="field full"><button.*?</div>)(.*?)(<div class="field full"><label class="checkbox">.*?</label></div>)',r'\3\1\2',form,flags=re.S)
+    old_form=re.search(r'<form\b.*?</form>',main,re.S).group(0)
+    kind='school' if 'data-form="school"' in old_form else 'volunteer' if 'data-form="volunteer"' in old_form else 'contact'
+    extra=('<label>School<input name="school" autocomplete="organization" maxlength="200" required></label><label>Estimated group size (optional)<input name="group_size" type="number" min="1" max="10000"></label>' if kind=='school' else '<label>School or organisation (optional)<input name="organisation" autocomplete="organization" maxlength="200"></label>')
+    prompt='What would you like to help with?' if kind=='volunteer' else 'What would you like to ask?'
+    form=f'<form class="enquiry-form compact-enquiry" data-mode="stored-enquiry" data-form="{kind}"><label>Full name<input name="full_name" data-validate="name" autocomplete="name" maxlength="120" required></label><label>Email<input type="email" name="email" autocomplete="email" maxlength="254" required></label>{extra}<label>{prompt}<textarea name="message" maxlength="2000" rows="4" required></textarea></label><div class="form-honeypot" aria-hidden="true"><label>Leave blank<input name="elan_hp" tabindex="-1" autocomplete="off"></label></div><label class="check-row"><input type="checkbox" name="contact_consent" required>I agree to the Élan team storing these details and contacting me about this enquiry. <a href="/privacy.html">Privacy policy</a></label><button type="submit" class="button solid">Send enquiry ↗</button><p class="enquiry-status" role="status" tabindex="-1"></p></form>'
     return f'<section class="visitor-enquiry container" id="enquire"><div><p class="section-label">START A CONVERSATION</p><h2>{title}</h2><p>{copy}</p><a class="text-link" href="mailto:the.elan.summit@gmail.com">the.elan.summit@gmail.com ↗</a><p class="visitor-fine">Your enquiry is saved for the organising team. It does not reserve a place or confirm a volunteer role.</p></div><div class="form-card">{form}</div></section>'
 
 def make_page(name,main):

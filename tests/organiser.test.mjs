@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {metricPage,metricsAllowed} from '../src/visitor-metrics.js';
+import {audiences} from '../src/enquiry-journey.js';
+import {fingerprint,allRows,allTable} from '../src/organiser-utils.js';
+test('measurement excludes private and unknown paths, including portal index',()=>{for(const p of ['/admin.html','/portal/index.html','/portal/tickets','/register','/pay.html','/unknown'])assert.equal(metricPage(p),null);assert.equal(metricPage('/'), 'index');assert.equal(metricPage('/gallery'),'gallery');assert.equal(metricPage('/next-edition.html'),'next-edition');});
+test('measurement requires opt-in and respects browser privacy choices',()=>{assert.equal(metricsAllowed('yes','0',false),true);for(const [c,d,g] of [[null,'0',false],['no','0',false],['yes','1',false],['yes','0',true]])assert.equal(metricsAllowed(c,d,g),false);});
+test('audiences route school and volunteer enquiries to their matching inbox kinds',()=>{assert.equal(audiences.school.kind,'school');assert.equal(audiences.volunteer.kind,'volunteer');assert.equal(audiences.partner.kind,'contact');assert.equal(Object.keys(audiences).length,4);});
+test('photo fingerprints match bytes, not filenames',async()=>{const a=await fingerprint(new Blob(['same'])),b=await fingerprint(new Blob(['same'])),c=await fingerprint(new Blob(['different']));assert.equal(a,b);assert.notEqual(a,c);assert.match(a,/^[a-f0-9]{64}$/);});
+test('admin reads every page and propagates failures rather than showing partial totals',async()=>{const input=Array.from({length:51},(_,i)=>({id:i}));assert.deepEqual(await allRows(async(_,b)=>({rows:input.slice(b.offset,b.offset+50),total:51}),'test'),input);await assert.rejects(()=>allTable({from:()=>({select:()=>({range:async()=>({error:Error('denied')})})})},'test'),/denied/);});

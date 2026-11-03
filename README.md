@@ -1,3 +1,5 @@
+> Latest update: see [Organiser tools and visitor journeys](docs/ORGANISER-TOOLS-NOVEMBER-2026.md). Start with DEPLOY-FIRST.txt. Gallery captions remain removed.
+
 # Élan Summit — full application source
 
 This project includes the redesigned website, a Supabase-backed application, database setup, Edge API, private report storage, content administration and a Razorpay payment adapter.
@@ -44,13 +46,13 @@ The second edition supports Crisis Command. Cent$ible is retained only in the 20
 
 ## What is implemented versus configured
 
-The backend schema and Edge API have been deployed to `aptaodflhiopzjibyyzn`. Administrator access has been configured separately in the existing hosted project. Accounts and roles are not distributed in this download. Sign-up and recovery depend on correctly configured Supabase Auth redirect URLs and email delivery. Registration stays closed until dates, capacity, age rules, deadline, price and participation terms are supplied. Paid registration additionally requires Razorpay keys and a webhook secret. No real payment has been attempted. The original provider was Easebuzz; this new adapter is Razorpay and does not reuse or migrate the original merchant account. If Easebuzz must remain the provider, replace the adapter before payment launch.
+The backend schema and Edge API have been deployed to `aptaodflhiopzjibyyzn`. The current project has no real user accounts or administrator assignment. Sign-up and recovery depend on correctly configured Supabase Auth redirect URLs and email delivery. Registration stays closed until dates, capacity, age rules, deadline, price and participation terms are supplied. Paid registration additionally requires Razorpay keys and a webhook secret. No real payment has been attempted. The original provider was Easebuzz; this new adapter is Razorpay and does not reuse or migrate the original merchant account. If Easebuzz must remain the provider, replace the adapter before payment launch.
 
 This is source code and setup data, not an export of Supabase's managed Auth service, SMTP account, secrets or merchant credentials. Those must remain in their services. Existing public content is included as SQL seeds and local assets. No historical participants, payments or accounts have been imported from the old project.
 
 ## Deploy
 
-Host `dist/` with a static host and deploy the API/database to Supabase. See `docs/SETUP.md`. For this GitHub/Cloudflare package, follow DEPLOY-FIRST.txt. No Sites hosting metadata is included.
+Host `dist/` with a static host and deploy the API/database to Supabase. See `docs/SETUP.md`. The `.openai/hosting.json` file identifies the existing Sites project; it is not needed on an independent host.
 
 ## Downloadable laptop edition
 Build a ZIP containing the full source and a direct-file browsing edition:
@@ -60,7 +62,3 @@ python scripts/package-laptop.py --output /path/to/output
 ```
 
 Extract the resulting ZIP and open OPEN-WEBSITE.html. The separate live-connected launcher requires Python 3 and internet. The browsing edition disables backend submissions; web fonts still use the network, with local fallback fonts when offline.
-
-## Visual content editor
-
-Admin > Edit website opens a live page preview for text and individual photo placements. Guests and Gallery have guided forms and the same templates as the public website. See `docs/RELEASE-2026-11-02.md` for coverage and testing. No backend migration is needed for this update.

@@ -1,3 +1,5 @@
+> Historical release notes. Gallery captions were subsequently removed. See GALLERY-WITHOUT-CAPTIONS.md and ORGANISER-TOOLS-NOVEMBER-2026.md for the current behaviour.
+
 # Élan website upgrade · 2 November 2026
 
 The approved homepage, its 3D scenes, logo, palette and core wording are retained.

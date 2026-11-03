@@ -1,16 +1,14 @@
-GALLERY WITHOUT CAPTIONS UPDATE
+ELAN · ORGANISER TOOLS AND VISITOR JOURNEYS
 
-Choose a photo and group. No captions or automatic caption generation. Image descriptions are optional. Public gallery photos have no captions; optional photographer credits remain. No database changes needed. See docs/GALLERY-WITHOUT-CAPTIONS.md.
+1. Extract the entire ZIP.
+2. Open Elan-GitHub-Deployment. Upload its CONTENTS to the root of Akshit-Parmar/elan-website, replacing matching files. Do not upload the ZIP or add an extra nested folder.
+3. Keep Cloudflare Pages settings: Framework None; root blank; build command python3 scripts/build.py; output directory dist.
+4. Review a branch preview before merging to production.
 
-ÉLAN · SIX IMPROVEMENTS UPDATE
+NEW: bulk gallery actions and duplicate warnings; first-edition photo groups; four shorter enquiry paths; private organiser notes/assignments/follow-ups; content history and restore; optional anonymous visitor counts.
 
-1. Extract the ZIP.
-2. Open Elan-GitHub-Deployment and upload its CONTENTS to your GitHub repository root, replacing matching files. Do not upload the ZIP itself or nest the folder inside the repository.
-3. Keep Cloudflare Pages: framework None; root blank; build command python3 scripts/build.py; output dist.
-4. Check a preview deployment before merging to production.
+Gallery captions remain removed. The approved homepage, logo, colours and 3D entrance are retained.
 
-The existing Supabase project already has the new photo display settings. No manual SQL or Edge Function redeployment is needed. Do not run fresh-project.sql on the current database.
+The existing Supabase project is already updated. No new API key or Edge Function setup is needed. Do not run fresh-project.sql on your existing database.
 
-NEW: gallery group covers and featured photos; full-screen keyboard/swipe viewer; reusable photo library with per-placement focus; admin overview with enquiry search, filters and drafts; a next-edition interest form; mobile header and launch checks.
-
-Read docs/UPGRADE-NOVEMBER-2026.md for controls, verification and limits. The approved homepage and on-device captions are preserved. This ZIP has not been pushed to GitHub or deployed for you.
+Read docs/ORGANISER-TOOLS-NOVEMBER-2026.md for instructions and verification limits. The frontend has NOT been pushed to GitHub or deployed for you.

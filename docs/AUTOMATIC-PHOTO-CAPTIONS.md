@@ -1,3 +1,5 @@
+> Historical release notes. Gallery captions were subsequently removed. See GALLERY-WITHOUT-CAPTIONS.md and ORGANISER-TOOLS-NOVEMBER-2026.md for the current behaviour.
+
 # Browser photo captions
 
 Gallery photo uploads now describe the actual image on the admin's device. No OpenAI account, API key or paid caption service is required. The caption model does not receive photos over the network. Saving or publishing still uploads images to the existing Supabase media bucket as before.
