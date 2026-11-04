@@ -10,3 +10,22 @@
 .team-entry.studio-entry{gap:0;min-height:auto;margin-top:clamp(14px,5vh,54px);background:#fffbf4;border:1px solid #c8b7a5}.studio-entry>div:first-child{align-self:stretch;display:flex;flex-direction:column;justify-content:flex-end;color:#fff2dd;background:linear-gradient(0deg,#102139fa 8%,#102139db 52%,#10213936),url('/assets/edition-2026/teamwork.webp') center/cover;padding:clamp(28px,5vw,64px);min-height:350px;border:0}.team-shell .studio-entry h1,.team-shell .studio-entry em{color:inherit}.studio-entry .team-form{box-shadow:none;border:0;background:none}.access-story{background:linear-gradient(0deg,#15273dfc,#15273de8 62%,#15273db0),url('/assets/edition-2026/discussion.webp') center/cover}.desk-main .app-actions{gap:8px}.desk-main button:focus-visible,.studio-dialog button:focus-visible{outline:2px solid #7d3420;outline-offset:3px}@media(max-width:700px){.studio-entry>div:first-child{min-height:200px}}
 
 .oc-book{width:min(1120px,90%);margin:auto;padding:clamp(2rem,6vw,6rem) 0;color:#19273b}.oc-mast h1{font-size:clamp(2.8rem,7vw,6rem);line-height:1;margin:.4em 0}.oc-mast em{color:#601c15}.oc-group-photo{margin:2rem 0 3rem}.oc-group-photo img{display:block;width:100%;height:auto}.oc-group-photo figcaption,.oc-pager{display:flex;align-items:center;justify-content:space-between;gap:1rem}.oc-group-photo figcaption,.oc-spread small{font-size:.74rem;letter-spacing:.12em}.oc-group-photo figcaption{padding:1rem 0;border-bottom:1px solid #bda88d}.oc-spread{border-top:1px solid #bda88d;padding:2rem 0;display:grid;grid-template-columns:1fr 2.4fr;gap:1rem 2rem}.oc-spread h2{font-size:clamp(1.8rem,3vw,3rem);line-height:1.1;margin:.4em 0}.oc-slide{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:center;gap:clamp(1rem,3vw,3rem);touch-action:pan-y}.oc-slide img,.oc-monogram{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center 35%}.oc-monogram{display:grid;place-items:center;background:#23354a;color:#eadac3;font:4rem Georgia}.oc-slide h3{font-size:clamp(1.8rem,3vw,3.2rem);line-height:1.05;margin:.3em 0}.oc-pager{grid-column:2;justify-content:flex-start}.oc-pager:empty{display:none}.oc-pager button{background:#213149;color:white;width:46px;height:44px;border:0;cursor:pointer}.oc-spread p{line-height:1.55}.oc-cover-tools{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin:1rem 0}.oc-cover-tools img{width:100px;height:auto}@media(max-width:700px){.oc-spread,.oc-slide{grid-template-columns:1fr}.oc-pager{grid-column:1}.oc-slide img,.oc-monogram{max-width:360px}.oc-group-photo figcaption{font-size:.62rem}}
+
+/* Committee portraits: role, name and story read as one caption. */
+.oc-book .oc-folio{margin:0 0 clamp(1.25rem,3vw,2.75rem);border-top:1px solid #b9a68e;color:#1b2b40}
+.oc-folio .oc-slide{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.45fr);align-items:stretch;gap:0;background:#eee5d8}
+.oc-folio .oc-slide>img{display:block;width:100%;height:auto;aspect-ratio:4/4.5;object-fit:cover;object-position:50% 32%;align-self:center}
+.oc-signature{align-self:center;padding:clamp(1.5rem,4.5vw,4.5rem);min-width:0}
+.oc-signature small{display:flex;align-items:center;gap:.8rem;font:600 .75rem/1.3 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:#782d20}
+.oc-signature small::before{content:"";width:2rem;border-top:2px solid currentColor}
+.oc-folio .oc-signature :is(h2,h3){font:400 clamp(2.6rem,5.7vw,5.5rem)/.98 var(--serif);letter-spacing:-.038em;color:inherit;margin:.22em 0 0;overflow-wrap:anywhere}
+.oc-signature p,.oc-team-head p{font:400 clamp(1rem,1.3vw,1.18rem)/1.58 var(--sans);max-width:46ch;margin:1.2em 0 0;color:inherit}
+.oc-opening .oc-slide{background:#19283d;color:#fff2df}
+.oc-opening .oc-signature small{color:#eab595}
+.oc-team-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:1.25rem 0}
+.oc-team-head h2{font:400 clamp(1.9rem,4vw,3.3rem)/1.04 var(--serif);margin:0}
+.oc-team-head p{margin:0}
+.oc-folio .oc-no-portrait{display:block;background:transparent}
+.oc-no-portrait .oc-signature{padding:1.4rem 0 1.7rem}
+.oc-folio .oc-pager{justify-content:flex-end;margin-top:.6rem}
+@media(max-width:700px){.oc-team-head{display:block}.oc-team-head p{margin:.5rem 0 0}.oc-folio .oc-slide{grid-template-columns:1fr}.oc-folio .oc-slide>img{max-width:none;aspect-ratio:1.1;object-position:50% 28%}.oc-signature{padding:1.5rem}.oc-folio .oc-signature :is(h2,h3){font-size:clamp(2.4rem,10vw,4rem)}}
