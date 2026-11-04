@@ -9,10 +9,22 @@ if(document.querySelector(".edition-story")) import("/assets/story.js");
   if (document.querySelector("#elan-world")) import("/assets/motion.js");
   const menu = document.querySelector('.menu-button');
   const mobile = document.querySelector('#mobile-navigation');
-  function closeMenu() { if (!menu || !mobile) return; mobile.hidden = true; menu.setAttribute('aria-expanded', 'false'); menu.textContent = 'Menu +'; }
-  menu?.addEventListener('click', () => { const opening = mobile.hidden; mobile.hidden = !opening; menu.setAttribute('aria-expanded', String(opening)); menu.textContent = opening ? 'Close −' : 'Menu +'; });
-  mobile?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !mobile?.hidden) { closeMenu(); menu.focus(); } });
+  const root=document.documentElement;
+  function setMenu(open){
+    if(!menu||!mobile||mobile.hidden===!open)return;
+    mobile.hidden=!open;
+    root.classList.toggle('elan-nav-open',open);
+    menu.setAttribute('aria-expanded',String(open));
+    menu.textContent=open?'Close −':'Menu +';
+    if(!open){mobile.querySelectorAll('details[open]').forEach(d=>d.open=false);mobile.scrollTop=0;}
+    document.dispatchEvent(new Event('elan:navigation-change'));
+  }
+  function closeMenu(){setMenu(false);}
+  menu?.addEventListener('click',()=>setMenu(mobile.hidden));
+  mobile?.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mobile&&!mobile.hidden){closeMenu();menu.focus({preventScroll:true});}});
+  document.addEventListener('focusin',e=>{if(mobile&&!mobile.hidden&&!e.target.closest('.ed-header'))closeMenu();});
+  window.addEventListener('pagehide',closeMenu);
   window.matchMedia('(min-width: 1200px)').addEventListener('change', closeMenu);
   document.addEventListener('click', event => { if (mobile && !mobile.hidden && !event.target.closest('.ed-header')) closeMenu(); });
   document.querySelectorAll('.faq-question').forEach((button, i) => {

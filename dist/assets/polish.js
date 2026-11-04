@@ -28,7 +28,7 @@
 
 // Keep sticky offsets and story sections in sync with text zoom and font loading.
 (()=>{
- const header=document.querySelector('.ed-header');
+ const header=document.querySelector('.ed-header .header-inner');
  const frames=[...document.querySelectorAll('.act-frame')];
  if(!('ResizeObserver' in window))return;
  const observer=new ResizeObserver(entries=>{for(const e of entries){const height=Math.ceil(e.target.getBoundingClientRect().height);if(e.target===header)document.documentElement.style.setProperty('--header-height',`${height}px`);else e.target.closest('.journey-act')?.style.setProperty('--frame-height',`${height}px`);}});
