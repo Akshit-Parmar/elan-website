@@ -10,13 +10,24 @@ if(document.querySelector(".edition-story")) import("/assets/story.js");
   const menu = document.querySelector('.menu-button');
   const mobile = document.querySelector('#mobile-navigation');
   const root=document.documentElement;
+  const sheet=document.createElement('dialog');
+  sheet.className='elan-menu-sheet';
+  const bar=document.createElement('div');bar.className='elan-menu-bar';
+  const brand=document.createElement('strong');brand.textContent='Élan.';
+  const dismiss=document.createElement('button');dismiss.type='button';dismiss.textContent='Close menu ×';
+  bar.append(brand,dismiss);sheet.append(bar);mobile?.after(sheet);
+  sheet.setAttribute('aria-label','Main menu');
+  dismiss.onclick=()=>setMenu(false);
+  sheet.addEventListener('cancel',e=>{e.preventDefault();setMenu(false);});
   function setMenu(open){
     if(!menu||!mobile||mobile.hidden===!open)return;
+    if(open)sheet.append(mobile);
     mobile.hidden=!open;
     root.classList.toggle('elan-nav-open',open);
     menu.setAttribute('aria-expanded',String(open));
     menu.textContent=open?'Close −':'Menu +';
     if(!open){mobile.querySelectorAll('details[open]').forEach(d=>d.open=false);mobile.scrollTop=0;}
+    if(open){sheet.showModal();dismiss.focus({preventScroll:true});}else{sheet.close();sheet.before(mobile);menu.focus({preventScroll:true});}
     document.dispatchEvent(new Event('elan:navigation-change'));
   }
   function closeMenu(){setMenu(false);}

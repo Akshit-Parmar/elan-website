@@ -24,3 +24,20 @@
  .motion-home .journey-act{height:auto;min-height:100svh}
  .motion-home .act-detail{backdrop-filter:none;-webkit-backdrop-filter:none}
 }
+
+.elan-menu-sheet{box-sizing:border-box;position:fixed;inset:0;margin:0;width:100%;max-width:none;height:100%;height:100dvh;max-height:none;padding:0;border:0;background:#f6ece2;color:#16263e;overflow:auto;overscroll-behavior:contain}
+.elan-menu-sheet::backdrop{background:#f6ece2}
+.elan-menu-bar{display:flex;align-items:center;justify-content:space-between;background:#dfcfbf;padding:18px 22px;border-bottom:1px solid #b79d88}
+.elan-menu-bar strong{font:36px Georgia,serif}.elan-menu-bar button{background:none;color:#16263e;border:0;font:inherit;min-height:44px}
+.editorial-header .elan-menu-sheet .mobile-nav:not([hidden]){display:block;position:static;max-height:none;width:100%;overflow:visible;box-shadow:none;padding:6px 22px 30px}
+@media(max-width:900px),(hover:none) and (pointer:coarse){
+ .motion-home #elan-world,.motion-home .motion-toggle{display:none!important}
+ .motion-home .story-journey{background:#15253a;color:#f6e8d5}
+ .motion-home .journey-act,.motion-home .journey-act.act-invitation{height:auto;min-height:0}
+ .motion-home .journey-act .act-frame{display:block;position:relative;top:auto;min-height:0;height:auto;overflow:visible;padding:40px 6% 68px;opacity:1;transform:none}
+ .motion-home .act-invitation .act-frame{padding-bottom:0}
+ .motion-home .act-invitation .act-frame:after{content:"";display:block;height:clamp(190px,55vw,310px);background:url('/assets/art/mobile-door.svg') center bottom/contain no-repeat}
+ .motion-home .journey-act:not(.act-invitation){border-top:1px solid #e5d5bc45}
+ .motion-home .act-detail{margin-top:25px;backdrop-filter:none}
+ .motion-home .act-coordinate{display:none}
+}

@@ -1,5 +1,20 @@
 /* The House of Élan: CSS 3D architecture and one native-scroll camera timeline. */
 (()=>{
+const compact=matchMedia('(max-width: 900px), (hover: none) and (pointer: coarse)');
+const home=document.querySelector('.motion-home');
+const chapters=[...document.querySelectorAll('.journey-act,#next')];
+let started=false;
+function compactProgress(){
+ if(!compact.matches||!home||document.documentElement.classList.contains('elan-nav-open'))return;
+ const current=chapters.filter(c=>c.getBoundingClientRect().top<innerHeight*.5).pop()||chapters[0];
+ document.querySelectorAll('.dock-chapters a').forEach(a=>a.hash==='#'+current.id?a.setAttribute('aria-current','step'):a.removeAttribute('aria-current'));
+ document.querySelector('.dock-label').textContent=current.dataset.label;
+ document.querySelector('.experience-dock').classList.toggle('dock-hidden',document.querySelector('.ed-footer').getBoundingClientRect().top<innerHeight*.7);
+}
+const observer=new IntersectionObserver(compactProgress,{rootMargin:'-40% 0px -45% 0px'});chapters.forEach(el=>observer.observe(el));observer.observe(document.querySelector('.ed-footer'));
+function mode(){if(compact.matches)compactProgress();else if(!started){started=true;desktop();}else window.dispatchEvent(new Event('resize'));}
+compact.addEventListener('change',mode);document.addEventListener('elan:navigation-change',compactProgress);mode();
+function desktop(){
 const camera=document.querySelector('#world-camera'),world=document.querySelector('#elan-world');
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t*t*(3-2*t);
 function element(cls,parent,html=''){const el=document.createElement('div');el.className=cls;el.innerHTML=html;parent.append(el);return el;}
@@ -26,7 +41,7 @@ const sets=[entrance,council,enterprise,stage],zs=[0,-1700,-3400,-5100];sets.for
 const acts=[...document.querySelectorAll('.journey-act')],all=[...acts,document.querySelector('#next')],dots=[...document.querySelectorAll('.dock-chapters a')],dock=document.querySelector('.experience-dock'),motion=document.querySelector('.motion-toggle');
 dots.forEach(link=>link.title=link.getAttribute('aria-label'));
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');let paused=reduced.matches,queued=false,px=0,py=0;
-function update(){queued=false;if(document.documentElement.classList.contains('elan-nav-open'))return;const mobile=innerWidth<=700;let active=0;all.forEach((el,i)=>{if(el.getBoundingClientRect().top<innerHeight*.5)active=i});
+function update(){queued=false;if(compact.matches||document.documentElement.classList.contains('elan-nav-open'))return;const mobile=innerWidth<=700;let active=0;all.forEach((el,i)=>{if(el.getBoundingClientRect().top<innerHeight*.5)active=i});
 let index=0,local=0;for(let i=0;i<acts.length;i++){const r=acts[i].getBoundingClientRect();if(r.top<=1){index=i;local=clamp(-r.top/r.height)}}
 const scale=mobile?.62:1.12;
 const travelling=ease(clamp((local-.25)/.75));const next=Math.min(3,index+1);
@@ -41,8 +56,9 @@ const curtain=paused?.65:(index===3?ease(clamp(local*3)):.1);curtainL.style.tran
 acts.forEach((el,i)=>{const r=el.getBoundingClientRect();const p=clamp(-r.top/Math.max(1,r.height-innerHeight));const opacity=1;el.style.setProperty('--copy-opacity',String(opacity));el.style.setProperty('--copy-shift',paused?'0px':(-p*20)+'px');});
 dots.forEach((el,i)=>i===active?el.setAttribute('aria-current','step'):el.removeAttribute('aria-current'));document.querySelector('.dock-label').textContent=all[active].dataset.label||'The next chapter';dock.style.setProperty('--journey-progress',String(clamp(scrollY/(document.querySelector('#next').offsetTop+innerHeight))));dock.classList.toggle('dock-hidden',document.querySelector('.ed-footer').getBoundingClientRect().top<innerHeight*.7||(document.querySelector('#first-chapter')?.getBoundingClientRect().top<innerHeight*.5&&document.querySelector('#next').getBoundingClientRect().top>innerHeight*.5));world.style.opacity=active>3?'0':'1';}
 document.addEventListener('elan:navigation-change',schedule);
-function schedule(){if(!document.documentElement.classList.contains('elan-nav-open')&&!queued){queued=true;requestAnimationFrame(update)}}
+function schedule(){if(!compact.matches&&!document.documentElement.classList.contains('elan-nav-open')&&!queued){queued=true;requestAnimationFrame(update)}}
 function apply(){document.body.classList.toggle('motion-paused',paused);motion.setAttribute('aria-pressed',String(paused));motion.innerHTML=paused?'Motion off <span>▷</span>':'Motion on <span>Ⅱ</span>';schedule()}
 motion.addEventListener('click',()=>{paused=!paused;apply()});reduced.addEventListener('change',()=>{paused=reduced.matches;apply()});window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);window.addEventListener('pointermove',e=>{if(paused||e.pointerType==='touch')return;px=(e.clientX/innerWidth-.5)*14;py=(e.clientY/innerHeight-.5)*14;schedule()},{passive:true});window.addEventListener('load',schedule);apply();
 const dialog=document.querySelector('#chapter-dialog');document.querySelector('.chapters-open').addEventListener('click',()=>{dialog.showModal();document.body.classList.add('chapter-menu-open')});const close=()=>{dialog.close();document.body.classList.remove('chapter-menu-open')};document.querySelector('.chapters-close').addEventListener('click',close);dialog.addEventListener('close',()=>document.body.classList.remove('chapter-menu-open'));dialog.querySelectorAll('a').forEach(a=>a.addEventListener('click',close));dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close()}});
+}
 })();
