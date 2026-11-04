@@ -9,6 +9,7 @@ OLD = ROOT / 'reference/v1/public'
 OUT = ROOT / 'dist'
 SRC = ROOT / 'src'
 OUT.mkdir(exist_ok=True)
+(OUT/'organiser-desk.html').unlink(missing_ok=True)  # superseded by /organisers and a permanent redirect
 (OUT/'assets').mkdir(exist_ok=True)
 shutil.copytree(OLD/'assets/img', OUT/'assets/img', dirs_exist_ok=True)
 shutil.copyfile(OLD/'favicon.ico', OUT/'favicon.ico')
@@ -29,7 +30,7 @@ def nav(path):
     def link(url,label):
         return f'<a href="{url}"'+(' aria-current="page"' if url=='/'+path else '')+f'>{label}</a>'
     archive=[('/first-edition.html','The first edition'),('/guests.html','Guests & judges'),('/oc-2026.html','Organising committee'),('/gallery.html','Photo journal'),('/centsible.html','Cent$ible · 2026'),('/archive.html','Explore the archive')]
-    join=[('/next-edition.html','Tickets & participation'),('/schools.html','Students & schools'),('/school-collaboration.html','School collaboration'),('/volunteers.html','Volunteer'),('/join-oc-2027.html','Organise Élan 2027'),('/organiser-desk.html','Organiser control panel'),('/faqs.html','FAQs')]
+    join=[('/next-edition.html','Tickets & participation'),('/schools.html','Students & schools'),('/school-collaboration.html','School collaboration'),('/volunteers.html','Volunteer'),('/join-oc-2027.html','Organise Élan 2027'),('/organisers.html','Organiser control panel'),('/faqs.html','FAQs')]
     def group(label,kicker,items):
         active=' nav-group-current' if any(url=='/'+path for url,_ in items) else ''
         return '<details class="nav-group'+active+'"><summary>'+label+'<span aria-hidden="true">+</span></summary><div class="nav-dropdown"><small>'+kicker+'</small>'+''.join(link(*item) for item in items)+'</div></details>'
@@ -46,7 +47,7 @@ def original_nav(path):
     def link(url,label):
         return f'<a href="{url}"'+(' aria-current="page"' if url=='/'+path else '')+f'>{label}</a>'
     archive=[('/first-edition.html','The first edition'),('/guests.html','Guests & judges'),('/oc-2026.html','Organising committee'),('/gallery.html','Photo journal'),('/centsible.html','Cent$ible · 2026'),('/archive.html','Explore the archive')]
-    join=[('/tickets.html','Tickets & participation'),('/schools.html','Students & schools'),('/school-collaboration.html','School collaboration'),('/volunteers.html','Volunteer'),('/join-oc-2027.html','Organise Élan 2027'),('/organiser-desk.html','Organiser control panel'),('/faqs.html','FAQs')]
+    join=[('/tickets.html','Tickets & participation'),('/schools.html','Students & schools'),('/school-collaboration.html','School collaboration'),('/volunteers.html','Volunteer'),('/join-oc-2027.html','Organise Élan 2027'),('/organisers.html','Organiser control panel'),('/faqs.html','FAQs')]
     def group(label,kicker,items):
         active=' nav-group-current' if any(url=='/'+path for url,_ in items) else ''
         return '<details class="nav-group'+active+'"><summary>'+label+'<span aria-hidden="true">+</span></summary><div class="nav-dropdown"><small>'+kicker+'</small>'+''.join(link(*item) for item in items)+'</div></details>'
@@ -66,7 +67,7 @@ def page(path,title,main,legacy=False,banner=None):
     body='<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+'</title><meta name="description" content="'+description+'"><meta name="robots" content="'+robots+'"><meta name="theme-color" content="#13273F"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="'+canonical_url+'"><meta property="og:type" content="website"><meta property="og:title" content="'+html.escape(title)+'"><meta property="og:description" content="'+description+'"><meta property="og:image" content="'+ORIGIN+'/assets/img/elan-og.png"><meta property="og:url" content="'+canonical_url+'"><meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/enhancements.css"><link rel="stylesheet" href="/assets/story.css">'+('<link rel="stylesheet" href="/assets/inner.css">' if legacy else '')+'<script src="/assets/site.js" defer></script>'+('<link rel="stylesheet" href="/assets/motion.css">' if path=='index.html' else '')+'<link rel="stylesheet" href="/assets/refinement.css"><link rel="stylesheet" href="/assets/flagships.css"><link rel="stylesheet" href="/assets/journal.css"><link rel="stylesheet" href="/assets/visitor.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/polish.css"><link rel="stylesheet" href="/assets/editorial.css"><script src="/assets/polish.js" defer></script>'+structured_data(path,title,description)+'<link rel="stylesheet" href="/assets/finish.css"><link rel="stylesheet" href="/assets/quality.css">'+'</head><body'+(' class="motion-home"' if path=='index.html' else '')+'>'+original_nav(path)
     if banner: body+='<aside class="edition-banner">'+banner+'</aside>'
     body+=main+'<link rel="stylesheet" href="/assets/organiser.css"><script type="module" src="/assets/visitor-metrics.js"></script><script type="module" src="/assets/enquiry-journey.js"></script><script type="module" src="/assets/edition-moments.js"></script>'+(footer())+'</body></html>\n'
-    if path=='organiser-desk.html':
+    if path=='organisers.html':
         head=body.split('</head>',1)[0]
         head=re.sub(r'<script src="[^"]+" defer></script>', '',head)
         body=head+'<link rel="stylesheet" href="/assets/organiser.css"></head><body>'+main+'<script type="module" src="/assets/team-panel.js"></script></body></html>'
@@ -197,10 +198,10 @@ def status_main(eyebrow,title,description,extra=''):
 
 page('next-edition.html','The next edition', (SRC/'next-edition.html').read_text())
 
-directory_groups=[('The experience',[('about','About Élan'),('founders','The founding team'),('event-details','2026 venue & details'),('event-flow','Event flow'),('flagship','Crisis Command'),('centsible','Cent$ible · 2026 archive'),('faqs-2026','2026 FAQs'),('schedule','Schedule'),('guests','Guests & judges'),('speakers','Speakers & guests'),('gallery','Gallery')]),('Participation',[('tickets','Tickets & registration'),('pay','Payment'),('schools','Students & schools'),('school-collaboration','School collaboration'),('volunteers','Volunteers'),('partners','Partners'),('contact','Contact'),('faqs','FAQs')]),('Policies',[('terms','Terms & conditions'),('privacy','Privacy policy'),('refund','Refund policy'),('code-of-conduct','Code of conduct')])]
+directory_groups=[('The experience',[('about','About Élan'),('founders','The founding team'),('oc-2026','2026 organising committee'),('cabinet-preview','Try a cabinet decision'),('event-details','2026 venue & details'),('event-flow','Event flow'),('flagship','Crisis Command'),('centsible','Cent$ible · 2026 archive'),('faqs-2026','2026 FAQs'),('schedule','Schedule'),('guests','Guests & judges'),('speakers','Speakers & guests'),('gallery','Gallery')]),('Participation',[('tickets','Tickets & registration'),('pay','Payment'),('schools','Students & schools'),('school-collaboration','School collaboration'),('volunteers','Volunteers'),('join-oc-2027','Organise Élan 2027'),('partners','Partners'),('contact','Contact'),('faqs','FAQs')]),('Policies',[('terms','Terms & conditions'),('privacy','Privacy policy'),('refund','Refund policy'),('code-of-conduct','Code of conduct')])]
 def directory(groups): return '<div class="directory-grid">'+''.join('<article><h2>'+name+'</h2>'+''.join(f'<a href="/{url}.html">{label}<span aria-hidden="true">↗</span></a>' for url,label in links)+'</article>' for name,links in groups)+'</div>'
 archive_feature='<a class="archive-story-link" href="/first-edition.html"><img src="/assets/edition-2026/audience.webp" alt="" width="1800" height="1013" loading="lazy"><span>INSIDE THE FIRST EDITION / 2026</span><h2>Two days.<br>A first chapter.</h2><p>Opening ceremony, committee sessions, DJ night and the final moments of recognition.</p><span>EXPLORE THE STORY ↗</span></a>'
-for url,title,source in [('oc-2026.html','2026 Organising Committee','oc-2026.html'),('join-oc-2027.html','Join the 2027 Organising Committee','oc-join.html'),('organiser-desk.html','Organiser Desk','oc-work.html')]:
+for url,title,source in [('oc-2026.html','2026 Organising Committee','oc-2026.html'),('join-oc-2027.html','Join the 2027 Organising Committee','oc-join.html'),('cabinet-preview.html','Try a Crisis Command decision','cabinet-preview.html'),('organisers.html','Organiser Control Panel','oc-work.html')]:
     page(url,title,(SRC/source).read_text())
 page('first-edition.html','Inside the first edition', (SRC/'edition-story.html').read_text())
 page('archive.html','The 2026 edition',(SRC/'archive.html').read_text().replace('{{DIRECTORY}}',directory(directory_groups)))
@@ -271,3 +272,5 @@ for doc in sorted(OUT.rglob('*.html')):
 
 from content_inventory import prepare_content
 print(f"Prepared {prepare_content(OUT)} editable content fields.")
+
+(OUT/'_redirects').write_text('/organiser-desk /organisers 301\n/organiser-desk.html /organisers 301\n')

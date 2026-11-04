@@ -15,7 +15,7 @@ do $$begin if exists(select 1 from public.elan_oc_requests where department='Fin
 perform public.elan_review_submit('ffb80000-0000-4000-8000-000000000011','record','{"title":"Countdown reel","details":{"stage":"Idea"}}','');end$$;
 select set_config('request.jwt.claim.sub','ffb80000-0000-4000-8000-000000000001',true);
 select public.elan_review_decide('ffb80000-0000-4000-8000-000000000010','approve','Evidence checked');
-select public.elan_review_decide('ffb80000-0000-4000-8000-000000000011','later','Revisit after dates confirmed');
+select public.elan_review_with_plan('ffb80000-0000-4000-8000-000000000011','later','Revisit after dates confirmed',current_date+7,'assistant');
 do $$begin begin perform public.elan_review_decide('ffb80000-0000-4000-8000-000000000010','approve','twice');raise exception 'Allowed double vote';exception when unique_violation then null;end;end$$;
 reset role;do $$begin if exists(select 1 from public.elan_oc_journal where id='ffb80000-0000-4000-8000-000000000010') then raise exception 'Posted early';end if;end$$;
 set local role authenticated;
