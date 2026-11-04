@@ -525,3 +525,205 @@ create function public.elan_record_visit(p_page text,p_event text) returns void 
 revoke all on function elan_private.record_visit(text,text),public.elan_record_visit(text,text) from public;
 grant usage on schema elan_private to anon;
 grant execute on function elan_private.record_visit(text,text),public.elan_record_visit(text,text) to anon,authenticated;
+
+
+-- scripts/committee.sql
+-- Public historical records and private staff permissions are deliberately separate.
+create table public.elan_oc_roster(id uuid primary key default gen_random_uuid(),department text not null check(length(trim(department)) between 1 and 90),name text not null check(length(trim(name)) between 1 and 150),role text not null check(length(trim(role)) between 1 and 150),bio text not null default '' check(length(bio)<=1500),portrait text not null default '',sort_order int not null default 50,published boolean not null default false);
+create table public.elan_oc_access(user_id uuid primary key references auth.users on delete cascade,label text not null,department text not null check(length(trim(department)) between 1 and 90),role text not null check(role in ('member','lead')));
+create table public.elan_oc_tasks(id uuid primary key default gen_random_uuid(),department text not null,assigned_to uuid not null references auth.users on delete cascade,title text not null check(length(trim(title)) between 1 and 200),brief text not null default '' check(length(brief)<=2500),status text not null default 'Open' check(status in ('Open','In progress','Done')));
+create index oc_tasks_assigned on public.elan_oc_tasks(assigned_to);
+create index oc_tasks_department on public.elan_oc_tasks(department);
+alter table public.elan_oc_roster enable row level security;
+alter table public.elan_oc_access enable row level security;
+alter table public.elan_oc_tasks enable row level security;
+revoke all on public.elan_oc_roster,public.elan_oc_access,public.elan_oc_tasks from public,anon,authenticated;
+grant select on public.elan_oc_roster to anon,authenticated;
+grant select,insert,update,delete on public.elan_oc_roster,public.elan_oc_tasks to authenticated;
+grant select,delete on public.elan_oc_access to authenticated;
+create policy roster_public on public.elan_oc_roster for select using(published);
+create policy roster_admin on public.elan_oc_roster for all to authenticated using(exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin'));
+create policy access_self on public.elan_oc_access for select to authenticated using(user_id=(select auth.uid()));
+create policy access_admin on public.elan_oc_access for all to authenticated using(exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin'));
+create policy task_admin on public.elan_oc_tasks for all to authenticated using(exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin'));
+create policy task_scoped on public.elan_oc_tasks for select to authenticated using(exists(select 1 from public.elan_oc_access a where a.user_id=(select auth.uid()) and a.department=elan_oc_tasks.department and (a.role='lead' or elan_oc_tasks.assigned_to=a.user_id)));
+create function elan_private.oc_grant(p_email text,p_department text,p_role text) returns void language plpgsql security definer set search_path='' as $$
+declare who uuid; addr text;
+begin
+if not exists(select 1 from public.elan_staff where user_id=auth.uid() and role='admin') then raise exception 'Administrator required';end if;
+select id,email into who,addr from auth.users where lower(email)=lower(trim(p_email)) and email_confirmed_at is not null;
+if who is null then raise exception 'Ask the organiser to create and verify their account first.';end if;
+insert into public.elan_oc_access(user_id,label,department,role) values(who,addr,trim(p_department),p_role) on conflict(user_id) do update set department=excluded.department,role=excluded.role,label=excluded.label;
+end $$;
+create function public.elan_oc_grant(p_email text,p_department text,p_role text) returns void language sql security invoker set search_path='' as $$select elan_private.oc_grant(p_email,p_department,p_role)$$;
+create function elan_private.oc_progress(p_id uuid,p_status text) returns void language plpgsql security definer set search_path='' as $$
+begin
+update public.elan_oc_tasks t set status=p_status where t.id=p_id and exists(select 1 from public.elan_oc_access a where a.user_id=auth.uid() and a.department=t.department and (a.role='lead' or t.assigned_to=a.user_id));
+if not found then raise exception 'This responsibility is unavailable to your account.';end if;
+end $$;
+create function public.elan_oc_progress(p_id uuid,p_status text) returns void language sql security invoker set search_path='' as $$select elan_private.oc_progress(p_id,p_status)$$;
+revoke all on function elan_private.oc_grant(text,text,text),public.elan_oc_grant(text,text,text),elan_private.oc_progress(uuid,text),public.elan_oc_progress(uuid,text) from public,anon;
+grant execute on function elan_private.oc_grant(text,text,text),public.elan_oc_grant(text,text,text),elan_private.oc_progress(uuid,text),public.elan_oc_progress(uuid,text) to authenticated;
+insert into public.elan_oc_roster(department,name,role,portrait,sort_order,published) values
+('Direction','Akshit Parmar','Director','/assets/founders/akshit-parmar.jpg',1,true),
+('Direction','Sakshi Baldawa','Assistant Director','/assets/founders/sakshi-baldawa.png',2,true),
+('Direction','Prachi Belagali','Department Head · All Departments','/assets/founders/prachi-belagali.png',3,true);
+insert into public.elan_oc_roster(department,name,role,sort_order,published) values('Advisory','Vedant Gunda','Chief Advisor',4,true);
+
+
+-- scripts/organiser-panel.sql
+create table public.elan_oc_board (
+ id uuid primary key default gen_random_uuid(),
+ department text not null check(length(trim(department)) between 1 and 90),
+ audience text not null check(audience in ('department','lead','member')),
+ kind text not null check(kind in ('briefing','resource')),
+ title text not null check(length(trim(title)) between 1 and 160),
+ body text not null default '' check(length(body)<=4000),
+ url text not null default '' check(url='' or (url ~ '^https://[^[:space:]]+$' and length(url)<=2000)),
+ created_by uuid default auth.uid(), created_at timestamptz not null default now(),
+ check((kind='resource' and url<>'') or (kind='briefing' and length(trim(body))>0))
+);
+create index elan_oc_board_department on public.elan_oc_board(department,created_at desc);
+alter table public.elan_oc_board enable row level security;
+revoke all on public.elan_oc_board from public,anon,authenticated;
+grant select,delete on public.elan_oc_board to authenticated;
+grant insert(department,audience,kind,title,body,url) on public.elan_oc_board to authenticated;
+create policy oc_admin_board on public.elan_oc_board for all to authenticated using(exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin'));
+create policy oc_board_read on public.elan_oc_board for select to authenticated using(exists(select 1 from public.elan_oc_access a where a.user_id=(select auth.uid()) and a.department=elan_oc_board.department and (elan_oc_board.audience='department' or elan_oc_board.audience=a.role)));
+create policy oc_board_lead_write on public.elan_oc_board for insert to authenticated with check(exists(select 1 from public.elan_oc_access a where a.user_id=(select auth.uid()) and a.department=elan_oc_board.department and a.role='lead') and created_by=(select auth.uid()) and audience in ('department','lead'));
+create policy oc_board_lead_remove on public.elan_oc_board for delete to authenticated using(created_by=(select auth.uid()) and exists(select 1 from public.elan_oc_access a where a.user_id=(select auth.uid()) and a.department=elan_oc_board.department and a.role='lead'));
+
+
+-- scripts/department-tools.sql
+create table public.elan_oc_modules(id uuid primary key default gen_random_uuid(),department text unique not null check(length(trim(department)) between 1 and 90),tool text not null check(tool in ('finance','outreach','operations','programme','media','partnerships','general')));
+alter table public.elan_oc_modules enable row level security;
+revoke all on public.elan_oc_modules from public,anon,authenticated;
+grant select,insert on public.elan_oc_modules to authenticated;
+create policy modules_admin on public.elan_oc_modules for all to authenticated using(exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin'));
+create policy modules_own on public.elan_oc_modules for select to authenticated using(exists(select 1 from public.elan_oc_access a where a.user_id=(select auth.uid()) and a.department=elan_oc_modules.department));
+insert into public.elan_oc_modules(department,tool) values ('Finance','finance'),('School outreach','outreach'),('Operations & hospitality','operations'),('Programme & Crisis Command','programme'),('Design & media','media'),('Partnerships','partnerships');
+create function elan_private.oc_tool_ok(p_id uuid,p_finance boolean,p_lead boolean default false) returns boolean language sql stable security invoker set search_path='' as $$
+select exists(select 1 from public.elan_oc_modules m join public.elan_oc_access a on a.department=m.department where m.id=p_id and (m.tool='finance')=p_finance and a.user_id=(select auth.uid()) and (not p_lead or a.role='lead'))$$;
+revoke all on function elan_private.oc_tool_ok(uuid,boolean,boolean) from public,anon;
+grant execute on function elan_private.oc_tool_ok(uuid,boolean,boolean) to authenticated;
+create table public.elan_oc_records(id uuid primary key default gen_random_uuid(),module_id uuid not null references public.elan_oc_modules, title text not null check(length(trim(title)) between 1 and 180), details jsonb not null check(jsonb_typeof(details)='object' and octet_length(details::text)<12000), created_by uuid not null default auth.uid(),updated_at timestamptz not null default clock_timestamp());
+alter table public.elan_oc_records enable row level security;
+revoke all on public.elan_oc_records from public,anon,authenticated;
+grant select,insert(module_id,title,details),update(title,details) on public.elan_oc_records to authenticated;
+create policy records_see on public.elan_oc_records for select to authenticated using(elan_private.oc_tool_ok(module_id,false));
+create policy records_add on public.elan_oc_records for insert to authenticated with check(elan_private.oc_tool_ok(module_id,false) and created_by=(select auth.uid()));
+create policy records_edit on public.elan_oc_records for update to authenticated using(elan_private.oc_tool_ok(module_id,false) and (created_by=(select auth.uid()) or elan_private.oc_tool_ok(module_id,false,true)));
+create function elan_private.oc_stamp() returns trigger language plpgsql set search_path='' as $$begin new.updated_at=clock_timestamp();return new;end$$;
+create trigger oc_record_stamp before update on public.elan_oc_records for each row execute function elan_private.oc_stamp();
+create index oc_records_scope on public.elan_oc_records(module_id,updated_at desc);
+create table public.elan_oc_journal(id uuid primary key default gen_random_uuid(),module_id uuid not null references public.elan_oc_modules,book_date date not null,kind text not null check(kind in ('opening','receipt','spend','borrow','repay','equipment','invoice','collect','bill','settle')),amount numeric(14,2) not null check(amount>0 and amount<1000000000000),memo text not null check(length(trim(memo)) between 1 and 500),created_by uuid not null default auth.uid(),created_at timestamptz not null default now(),reverses uuid unique references public.elan_oc_journal);
+alter table public.elan_oc_journal enable row level security;
+revoke all on public.elan_oc_journal from public,anon,authenticated;
+grant select,insert(id,module_id,book_date,kind,amount,memo,reverses) on public.elan_oc_journal to authenticated;
+create policy journal_read on public.elan_oc_journal for select to authenticated using(elan_private.oc_tool_ok(module_id,true));
+create policy journal_post on public.elan_oc_journal for insert to authenticated with check(elan_private.oc_tool_ok(module_id,true,reverses is not null) and created_by=(select auth.uid()));
+create function elan_private.oc_validate_reversal() returns trigger language plpgsql set search_path='' as $$begin
+if new.reverses is not null and not exists(select 1 from public.elan_oc_journal j where j.id=new.reverses and j.module_id=new.module_id and j.kind=new.kind and j.amount=new.amount and j.reverses is null and j.book_date<=new.book_date) then raise exception 'Invalid reversal';end if;return new;end$$;
+create trigger journal_reversal before insert on public.elan_oc_journal for each row execute function elan_private.oc_validate_reversal();
+create index oc_journal_scope on public.elan_oc_journal(module_id,book_date desc);
+create function public.elan_oc_accounts(p_module uuid,p_asof date) returns table(account text,debit numeric,credit numeric) language sql stable security invoker set search_path='' as $$
+with mapping(kind,dr,cr) as (values ('opening','Funds','Opening capital'),('receipt','Funds','Income'),('spend','Expenses','Funds'),('borrow','Funds','Loans payable'),('repay','Loans payable','Funds'),('equipment','Equipment','Funds'),('invoice','Receivables','Income'),('collect','Funds','Receivables'),('bill','Expenses','Bills payable'),('settle','Bills payable','Funds')),
+entries as(select m.dr,m.cr,j.amount,j.reverses from public.elan_oc_journal j join mapping m using(kind) where j.module_id=p_module and j.book_date<=p_asof)
+select acct,sum(d),sum(c) from entries cross join lateral(values(dr,case when reverses is null then amount else 0 end,case when reverses is null then 0 else amount end),(cr,case when reverses is null then 0 else amount end,case when reverses is null then amount else 0 end)) as l(acct,d,c) group by acct$$;
+revoke all on function public.elan_oc_accounts(uuid,date) from public,anon;
+grant execute on function public.elan_oc_accounts(uuid,date) to authenticated;
+insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values('elan-oc-bills','elan-oc-bills',false,8388608,array['image/jpeg','image/png','image/webp','application/pdf']);
+create policy oc_bill_read on storage.objects for select to authenticated using(bucket_id='elan-oc-bills' and exists(select 1 from public.elan_oc_journal j where elan_private.oc_tool_ok(j.module_id,true) and j.module_id::text=split_part(storage.objects.name,'/',1) and j.id::text=split_part(name,'/',2)));
+create policy oc_bill_write on storage.objects for insert to authenticated with check(bucket_id='elan-oc-bills' and name ~ '^[a-f0-9-]{36}/[a-f0-9-]{36}/[a-f0-9-]{36}\.(pdf|jpg|png|webp)$' and exists(select 1 from public.elan_oc_journal j where elan_private.oc_tool_ok(j.module_id,true) and j.module_id::text=split_part(storage.objects.name,'/',1) and j.id::text=split_part(name,'/',2) and (j.created_by=(select auth.uid()) or elan_private.oc_tool_ok(j.module_id,true,true))));
+
+
+-- scripts/leadership-review.sql
+alter table public.elan_oc_modules drop constraint elan_oc_modules_tool_check;
+alter table public.elan_oc_modules add check(tool in ('finance','outreach','operations','programme','media','partnerships','general','social'));
+insert into public.elan_oc_modules(department,tool) values('Social Media','social');
+create table public.elan_oc_reviewers(seat text primary key check(seat in ('director','assistant')),user_id uuid unique not null references auth.users,label text not null);
+create table public.elan_oc_requests(id uuid primary key,department text not null,kind text not null check(kind in ('journal','record','board','attachment')),payload jsonb not null,proof text not null default '',submitted_by uuid not null default auth.uid(),created_at timestamptz not null default now(),status text not null default 'pending' check(status in ('pending','approved','later','rejected')),round int not null default 1);
+create table public.elan_oc_votes(request_id uuid references public.elan_oc_requests,round int not null,seat text not null,actor uuid not null,decision text not null check(decision in ('approve','later','reject')),note text not null check(length(note)<=1500),created_at timestamptz default now(),primary key(request_id,round,seat),unique(request_id,round,actor));
+create index oc_review_department on public.elan_oc_requests(department,created_at desc);
+alter table public.elan_oc_reviewers enable row level security;
+alter table public.elan_oc_requests enable row level security;
+alter table public.elan_oc_votes enable row level security;
+revoke all on public.elan_oc_reviewers,public.elan_oc_requests,public.elan_oc_votes from public,anon,authenticated;
+grant select on public.elan_oc_reviewers,public.elan_oc_requests,public.elan_oc_votes to authenticated;
+create policy oc_seat_read on public.elan_oc_reviewers for select to authenticated using(user_id=(select auth.uid()) or exists(select 1 from public.elan_staff where user_id=(select auth.uid()) and role='admin'));
+create policy oc_review_read on public.elan_oc_requests for select to authenticated using(exists(select 1 from public.elan_oc_reviewers where user_id=(select auth.uid())) or exists(select 1 from public.elan_oc_access a where a.user_id=(select auth.uid()) and a.department=elan_oc_requests.department and (kind<>'board' or payload->>'audience' in ('department',a.role) or submitted_by=a.user_id)));
+create policy oc_vote_read on public.elan_oc_votes for select to authenticated using(exists(select 1 from public.elan_oc_requests where id=request_id));
+insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values('elan-oc-review-files','elan-oc-review-files',false,8388608,array['image/jpeg','image/png','image/webp','application/pdf']);
+create policy oc_review_file_add on storage.objects for insert to authenticated with check(bucket_id='elan-oc-review-files' and split_part(name,'/',1)=(select auth.uid())::text and name ~ '^[a-f0-9-]{36}/[a-f0-9-]{36}/proof\.(pdf|jpg|png|webp)$' and exists(select 1 from public.elan_oc_access where user_id=(select auth.uid())));
+create policy oc_review_file_read on storage.objects for select to authenticated using(bucket_id='elan-oc-review-files' and exists(select 1 from public.elan_oc_requests r where r.proof=storage.objects.name and (
+ exists(select 1 from public.elan_oc_reviewers v where v.user_id=(select auth.uid())) or
+ exists(select 1 from public.elan_oc_access a where a.user_id=(select auth.uid()) and a.department=r.department and (a.user_id=r.submitted_by or a.role='lead' or r.status='approved') and (r.kind<>'board' or r.payload->>'audience' in ('department',a.role) or a.user_id=r.submitted_by))
+)));
+-- Keep legacy posted records readable, but new writes must pass the review functions.
+revoke insert(id,module_id,book_date,kind,amount,memo,reverses) on public.elan_oc_journal from authenticated;
+revoke insert(module_id,title,details),update(title,details) on public.elan_oc_records from authenticated;
+drop policy oc_bill_write on storage.objects;
+drop policy oc_board_lead_write on public.elan_oc_board;
+drop policy oc_board_lead_remove on public.elan_oc_board;
+create function elan_private.review_seat(s text,email_in text) returns void language plpgsql security definer set search_path='' as $$
+declare u auth.users;
+begin
+if not exists(select 1 from public.elan_staff where user_id=auth.uid() and role='admin') then raise exception 'Administrator required';end if;
+if email_in='' then delete from public.elan_oc_reviewers where seat=s;return;end if;
+select * into strict u from auth.users where lower(email)=lower(trim(email_in)) and email_confirmed_at is not null;
+insert into public.elan_oc_reviewers values(s,u.id,u.email) on conflict(seat) do update set user_id=excluded.user_id,label=excluded.label;
+end$$;
+create function elan_private.review_submit(i uuid,k text,p jsonb,f text) returns void language plpgsql security definer set search_path='' as $$
+declare a public.elan_oc_access;m public.elan_oc_modules;r public.elan_oc_records;j public.elan_oc_journal; own uuid:=auth.uid();
+begin
+select * into strict a from public.elan_oc_access where user_id=own;
+select * into m from public.elan_oc_modules where department=a.department;
+if jsonb_typeof(p)<>'object' or octet_length(p::text)>15000 then raise exception 'Invalid submission';end if;
+if f<>'' and (f !~ ('^'||own::text||'/'||i::text||'/proof[.](pdf|jpg|png|webp)$') or not exists(select 1 from storage.objects where bucket_id='elan-oc-review-files' and name=f)) then raise exception 'Upload evidence before submitting';end if;
+if k in ('journal','attachment') then
+ if m.tool is distinct from 'finance' or f='' then raise exception 'Finance assignment and evidence required';end if;
+ if k='journal' then
+ if not(coalesce(p->>'kind','') in ('opening','receipt','spend','borrow','repay','equipment','invoice','collect','bill','settle')) or coalesce((p->>'amount')::numeric,0) not between 0.01 and 999999999999.99 or (p->>'amount')::numeric<>round((p->>'amount')::numeric,2) or coalesce(length(trim(p->>'memo')),0) not between 1 and 500 or (p->>'book_date')::date is null or (p->>'book_date')::date>(now() at time zone 'Asia/Kolkata')::date then raise exception 'Check transaction fields';end if;
+ end if;
+ if k='attachment' or p->>'reverses' is not null then select * into strict j from public.elan_oc_journal where id=coalesce(p->>'reverses',p->>'entry')::uuid and module_id=m.id;
+ if (k='journal' and (a.role<>'lead' or j.kind<>p->>'kind' or j.amount<>(p->>'amount')::numeric or j.reverses is not null or j.book_date>(p->>'book_date')::date)) or (k='attachment' and a.role<>'lead' and j.created_by<>own) then raise exception 'Invalid finance change';end if;end if;
+elsif k='record' then
+ if m.id is null or m.tool='finance' or coalesce(length(trim(p->>'title')),0) not between 1 and 180 or jsonb_typeof(p->'details') is distinct from 'object' or octet_length((p->'details')::text)>=12000 then raise exception 'Invalid register item';end if;
+ if p->>'target' is not null then select * into strict r from public.elan_oc_records where id=(p->>'target')::uuid and module_id=m.id and updated_at=(p->>'version')::timestamptz and (created_by=own or a.role='lead');end if;
+elsif k='board' then
+ if a.role<>'lead' or coalesce(p->>'audience','') not in ('department','lead') or coalesce(p->>'kind','') not in ('resource','briefing') or coalesce(length(trim(p->>'title')),0) not between 1 and 160 or length(p->>'body')>4000 or (p->>'kind'='resource' and coalesce(p->>'url','') !~ '^https://[^[:space:]]+$') or (p->>'kind'='briefing' and coalesce(length(trim(p->>'body')),0)=0) then raise exception 'Invalid briefing or resource';end if;
+else raise exception 'Unsupported submission';end if;
+insert into public.elan_oc_requests(id,department,kind,payload,proof,submitted_by) values(i,a.department,k,p-'module_id'||jsonb_build_object('module_id',m.id),f,own);
+end$$;
+create function elan_private.review_decide(i uuid,d text,n text) returns text language plpgsql security definer set search_path='' as $$
+declare r public.elan_oc_requests; s text; result text; p jsonb; m uuid;
+begin
+select seat into strict s from public.elan_oc_reviewers where user_id=auth.uid() for share;
+select * into strict r from public.elan_oc_requests where id=i for update;
+if r.status<>'pending' then raise exception 'This round has closed';end if;
+insert into public.elan_oc_votes(request_id,round,seat,actor,decision,note) values(i,r.round,s,auth.uid(),d,n);
+select case when count(*)<2 then 'pending' when bool_or(decision='reject') then 'rejected' when bool_or(decision='later') then 'later' else 'approved' end into result from public.elan_oc_votes where request_id=i and round=r.round;
+p:=r.payload;m:=(p->>'module_id')::uuid;
+if result='approved' then
+ if r.kind='journal' then insert into public.elan_oc_journal(id,module_id,book_date,kind,amount,memo,created_by,reverses) values(i,m,(p->>'book_date')::date,p->>'kind',(p->>'amount')::numeric,p->>'memo',r.submitted_by,(p->>'reverses')::uuid);
+ elsif r.kind='record' and p->>'target' is null then insert into public.elan_oc_records(id,module_id,title,details,created_by) values(i,m,p->>'title',p->'details',r.submitted_by);
+ elsif r.kind='record' then update public.elan_oc_records set title=p->>'title',details=p->'details' where id=(p->>'target')::uuid and module_id=m and updated_at=(p->>'version')::timestamptz;if not found then raise exception 'Original has changed. Reject this version and submit an updated proposal.';end if;
+ elsif r.kind='board' then insert into public.elan_oc_board(department,audience,kind,title,body,url,created_by) values(r.department,p->>'audience',p->>'kind',p->>'title',coalesce(p->>'body',''),coalesce(p->>'url',''),r.submitted_by);end if;
+end if;
+update public.elan_oc_requests set status=result where id=i;return result;
+end$$;
+create function elan_private.review_reopen(i uuid) returns void language plpgsql security definer set search_path='' as $$begin
+if not exists(select 1 from public.elan_oc_reviewers where user_id=auth.uid()) then raise exception 'Reviewer required';end if;
+update public.elan_oc_requests set status='pending',round=round+1 where id=i and status='later';if not found then raise exception 'Only deferred items can be reopened';end if;end$$;
+create function public.elan_review_seat(s text,email_in text) returns void language sql security invoker set search_path='' as $$select elan_private.review_seat(s,email_in)$$;
+revoke all on function public.elan_review_seat(text,text),elan_private.review_seat(text,text) from public,anon;
+grant execute on function public.elan_review_seat(text,text),elan_private.review_seat(text,text) to authenticated;
+create function public.elan_review_submit(i uuid,k text,p jsonb,f text) returns void language sql security invoker set search_path='' as $$select elan_private.review_submit(i,k,p,f)$$;
+revoke all on function public.elan_review_submit(uuid,text,jsonb,text),elan_private.review_submit(uuid,text,jsonb,text) from public,anon;
+grant execute on function public.elan_review_submit(uuid,text,jsonb,text),elan_private.review_submit(uuid,text,jsonb,text) to authenticated;
+create function public.elan_review_decide(i uuid,d text,n text) returns text language sql security invoker set search_path='' as $$select elan_private.review_decide(i,d,n)$$;
+revoke all on function public.elan_review_decide(uuid,text,text),elan_private.review_decide(uuid,text,text) from public,anon;
+grant execute on function public.elan_review_decide(uuid,text,text),elan_private.review_decide(uuid,text,text) to authenticated;
+create function public.elan_review_reopen(i uuid) returns void language sql security invoker set search_path='' as $$select elan_private.review_reopen(i)$$;
+revoke all on function public.elan_review_reopen(uuid),elan_private.review_reopen(uuid) from public,anon;
+grant execute on function public.elan_review_reopen(uuid),elan_private.review_reopen(uuid) to authenticated;

@@ -1,3 +1,9 @@
+/organiser-desk
+  X-Robots-Tag: noindex, follow
+
+/organiser-desk.html
+  X-Robots-Tag: noindex, follow
+
 /portal/*
   X-Robots-Tag: noindex, follow
 
