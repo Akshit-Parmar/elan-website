@@ -1,3 +1,4 @@
+import {renderBook} from './oc-sections.js';
 import {createClient} from './vendor/supabase.js';
 import {esc} from './organiser-utils.js';
 import {safeMediaURL,uploadPhoto} from './media-rules.js';
@@ -9,7 +10,7 @@ function submit(f,fn){f.onsubmit=async e=>{e.preventDefault();if(f.inert||!f.rep
 function rowsByDepartment(rows){const map=new Map();for(const r of rows){if(!map.has(r.department))map.set(r.department,[]);map.get(r.department).push(r);}return map;}
 export async function startOC(){
  const config=await fetch('/assets/public-config.json').then(r=>r.json()),sb=createClient(config.supabaseUrl,config.publishableKey);
- const dir=document.querySelector('#oc-directory');if(dir){const rows=await data(sb.from(roster).select('name,role,department,bio,portrait,sort_order').eq('published',true).order('sort_order').order('name'));dir.innerHTML=[...rowsByDepartment(rows)].map(([dep,list])=>'<section class="oc-dept"><h3>'+esc(dep)+'</h3><div class="oc-cards">'+list.map(r=>'<article class="oc-person">'+(safeMediaURL(r.portrait,config.supabaseUrl)?'<img src="'+esc(r.portrait)+'" alt="'+esc(r.name)+'" loading="lazy">':'<div class="oc-initial" aria-hidden="true">'+esc(r.name.split(/\s+/).slice(0,2).map(x=>x[0]).join(''))+'</div>')+'<h4>'+esc(r.name)+'</h4><p>'+esc(r.role)+'</p>'+(r.bio?'<p>'+esc(r.bio)+'</p>':'')+'</article>').join('')+'</div></section>').join('')||'Committee profiles will appear here when published.';return;}
+ const dir=document.querySelector('#oc-directory');if(dir){const rows=await data(sb.from(roster).select('name,role,department,bio,portrait,sort_order').eq('published',true).order('sort_order').order('name'));renderBook(dir,rows,config.supabaseUrl);return;}
 }
 export async function adminOC({sb,api,config,host,isCurrent,rosterOnly=false}){
  const [people,users,jobs]=await Promise.all([data(sb.from(roster).select('*').order('sort_order').order('name')),data(sb.from(access).select('*').order('label')),data(sb.from(tasks).select('*').order('title'))]);if(!isCurrent())return;
