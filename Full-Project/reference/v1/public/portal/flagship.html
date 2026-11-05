@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><meta content="noindex" name="robots"/><title>Flagship Challenge · Élan Summit Portal</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;family=Playfair+Display:wght@600;700;800&amp;display=swap" rel="stylesheet"/><link href="/assets/css/styles.css" rel="stylesheet"/><link href="/assets/css/portal.css" rel="stylesheet"/><!-- Google Analytics 4 --><script async src="https://www.googletagmanager.com/gtag/js?id=G-WD8XZCJC7T"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WD8XZCJC7T',{anonymize_ip:true});</script>
+<link rel="icon" href="/favicon.ico" sizes="48x48"/><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"/><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicon-192.png"/><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"/>
+</head>
+<body data-page="flagship"><a class="skip-link" href="#ep-main">Skip to content</a><main id="ep-main">
+<section class="page-hero"><div class="container"><div class="breadcrumb"><span>The main event</span></div><h1>Crisis Command.</h1><p>Élan's flagship two-day leadership simulation. Crisis Command and Cent$ible run at the same time. If you chose Crisis Command at registration, this is your flagship.</p></div></section>
+<section class="section light-section"><div class="container"><div class="split-cta">
+<article class="white-card"><span class="section-label">Overview</span><h3 class="card-title">Lead under pressure.</h3><p class="card-copy">Mixed-school teams step into the emergency council of a fictional nation and respond to an evolving national crisis under real time pressure across both days of Élan.</p></article>
+<article class="white-card"><span class="section-label">Team structure</span><h3 class="card-title">Cabinet-style roles.</h3><ul class="list-clean" style="margin-top:8px"><li>Head of State</li><li>Finance Minister</li><li>Foreign Affairs Minister</li></ul></article>
+<article class="white-card"><span class="section-label">Evaluation</span><h3 class="card-title">Judged on real skills.</h3><ul class="list-clean" style="margin-top:8px"><li>Leadership and teamwork</li><li>Strategy and realism</li><li>Ethics and adaptability</li><li>Communication under pressure</li></ul></article>
+</div>
+<div id="ccLive"></div>
+<article class="white-card" style="margin-top:16px"><h3 class="card-title">How the two days run</h3><div id="ccPhases"></div></article>
+</div></section>
+</main><div class="toast" role="status" aria-live="polite"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/assets/js/config.js"></script><script src="/assets/js/portal.js"></script><script src="/assets/js/portal-cc.js"></script><script src="/assets/js/auth.js"></script><script src="/assets/js/main.js"></script><style>.ep-flag-strip{margin:18px auto 0;max-width:1120px;padding:0 20px}.ep-flag-strip .white-card{border-left:4px solid var(--red,#4E0000)}</style><script>
+document.addEventListener("elan:participant",function(ev){
+  var p=ev.detail||{}; var hero=document.querySelector(".page-hero");
+  if(!hero) return;
+  var ROLES={
+    "Head of State":{duty:"You lead the cabinet and carry final responsibility for every decision your nation makes.",
+      points:["Set your nation\u2019s overall strategy and priorities for the crisis","Chair every cabinet discussion and break deadlocks \u2014 the final call is yours","Balance the advice of both ministers and own the trade-offs","Deliver (or lead) your team\u2019s final presentation to the judges","Keep the cabinet calm, coordinated, and decisive as pressure escalates"]},
+    "Finance Minister":{duty:"You control the national budget \u2014 nothing your cabinet proposes happens unless you can fund it.",
+      points:["Manage your nation\u2019s budget and resources across both days","Cost every proposed response and flag what the nation cannot afford","Allocate funds between competing priorities \u2014 relief, security, infrastructure, communication","Track the economic fallout of each escalation and adapt","Defend the financial feasibility of your cabinet\u2019s plan to the judges"]},
+    "Foreign Affairs Minister":{duty:"You are your nation\u2019s face to the outside world \u2014 alliances, negotiations, and de-escalation run through you.",
+      points:["Manage relations with other nations (other teams) throughout the simulation","Lead negotiations \u2014 seek aid, form alliances, strike agreements","Represent your nation in inter-cabinet and diplomatic moments","De-escalate international pressure when the crisis crosses borders","Ensure your cabinet\u2019s decisions don\u2019t isolate your nation"]}
+  };
+  var LI='style="display:block;margin:8px 0;line-height:1.65;padding-left:18px;position:relative"';
+  var DOT='<span style="position:absolute;left:0;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--red,#4E0000)"></span>';
+  var wrap=document.createElement("div"); wrap.className="ep-flag-strip";
+  if(p.flagship==="Cent$ible"){
+    wrap.innerHTML='<article class="white-card"><h3 class="card-title">You\u2019re registered for Cent$ible</h3><p class="card-copy">Crisis Command and Cent$ible run at the same time, and your flagship is Cent$ible'+(p.centsible_theme?" \u2014 "+p.centsible_theme:"")+'. This page is for Crisis Command participants.</p><div class="cta-row" style="margin-top:10px"><a class="btn btn-gold" href="centsible.html">Go to your Cent$ible arena</a></div></article>';
+  } else {
+    var role=p.cc_role, r=role&&ROLES[role];
+    var html='<article class="white-card"><span class="section-label">Your cabinet post</span><h3 class="card-title" style="font-size:30px;margin:6px 0 10px">'+(role?role:"Being assigned")+'</h3>';
+    if(r){
+      html+='<p class="card-copy" style="max-width:70ch"><strong>'+r.duty+'</strong></p>';
+      html+='<div style="margin-top:6px;max-width:70ch">'+r.points.map(function(x){return '<span '+LI+'>'+DOT+x+'</span>';}).join('')+'</div>';
+      html+='<p class="card-copy" style="margin-top:14px;max-width:70ch"><strong>Your agenda:</strong> study the crisis briefing, coordinate in your cabinet\u2019s strategy room, contribute your part to the Day 1 Initial Response Brief, adapt through every escalation, and bring it together for the final response and presentation on Day 2.</p>';
+    } else {
+      html+='<p class="card-copy" style="max-width:70ch">Your post is assigned automatically in registration order and will appear here shortly. Check back soon.</p>';
+    }
+    html+='</article>';
+    wrap.innerHTML=html;
+  }
+  hero.insertAdjacentElement("afterend",wrap);
+});
+</script>
+</body></html>

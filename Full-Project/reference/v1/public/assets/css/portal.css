@@ -1,0 +1,86 @@
+/* ============================================================================
+   Élan 2026 — Participant Portal add-ons.
+   Loaded AFTER styles.css. Reuses the existing design system (.page-hero,
+   .white-card, .schedule-card, .field, .btn, .list-clean, .tag …) and only
+   adds the few portal-specific pieces: the credential pass, QR, and states.
+   Uses the site's real tokens (--midnight/--ivory/--gold/--gold-2/--teal…).
+   ========================================================================== */
+:root{ --ep-mono:ui-monospace,"SFMono-Regular","Cascadia Code",Menlo,monospace; }
+
+/* logout link reads as a quiet danger action inside the pill nav */
+.nav-link.ep-logout{color:#c0555b}
+.nav-link.ep-logout:hover{color:#e0666d}
+
+/* --- credential pass (styled like .dark-card, gold UID) --- */
+.ep-pass{position:relative;overflow:hidden;border-radius:var(--radius);
+  background:linear-gradient(135deg,#0B1020,#1b233b);color:var(--ivory);
+  border:1px solid rgba(231,178,74,.24);box-shadow:var(--shadow-soft);padding:34px}
+.ep-pass::after{content:"É";position:absolute;right:-16px;bottom:-84px;
+  font-family:"Cormorant Garamond",serif;font-size:220px;color:rgba(231,178,74,.06)}
+.ep-pass::before{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(135deg,rgba(231,178,74,.05) 0 2px,transparent 2px 10px)}
+.ep-pass > *{position:relative}
+.ep-uid-label{font-size:10px;text-transform:uppercase;letter-spacing:.2em;font-weight:900;color:rgba(247,243,234,.6)}
+.ep-uid{font-family:var(--ep-mono);font-size:clamp(28px,6vw,44px);letter-spacing:.12em;
+  color:var(--gold);margin-top:8px;user-select:all;line-height:1}
+.ep-uid-sub{margin-top:12px;color:rgba(247,243,234,.72);font-size:14px}
+
+/* --- QR placeholder --- */
+.ep-qr{width:168px;height:168px;border-radius:20px;border:1px solid rgba(17,24,39,.12);
+  display:grid;place-items:center;text-align:center;color:var(--muted);font-size:11px;font-weight:800;
+  background:conic-gradient(from 0deg,#eee7db 0 25%,#f6f1e7 0 50%,#eee7db 0 75%,#f6f1e7 0) 0 0/22px 22px}
+
+/* --- status pills reuse .tag; add a "live" green --- */
+.tag.ep-good{background:rgba(43,166,164,.16);color:#0f766e}
+.tag.ep-warn{background:rgba(231,178,74,.18);color:#8b621d}
+
+/* --- misc --- */
+.ep-mono{font-family:var(--ep-mono)}
+.ep-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ep-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:820px){.ep-grid2,.ep-grid3{grid-template-columns:1fr}}
+.ep-day-tabs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.ep-msg{margin-top:14px;padding:14px 16px;border-radius:16px;font-weight:700}
+.ep-msg.err{background:rgba(217,93,99,.12);color:#a12d33}
+.ep-msg.ok{background:rgba(43,166,164,.12);color:#0f766e}
+
+/* --- portal nav spacing: keep two-word labels on one line + even gaps --- */
+#epNav .nav-links{gap:10px;flex-wrap:wrap;justify-content:flex-end}
+#epNav .nav-panel{gap:10px}
+#epNav .nav-link{white-space:nowrap;font-size:10px;letter-spacing:.04em}
+#epNav .brand-mark img{width:100%;height:100%;object-fit:contain;border-radius:50%}
+
+/* --- active page highlight (visible gold underline, like the public nav) --- */
+#epNav .nav-link{position:relative}
+#epNav .nav-link.active{opacity:1;color:var(--red)}
+#epNav .nav-link.active::after{content:"";position:absolute;left:2px;right:2px;bottom:-4px;height:2px;border-radius:2px;background:var(--red)}
+
+/* --- elegance: refined countdown + gentle staggered reveal on cards --- */
+.ep-count{font-family:var(--ep-mono);font-size:clamp(26px,3vw,34px);letter-spacing:.03em;line-height:1;margin:4px 0 6px;color:var(--midnight)}
+.ep-count span{color:#8b621d}
+@keyframes epUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+#ep-main .ep-pass,#ep-main .white-card{animation:epUp .5s ease both}
+#ep-main .ep-grid3>*:nth-child(2),#ep-main .ep-grid2>*:nth-child(2){animation-delay:.07s}
+#ep-main .ep-grid3>*:nth-child(3){animation-delay:.14s}
+#ep-main .white-card{transition:transform .25s ease,box-shadow .25s ease}
+#ep-main .white-card:hover{transform:translateY(-4px)}
+@media (prefers-reduced-motion:reduce){#ep-main .ep-pass,#ep-main .white-card{animation:none}}
+
+/* a touch more polish on the credential pass */
+.ep-pass{padding:32px 34px}
+.ep-uid{text-shadow:0 0 34px rgba(231,178,74,.18)}
+
+/* portal eyebrow labels (Overview / Team Structure / Ticket …) in the site red */
+#ep-main .section-label{color:var(--red)}
+
+/* --- profile: locked credential + elegant detail rows --- */
+.ep-pass.mini{padding:22px 24px}
+.ep-pass.mini .ep-uid{font-size:clamp(24px,5vw,34px)}
+.ep-details{margin-top:20px}
+.ep-detail{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px 2px;border-bottom:1px solid rgba(17,24,39,.09)}
+.ep-detail:last-child{border-bottom:0}
+.ep-detail .k{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:900;color:var(--muted)}
+.ep-detail .val{font-size:16px;color:var(--ink);text-align:right;font-weight:600;word-break:break-word}
+.ep-lock{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-size:12.5px;color:var(--muted)}
+.ep-lock svg{opacity:.7}
+.ep-pw-block{margin-top:26px;padding-top:22px;border-top:1px solid rgba(17,24,39,.09)}

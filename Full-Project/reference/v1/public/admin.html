@@ -1,0 +1,1759 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+
+<title>Élan · Issue Participants (Admin)</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="assets/css/styles.css" rel="stylesheet"/><link href="assets/css/portal.css" rel="stylesheet"/>
+<style>
+  .aw{max-width:920px;margin:0 auto;padding:40px 22px 90px}
+  .aw h1{font-family:"Cormorant Garamond",serif;font-size:40px;line-height:1;margin:6px 0 4px}
+  .aw textarea{width:100%;min-height:220px;background:var(--surface,#fff);border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:14px;line-height:1.6}
+  .aw input{width:100%;border:1px solid var(--border,#d9d6cf);border-radius:12px;padding:12px 14px;font-size:15px}
+  .aw label{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:900;color:#6b7280;margin:14px 0 6px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.row{grid-template-columns:1fr}}
+  .rep{margin-top:22px}
+  .rep h3{font-family:"Cormorant Garamond",serif;font-size:22px;margin:18px 0 6px}
+  .chip{display:inline-block;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;margin:0 6px 6px 0}
+  .ok{background:rgba(43,166,164,.14);color:#0f766e}.warn{background:rgba(231,178,74,.18);color:#8b621d}.bad{background:rgba(217,93,99,.14);color:#a12d33}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  td,th{text-align:left;padding:8px 10px;border-bottom:1px solid #eee}
+  .mono{font-family:ui-monospace,Menlo,monospace}
+  .note{font-size:13px;color:#6b7280;margin-top:6px}
+</style><!-- elan-seo-start -->
+<link rel="canonical" href="https://elansummit.com/admin"/>
+
+<meta property="og:url" content="https://elansummit.com/admin"/>
+<meta property="og:site_name" content="Élan Summit"/>
+<meta property="og:locale" content="en_IN"/>
+<meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="Élan · Issue Participants (Admin)"/><meta name="twitter:description" content=""/>
+<meta name="twitter:image" content="https://elansummit.com/assets/img/elan-og.png"/>
+<meta name="geo.region" content="IN-MH"/>
+<meta name="geo.placename" content="Pune"/>
+<!-- elan-seo-end -->
+<meta name="robots" content="noindex,nofollow"/>
+<meta content="Élan Summit internal admin console." name="description"/>
+<link rel="icon" href="/favicon.ico" sizes="48x48"/><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"/><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicon-192.png"/><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"/>
+</head>
+<body class="light-page"><div class="admin-band"><div class="aw" style="max-width:1080px;padding-bottom:26px">
+  <div class="ep-eyebrow" style="color:var(--pearl,#E9D4C3);opacity:.85">Élan Summit · Admin Console</div>
+  <h1 style="margin:4px 0 0;color:var(--pearl,#E9D4C3)">Command Centre</h1>
+</div></div><div class="aw" style="max-width:1080px;padding-top:22px">
+  <!-- AUTH GATE -->
+  <div id="gate" class="rep" style="max-width:460px">
+    <p class="note">Sign in with your admin account to load event data. (Link-issuing additionally requires the function secret.)</p>
+    <label>Email</label><input id="gEmail" type="email" autocomplete="email"/>
+    <label>Password</label><input id="gPw" type="password" autocomplete="current-password"/>
+    <div style="margin-top:12px"><button class="btn btn-gold" id="gBtn">Sign in</button>
+    <span class="note" id="gMsg" style="margin-left:10px"></span></div>
+  </div>
+
+  <div id="console" style="display:none">
+    <p class="note" style="margin:6px 0 14px">Signed in as <strong id="whoami"></strong> · <a href="#" id="signout">Sign out</a> · <button class="btn btn-ghost" style="padding:4px 12px;font-size:12px" id="refresh">Refresh data</button></p>
+
+    <div id="rlsNote"></div>
+
+    <div class="admin-tabs">
+      <button class="atab active" data-tab="overview">Overview</button>
+      <button class="atab" data-tab="regs">Registrations</button>
+      <button class="atab" data-tab="pays">Payments (UTR)</button>
+      <button class="atab" data-tab="parts">Participants</button>
+      <button class="atab" data-tab="ann">Announcements</button>
+      <button class="atab" data-tab="sched">Portal schedule</button>
+      <button class="atab" data-tab="admins">Admins</button>
+      <button class="atab" data-tab="teams">Teams</button>
+      <button class="atab" data-tab="market">Market</button>
+      <button class="atab" data-tab="checkin">Check-in</button>
+      <button class="atab" data-tab="prev">Portal previews</button>
+      <button class="atab" data-tab="issue">Issue links</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="apanel" id="tab-overview">
+      <div class="stat-cards" id="statCards"></div>
+      <div class="stat-cards" id="statCards2"></div>
+    </section>
+
+    <!-- REGISTRATIONS -->
+    <section class="apanel" id="tab-regs" style="display:none">
+      <div class="row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 1.2fr 1fr">
+        <div><label>Search</label><input id="rSearch" placeholder="name / email / school / phone"/></div>
+        <div><label>Status</label><select id="rStatus"><option value="">All</option><option>pending</option><option>paid</option></select></div>
+        <div><label>Email</label><select id="rMail"><option value="">All</option><option value="1">Sent</option><option value="0">Not sent</option></select></div> <div><label>Kolhapur travel</label><select id="rTravel"><option value="">All</option><option value="paid">Paid</option><option value="due">Not paid</option><option value="na">Not travelling</option></select></div>
+        <div><label>Ticket</label><select id="rTier"><option value="">All</option><option>Early Bird</option><option>Standard</option><option>Late Registration</option><option>Day Delegate</option></select></div>
+        <div><label>Flagship</label><select id="rFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option><option value="__none">Not chosen</option></select></div>
+        <div><label>Cent$ible theme</label><select id="rTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>NOTE नीति</option><option>VIRAL व्यापार</option><option>प्रश्न PRODIGY</option></select></div>
+        <div><label>&nbsp;</label><button class="btn btn-ghost" id="rCsv" style="width:100%">Export CSV</button></div>
+      </div>
+      <div class="rep" id="travelBox" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:12px;padding:12px 14px;margin-bottom:12px"></div>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:12px;padding:12px 14px;margin-bottom:12px">
+        <strong>Portal logins</strong>
+        <p class="note" style="margin:4px 0 8px">Marking someone paid creates their portal account and emails them their confirmation automatically. The password is <strong>Firstname.Lastname</strong> from their registered name, so anyone who loses the email can simply be told the rule. Cent$ible participants also get the teammate-details section; Crisis Command participants do not. Use this only to catch up anyone marked paid before that was switched on. It never sends twice to the same person.</p>
+        <button class="mini-btn" id="wbRun">Send logins to everyone paid without one</button>
+        <span class="note" id="wbMsg" style="margin-left:8px"></span>
+        <div id="wbRep"></div>
+      </div>
+      <div id="regTable" class="rep"></div>
+    </section>
+
+    <!-- PAYMENTS -->
+    <section class="apanel" id="tab-pays" style="display:none">
+      <p class="note">UTR submissions from the payment page. Verify each against your bank statement, then mark the matching registration paid in the Registrations tab.</p>
+      <div style="margin:10px 0"><button class="btn btn-ghost" id="payCsv">Export UTR submissions CSV</button></div>
+      <div id="payTable" class="rep"></div>
+    </section>
+
+    <!-- PARTICIPANTS -->
+    <section class="apanel" id="tab-parts" style="display:none">
+      <p class="note">All participant records. Rows marked <span class="pill-pending">admin</span> are organiser accounts. They are excluded from participant counts, check-in and cabinet assignment. To re-send a fresh set-password link, use the Issue links tab.</p>
+      <div class="row" style="grid-template-columns:2fr 1fr 1.2fr;margin-top:10px">
+        <div><label>Search</label><input id="pSearch" placeholder="name, UID, email or school" autocomplete="off"/></div>
+        <div><label>Flagship</label><select id="pFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option><option value="__none">Not set</option></select></div>
+        <div><label>Cent$ible theme</label><select id="pTheme"><option value="">All themes</option><option>BRAND बनाओ</option><option>NOTE नीति</option><option>VIRAL व्यापार</option><option>प्रश्न PRODIGY</option></select></div>
+      </div>
+      <div style="margin:10px 0"><button class="btn btn-ghost" id="syncFlag">Sync flagship &amp; theme from registrations</button>
+      <button class="btn btn-ghost" id="assignCC">Auto-assign Crisis Command posts</button>
+      <span class="note" id="partMsg" style="margin-left:10px"></span></div>
+      <div id="partTable" class="rep"></div>
+    </section>
+
+    <!-- ANNOUNCEMENTS -->
+    <section class="apanel" id="tab-ann" style="display:none">
+      <p class="note">Announcements appear on every participant’s portal dashboard and Announcements page the moment they’re published.</p>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:640px">
+        <label>Title</label><input id="anTitle" placeholder="e.g. Reporting time for Day 1"/>
+        <label style="margin-top:10px;display:block">Message</label><textarea id="anBody" style="min-height:110px" placeholder="The announcement text participants will read…"></textarea>
+        <div style="margin-top:12px"><button class="btn btn-gold" id="anPost">Publish announcement</button>
+        <span class="note" id="anMsg" style="margin-left:10px"></span></div>
+      </div>
+      <div id="annTable" class="rep"></div>
+    </section>
+
+    <!-- PORTAL SCHEDULE -->
+    <section class="apanel" id="tab-sched" style="display:none">
+      <p class="note">These items build the participants-only Schedule page (grouped by day, sorted by time).</p>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px">
+        <div class="row" style="grid-template-columns:80px 110px 1fr 1fr">
+          <div><label>Day</label><select id="scDay"><option>1</option><option>2</option></select></div>
+          <div><label>Start</label><input id="scTime" type="time"/></div>
+          <div><label>Title</label><input id="scTitle" placeholder="e.g. Opening Ceremony"/></div>
+          <div><label>Category</label><input id="scCat" placeholder="e.g. Main Stage / Crisis Command / Cent$ible"/></div>
+        </div>
+        <div class="row" style="grid-template-columns:2fr 1fr;margin-top:8px">
+          <div><label>Description (optional)</label><input id="scDesc"/></div>
+          <div><label>Location (optional)</label><input id="scLoc"/></div>
+        </div>
+        <div style="margin-top:12px"><button class="btn btn-gold" id="scAdd">Add &amp; publish item</button>
+        <span class="note" id="scMsg" style="margin-left:10px"></span></div>
+      </div>
+      <div style="margin:14px 0;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px">
+        <strong>Note:</strong> the official two-day itinerary is built into the participant portal already, so you don’t need to re-enter it here.
+        Use this tab only for <em>changes and notices</em> (room moves, delays, extra briefings); they appear under “Updates from the organising team” on each participant’s schedule.
+        <div style="margin-top:10px"><button class="mini-btn danger" id="scClearAll">Delete ALL schedule items</button>
+        <span class="note" id="scClearMsg" style="margin-left:10px"></span></div>
+      </div>
+      <div id="schedTable" class="rep"></div>
+    </section>
+
+    <!-- ADMINS -->
+    <section class="apanel" id="tab-admins" style="display:none">
+      <p class="note">Create another Élan admin, or promote someone who is already a participant. The moment they sign in they get the full console: registrations, payments, check-in, announcements and previews. If the email already belongs to a participant, they are promoted in place and keep their existing password, so the password box is ignored.</p>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:560px">
+        <label>Full name</label><input id="adName" autocomplete="off" placeholder="e.g. Riya Sharma"/>
+        <label style="margin-top:10px;display:block">Email</label><input id="adEmail" type="email" autocomplete="off" placeholder="their login email"/>
+        <label style="margin-top:10px;display:block">Password <span class="note" style="font-weight:400">(new admins only)</span></label><input id="adPw" type="text" autocomplete="off" placeholder="at least 8 characters, share it with them"/>
+        <div style="margin-top:12px"><button class="btn btn-gold" id="adCreate">Create admin</button>
+          <span class="note" id="adMsg" style="margin-left:10px"></span></div>
+        <p class="note" style="margin-top:10px">The password is shown in plain text here only so you can pass it on. Ask them to change it after their first sign-in.</p>
+      </div>
+      <div id="adTable" class="rep"></div>
+    </section>
+
+    <!-- CRISIS COMMAND TEAMS -->
+    <section class="apanel" id="tab-teams" style="display:none">
+      <p class="note">Crisis Command cabinets hold 1 to 3 participants, one per post, and can be built here or auto-formed. Cent$ible teams are pairs by default, but a participant competing on their own can be given a solo team: leave Participant 2 blank. A solo team gets the same workspace, brief and submission access. VIRAL व्यापार and प्रश्न PRODIGY are retired from the public site but still shown here, so the participants registered on them stay visible until they are moved to BRAND बनाओ or NOTE नीति. BRAND बनाओ pairs then fill in their product brief, which is due 3 September. The other three themes submit nothing before the event. NOTE नीति pairs also need a linked team before they can trade, because the market is keyed to the team.</p>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px">
+        <strong>Crisis Command cabinets</strong>
+        <button class="mini-btn" id="tmReload" style="float:right">Reload from database</button>
+        <p class="note" style="margin:4px 0 10px">Create an empty cabinet, then add participants to it from the Cabinets table below, choosing each person's post. A cabinet can hold anything from 1 to 3 people; it does not have to be full to submit.</p>
+        <div class="row" style="grid-template-columns:1fr 1fr auto">
+          <div><label>Cabinet name</label><input id="tmName" placeholder="e.g. Cabinet Alpha"/></div>
+          <div><label>Nation (optional)</label><input id="tmNation" placeholder="e.g. Republic of Aravind"/></div>
+          <div><label>&nbsp;</label><button class="btn btn-ghost" id="tmCreate" style="width:100%">Create cabinet</button></div>
+        </div>
+        <div class="row" style="grid-template-columns:auto 1fr;margin-top:12px;align-items:end">
+          <div><label>Cabinet size</label><select id="tmSize"><option>3</option><option>2</option><option>1</option></select></div>
+          <div><label>&nbsp;</label><button class="btn btn-gold" id="tmAuto" style="width:100%">Auto-form cabinets from unassigned participants</button></div>
+        </div>
+        <span class="note" id="tmMsg"></span>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border,#d9d6cf)">
+          <label>Assign nations</label>
+          <p class="note" style="margin:2px 0 6px">One per line, in order. They fill the cabinets that have no nation yet, top to bottom. Tick the box to overwrite nations already set.</p>
+          <textarea id="tmNations" rows="4" placeholder="Republic of Arvana&#10;Kingdom of Solara&#10;Federation of Nyra" style="width:100%;font-family:inherit;font-size:14px;padding:8px;border-radius:8px;border:1px solid var(--border,#d9d6cf)"></textarea>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap">
+            <button class="mini-btn" id="tmNationsGo">Assign to cabinets</button>
+            <label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="tmNationsOver"/> overwrite existing</label>
+            <span class="note" id="tmNationsMsg"></span>
+          </div>
+        </div>
+        <p class="note" style="margin-top:8px">Auto-form groups unassigned Crisis Command participants in UID order into cabinets of the chosen size, one per post. Anyone left over at the end goes into a smaller final cabinet rather than being skipped.</p>
+      </div>
+      <div id="stgNote" class="rep" style="margin-top:14px"></div>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;max-width:720px;margin-top:14px">
+        <strong>Cent$ible teams</strong>
+        <p class="note" style="margin:4px 0 10px">Select the Cent$ible participants who registered together, give the team a name, and link them. Either partner can then upload the pitch deck. <strong>Participant 2 is optional</strong>: leave it blank to create a solo team for someone competing alone, and they get the same workspace, brief and submission access as a pair.</p>
+        <div class="row" style="grid-template-columns:1fr 1fr">
+          <div><label>Participant 1</label><select id="cbA"></select></div>
+          <div><label>Participant 2 <span class="note" style="font-weight:400">(optional)</span></label><select id="cbB"></select></div>
+        </div>
+        <div class="row" style="grid-template-columns:2fr 1fr;margin-top:8px">
+          <div><label>Team name</label><input id="cbName" placeholder="e.g. Team Nova"/></div>
+          <div><label>&nbsp;</label><button class="btn btn-ghost" id="cbLink" style="width:100%">Create team</button></div>
+        </div>
+        <span class="note" id="cbMsg"></span>
+      </div>
+      <div id="cbTable" class="rep"></div>
+      <div id="tmTable" class="rep"></div>
+      <div id="tmReport" class="rep"></div>
+    </section>
+
+    <!-- NOTE नीति MARKET -->
+    <section class="apanel" id="tab-market" style="display:none">
+      <p class="note">NOTE नीति trading floor. Open the market, then move prices as the anchors call them. Every change updates participants’ screens instantly.</p>
+      <div class="rep" style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;margin-top:14px">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-gold" id="mkToggle">Loading…</button>
+          <span class="note" id="mkState"></span>
+          <button class="mini-btn" id="mkReset">Reset all prices to start</button>
+          <button class="mini-btn danger" id="mkWipe">Reset all portfolios</button>
+          <span class="note" id="mkMsg" style="margin-left:8px"></span>
+        </div>
+        <p class="note" style="margin-top:10px">Quick move: type a percentage and press the button on a company row. Positive raises the price, negative lowers it.</p>
+      </div>
+      <div id="mkTable" class="rep"></div>
+      <div id="mkBoard" class="rep"></div>
+    </section>
+
+    <!-- EVENT-DAY CHECK-IN -->
+    <section class="apanel" id="tab-checkin" style="display:none">
+      <p class="note">Event-day arrivals desk. Search a participant, tap to mark them arrived. Works on a phone at the registration counter.</p>
+      <div class="stat-cards" id="ciStats"></div>
+      <div class="row" style="grid-template-columns:2fr 1fr 1fr">
+        <div><label>Search UID, name, school or phone</label><input id="ciSearch" placeholder="ELAN26-0007 or Riya" autocomplete="off"/></div>
+        <div><label>Show</label><select id="ciFilter"><option value="">Everyone</option><option value="in">Checked in</option><option value="out">Not arrived</option></select></div>
+        <div><label>Flagship</label><select id="ciFlag"><option value="">All</option><option>Crisis Command</option><option>Cent$ible</option></select></div>
+      </div>
+      <div style="margin:10px 0"><button class="btn btn-ghost" id="ciCsv">Export attendance CSV</button></div>
+      <div id="ciTable" class="rep"></div>
+    </section>
+
+    <!-- PORTAL PREVIEWS -->
+    <section class="apanel" id="tab-prev" style="display:none">
+      <p class="note">See exactly what each type of participant sees in their portal. This is a display-only preview. No participant record is changed, and no other participant’s data is loaded.</p>
+      <div class="row" style="grid-template-columns:1fr">
+        <div><label>Participant type</label>
+          <div id="pvPersonas" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"></div>
+        </div>
+      </div>
+      <div class="row" style="grid-template-columns:1fr 1fr;margin-top:10px">
+        <div><label>Cabinet post (Crisis Command only)</label>
+          <select id="pvRole">
+            <option>Head of State</option><option>Finance Minister</option>
+            <option>Foreign Affairs Minister</option>
+          </select>
+        </div>
+        <div><label>Portal page</label>
+          <select id="pvPage">
+            <option value="dashboard.html">Dashboard</option>
+            <option value="portal-schedule.html">Schedule</option>
+            <option value="flagship.html">Crisis Command page</option>
+            <option value="centsible.html">Cent$ible page</option>
+            <option value="ticket.html">My Ticket</option>
+            <option value="announcements.html">Announcements</option>
+            <option value="participant-guide.html">Participant Guide</option>
+            <option value="help-desk.html">Help Desk</option>
+            <option value="profile.html">Profile</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin:12px 0"><a class="btn btn-ghost" id="pvNewTab" target="_blank" rel="noopener">Open in new tab</a>
+        <button class="btn btn-ghost" id="pvReload">Reload preview</button>
+        <span class="note" id="pvWho" style="margin-left:10px"></span></div>
+      <div style="border:1px solid var(--border,#d9d6cf);border-radius:16px;overflow:hidden;background:#fff">
+        <iframe id="pvFrame" title="Portal preview" style="width:100%;height:760px;border:0;display:block"></iframe>
+      </div>
+    </section>
+
+    <!-- ISSUE LINKS (original tool, unchanged contract) -->
+    <section class="apanel" id="tab-issue" style="display:none">
+      <p class="note">Paste the list of people who have <strong>paid</strong>, one per line. Optionally add the amount after a comma to break ties between people with the same name.<br>Example: <span class="mono">Riya Sharma, 4199</span></p>
+      <div class="row">
+        <div><label>Function URL</label><input id="fnUrl" placeholder="https://YOUR-REF.functions.supabase.co/admin-issue-batch"></div>
+        <div><label>Admin secret</label><input id="secret" type="password" placeholder="ADMIN_ISSUE_SECRET"></div>
+      </div>
+      <label>Paid list (one name per line)</label>
+      <textarea id="list" placeholder="Riya Sharma, 4199&#10;Arjun Mehta&#10;..."></textarea>
+      <div style="margin-top:14px"><button class="btn btn-gold" id="run">Match &amp; issue</button>
+        <span id="status" class="note" style="margin-left:12px"></span></div>
+      <div class="rep" id="report"></div>
+    </section>
+  </div>
+</div>
+
+<style>
+.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}
+.atab{border:1px solid var(--border,#d9d6cf);background:#fff;border-radius:999px;padding:10px 18px;font-weight:800;font-size:13px;cursor:pointer}
+.atab.active{background:var(--navy,#13273F);color:var(--pearl,#E9D4C3);border-color:var(--navy,#13273F)}
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0}
+.stat-card{background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:16px;padding:16px}
+.stat-card b{display:block;font-family:"Cormorant Garamond",serif;font-size:34px;line-height:1}
+.stat-card span{font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:800;color:#6b7280}
+.rep table{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:12px;overflow:hidden}
+.rep th,.rep td{padding:10px 12px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}
+.rep th{background:#faf7f2;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.pill-paid{background:#dcfce7;color:#166534;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
+.pill-pending{background:#fef3c7;color:#92400e;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
+.mini-btn{padding:5px 12px;font-size:12px;border-radius:999px;border:1px solid var(--border,#d9d6cf);background:#fff;cursor:pointer;font-weight:700}
+.mini-sel{padding:4px 8px;font-size:12px;border-radius:8px;border:1px solid var(--border,#d9d6cf);background:#fff;cursor:pointer;max-width:100%}
+.mini-in{padding:4px 8px;font-size:12px;border-radius:8px;border:1px solid var(--border,#d9d6cf);background:#fff;width:100%;max-width:170px;transition:border-color .2s}
+.mini-btn:hover{background:var(--navy,#13273F);color:#fff}
+.mini-btn.danger{border-color:#fecaca;color:#b91c1c}
+.mini-btn.danger:hover{background:#b91c1c;color:#fff;border-color:#b91c1c}
+@media(max-width:820px){.stat-cards{grid-template-columns:repeat(2,1fr)}}
+.admin-band{background:linear-gradient(135deg,#0B1626,var(--navy,#13273F) 60%,#1b3350);padding:34px 0 0;box-shadow:inset 0 -60px 80px -60px rgba(0,0,0,.5)}
+.stat-card{box-shadow:0 8px 26px rgba(19,39,63,.07);transition:transform .2s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-card b{color:var(--navy,#13273F)}
+.rep table{box-shadow:0 8px 26px rgba(19,39,63,.06)}
+.rep th{background:var(--navy,#13273F);color:var(--pearl,#E9D4C3);letter-spacing:.1em}
+.atab{transition:all .18s}
+.mini-btn{transition:all .15s}
+.rep{overflow-x:auto}
+#pvFrame{height:760px}
+@media(max-width:820px){#pvFrame{height:520px}.admin-tabs{gap:6px}.atab{padding:8px 13px;font-size:12px}}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script>
+(function(){
+  var sb=window.supabase.createClient(window.ELAN_CONFIG.SUPABASE_URL, window.ELAN_CONFIG.SUPABASE_ANON_KEY);
+  var REGS=[], PAYS=[], PARTS=[], ANNS=[], SCHED=[], STATUS_COL=null, EMAIL_COL=null;
+  function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  // ---- welcome email ----------------------------------------------------
+  // One call per registration. The edge function verifies the caller is an
+  // admin, provisions the login, and refuses to send twice unless forced.
+  async function sendWelcome(regId, force){
+    try{
+      var r=await sb.functions.invoke('send-welcome',{body:{registration_id:regId, force:force===true}});
+      if(r.error){
+        var detail='';
+        try{ detail=' '+((await r.error.context.json()).error||''); }catch(e){}
+        return {ok:false, error:(r.error.message||'Function call failed')+detail};
+      }
+      var d=r.data||{};
+      if(d.ok===false) return {ok:false, error:d.error||'The function reported a failure.'};
+      if(d.dry_run===true) window.__elanDryRun = true;
+      return {ok:true, skipped:d.skipped===true, dry_run:d.dry_run===true,
+              kept_password:d.kept_existing_password===true, warning:d.warning||null,
+              uid:d.participant_uid};
+    }catch(e){ return {ok:false, error:String(e&&e.message||e)}; }
+  }
+  window.__elanSendWelcome = sendWelcome;
+
+  // ---- auth gate ----
+  var ADMIN_CHECK=null;   // cached, so is_elan_admin is not asked twice
+  async function showConsoleIfAuthed(knownSession){
+    var s = knownSession ? {data:{session:knownSession}} : await sb.auth.getSession();
+    if(!s.data.session) return false;
+
+    // Ask the database whether this account is an Élan admin. Participants who
+    // land here are sent to their own portal instead of an empty console.
+    var isAdmin=false, checkFailed=false;
+    try{
+      var chk=await sb.rpc('is_elan_admin');
+      if(chk.error) checkFailed=true; else isAdmin = chk.data===true;
+      ADMIN_CHECK={ ok:!chk.error, isAdmin:isAdmin, err:chk.error?chk.error.message:'' };
+    }catch(e){ checkFailed=true; ADMIN_CHECK=null; }
+
+    if(!isAdmin && !checkFailed){
+      document.getElementById('gate').style.display='none';
+      document.getElementById('console').style.display='none';
+      var host=document.querySelector('.aw');
+      var box=document.createElement('div');
+      box.className='rep';
+      box.style.cssText='background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:16px;padding:26px;max-width:560px';
+      box.innerHTML='<h2 style="font-family:\'Cormorant Garamond\',serif;font-size:30px;margin:0 0 8px">This is the organiser console.</h2>'+
+        '<p class="note" style="margin:0 0 6px">You are signed in as <strong>'+esc(s.data.session.user.email||'')+'</strong>, which is a participant account, so there is nothing for you here.</p>'+
+        '<p class="note" style="margin:0 0 16px">Your ticket, schedule, flagship briefing and announcements are all in the participant portal.</p>'+
+        '<div class="cta-row"><a class="btn btn-gold" href="/portal/dashboard">Go to your participant portal</a>'+
+        '<a class="btn btn-ghost" href="#" id="naSignOut">Sign out</a></div>'+
+        '<p class="note" style="margin-top:14px">If you should have organiser access, contact the \u00c9lan Director on +91 8160215010.</p>';
+      host.appendChild(box);
+      var so=document.getElementById('naSignOut');
+      if(so) so.addEventListener('click', async function(e){ e.preventDefault(); await sb.auth.signOut(); location.reload(); });
+      // send them onward automatically, but leave a moment to read
+      setTimeout(function(){ location.href='/portal/dashboard'; }, 6000);
+      return true;
+    }
+
+    // Show the console immediately. Data arrives underneath it rather than the
+    // user staring at the sign-in form while six queries run.
+    document.getElementById('gate').style.display='none';
+    document.getElementById('console').style.display='';
+    document.getElementById('whoami').textContent=s.data.session.user.email||'';
+    loadAll();
+    return true;
+  }
+  // Sign-in is guarded against repeat clicks. Password verification is bcrypt
+  // and runs on the database compute instance, so a second click does not
+  // retry, it queues another expensive verification behind the first and makes
+  // the wait longer. The auth log showed seven attempts in three seconds.
+  var SIGNING_IN=false;
+  async function doSignIn(){
+    if(SIGNING_IN) return;
+    var m=document.getElementById('gMsg'), btn=document.getElementById('gBtn');
+    var email=document.getElementById('gEmail').value.trim();
+    var pw=document.getElementById('gPw').value;
+    if(!email || !pw){ m.textContent='Enter your email and password.'; return; }
+    SIGNING_IN=true; btn.disabled=true; btn.style.opacity='.6';
+    var t0=Date.now(), slow=setTimeout(function(){
+      m.textContent='Still signing in\u2026 the server is slow to respond, please wait rather than clicking again.';
+    }, 3000);
+    m.textContent='Signing in\u2026';
+    try{
+      var r=await sb.auth.signInWithPassword({email:email, password:pw});
+      clearTimeout(slow);
+      if(r.error){ m.textContent='Sign-in failed: '+r.error.message; return; }
+      m.textContent='Signed in in '+((Date.now()-t0)/1000).toFixed(1)+'s. Loading\u2026';
+      // Use the session we were just handed instead of asking for it again.
+      await showConsoleIfAuthed(r.data.session);
+      m.textContent='';
+    }catch(e){
+      clearTimeout(slow);
+      m.textContent='Sign-in failed: '+String(e && e.message || e);
+    }finally{
+      SIGNING_IN=false; btn.disabled=false; btn.style.opacity='';
+    }
+  }
+  document.getElementById('gBtn').addEventListener('click', doSignIn);
+  ['gEmail','gPw'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doSignIn(); } });
+  });
+  document.getElementById('signout').addEventListener('click', async function(e){ e.preventDefault(); await sb.auth.signOut(); location.reload(); });
+  document.getElementById('refresh').addEventListener('click', function(){ loadAll(); });
+  showConsoleIfAuthed();
+
+  // ---- tabs ----
+  document.querySelectorAll('.atab').forEach(function(t){ t.addEventListener('click', function(){
+    document.querySelectorAll('.atab').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    ['overview','regs','pays','parts','ann','sched','admins','teams','market','checkin','prev','issue'].forEach(function(k){ document.getElementById('tab-'+k).style.display = (t.dataset.tab===k?'':'none'); });
+  });});
+
+  // ---- data loading (graceful if RLS blocks) ----
+  async function loadAll(){
+    var note=document.getElementById('rlsNote'); note.innerHTML='';
+    var blocked=[];
+
+    // ---- Admin identity check -------------------------------------------------
+    // RLS does NOT error when it blocks you - it silently returns zero rows.
+    // So ask the database directly whether it recognises this account as an admin.
+    // Reuse the check the auth gate already made rather than paying for the
+    // same round trip twice on every load.
+    var adminOk=null, adminErr='';
+    if(ADMIN_CHECK){
+      adminOk = ADMIN_CHECK.ok ? ADMIN_CHECK.isAdmin : null;
+      adminErr = ADMIN_CHECK.ok ? '' : ADMIN_CHECK.err;
+    } else {
+      try{
+        var chk=await sb.rpc('is_elan_admin');
+        if(chk.error){ adminErr=chk.error.message; } else { adminOk = chk.data===true; }
+      }catch(e){ adminErr=String(e && e.message || e); }
+    }
+
+    if(adminErr){
+      note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px;margin-bottom:14px">'+
+        '<strong>Admin check could not run.</strong> '+esc(adminErr)+
+        '<br><span class="note">If this says the function does not exist, the admin SQL has not been run yet in Supabase.</span></div>';
+    } else if(adminOk===false){
+      note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px;margin-bottom:14px">'+
+        '<strong>This account is not recognised as an Élan admin.</strong> Your database is returning zero rows for every table, which is why the tabs look empty.'+
+        '<br><span class="note">Your participant record needs <code>is_admin = true</code> AND its <code>auth_user_id</code> must match this login. Run this in Supabase → SQL Editor:</span>'+
+        '<pre style="white-space:pre-wrap;font-size:12px;margin-top:8px;background:#fff;padding:10px;border-radius:8px;border:1px solid #fecaca">'+
+        'update public.participants p\nset auth_user_id = u.id, is_admin = true\nfrom auth.users u\nwhere lower(u.email) = lower(p.email)\n  and lower(u.email) = \''+esc((await sb.auth.getSession()).data.session.user.email||'')+'\';'+
+        '</pre></div>';
+    }
+    // These five are independent, so they go out together. Awaiting them one at
+    // a time cost five full round trips to Tokyo (~150ms each from India)
+    // before the console rendered anything.
+    var res=await Promise.all([
+      sb.from('registrations').select('*').order('created_at',{ascending:false}),
+      sb.from('contact_messages').select('*').eq('inquiry_type','Payment UTR').order('created_at',{ascending:false}),
+      sb.from('participants').select('*').order('participant_uid',{ascending:true}),
+      sb.from('portal_announcements').select('*').order('created_at',{ascending:false}),
+      sb.from('portal_schedule_items').select('*').order('day').order('start_time')
+    ]);
+    var r1=res[0], r2=res[1], r3=res[2], r4=res[3], r5=res[4];
+    if(r1.error){ blocked.push('registrations ('+r1.error.message+')'); REGS=[]; } else REGS=r1.data||[];
+    if(r2.error){ blocked.push('contact_messages ('+r2.error.message+')'); PAYS=[]; } else PAYS=r2.data||[];
+    if(r3.error){ if(blocked.length===0||r3.error.message.indexOf('permission')!==-1) blocked.push('participants ('+r3.error.message+')'); PARTS=[]; } else PARTS=r3.data||[];
+    ANNS=r4.error?[]:(r4.data||[]); if(r4.error) blocked.push('portal_announcements ('+r4.error.message+')');
+    SCHED=r5.error?[]:(r5.data||[]); if(r5.error) blocked.push('portal_schedule_items ('+r5.error.message+')');
+    if(REGS.length){ STATUS_COL=['payment_status','status'].find(function(k){return k in REGS[0];})||null;
+      EMAIL_COL=['email_sent','link_sent','mail_sent'].find(function(k){return k in REGS[0];})||null; }
+    if(blocked.length){
+      note.innerHTML='<div class="rep" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px"><strong>Some data couldn\u2019t load.</strong> Your database\u2019s Row Level Security is blocking these reads for signed-in users: <span class="mono">'+esc(blocked.join(', '))+'</span>.<br><span class="note">The Issue-links tab still works (it uses the function secret). To enable these views, an admin-scoped read policy is needed in Supabase. Ask your developer for it.</span></div>';
+    }
+    renderStats(); renderRegs(); renderPays(); renderParts(); renderAnns(); renderSched(); renderAdmins(); renderCheckin();
+    // Independent of each other, so they run together rather than in sequence.
+    Promise.all([loadTeams(), loadCent(), loadMarket()]).then(autoPilot);
+  }
+
+  // ---- automatic housekeeping: stamp flagships + assign CC posts without clicks ----
+  var AUTOP_RAN=false;
+  async function autoPilot(){
+    if(AUTOP_RAN) return; AUTOP_RAN=true;
+    try{
+      var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister'];
+      var changed=false;
+      // 1) sync flagship/theme/cents from registrations, the source of truth
+      var AP=realParts();
+      for(var i=0;i<AP.length;i++){
+        var p=AP[i];
+        var reg=REGS.find(function(r){ return (r.email||'').toLowerCase()===(p.email||'').toLowerCase(); });
+        var mfl=reg?((reg.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/)):null;
+        if(!mfl) continue;
+        var upd={ flagship: mfl[1].trim(), centsible_theme: mfl[2]?mfl[2].trim():null };
+        // This used to skip anyone who already had a flagship, so a participant
+        // who SWITCHED kept the old one in their portal forever. Now a mismatch
+        // is corrected; an exact match is still skipped so nothing is rewritten
+        // for no reason.
+        if(p.flagship===upd.flagship && (p.centsible_theme||null)===(upd.centsible_theme||null)) continue;
+        if(upd.flagship==='Cent$ible' && p.cents_balance==null) upd.cents_balance=1000000;
+        var r=await sb.from('participants').update(upd).eq('id', p.id);
+        if(!r.error){ Object.assign(p,upd); changed=true; }
+      }
+      // 2) assign CC posts round-robin in registration (UID) order, keeping existing
+      var cc=realParts().filter(function(p){return p.flagship==='Crisis Command';})
+                  .sort(function(a,b){return String(a.participant_uid).localeCompare(String(b.participant_uid));});
+      for(var j=0;j<cc.length;j++){
+        if(cc[j].cc_role) continue;
+        var role=ROLES[j % ROLES.length];
+        var r2=await sb.from('participants').update({cc_role: role}).eq('id', cc[j].id);
+        if(!r2.error){ cc[j].cc_role=role; changed=true; }
+      }
+      if(changed){ renderStats(); renderParts(); }
+    }catch(e){}
+  }
+  // allow the issue tool (separate scope) to trigger a refresh + re-run of autopilot
+  window.elanAdminRefresh = function(){ AUTOP_RAN=false; loadAll(); };
+
+  function realParts(){ return PARTS.filter(function(p){ return p.is_admin !== true; }); }
+
+  function money(n){ n=Number(n)||0; return '\u20B9'+n.toLocaleString('en-IN'); }
+  // The three Crisis Command cabinet posts, used by the auto-assign, the manual
+  // cabinet builder and the portal preview.
+  var CC_POSTS=['Head of State','Finance Minister','Foreign Affairs Minister'];
+
+  // cc_teams holds both kinds. Anything not explicitly marked 'centsible' is a
+  // cabinet, so rows created before the kind column existed still behave.
+  function CC_TEAMS(){ return TEAMS.filter(function(t){ return (t.kind||'cc')!=='centsible'; }); }
+  function CENT_TEAMS(){ return TEAMS.filter(function(t){ return t.kind==='centsible'; }); }
+
+  function isPaid(r){ return STATUS_COL ? String(r[STATUS_COL]).toLowerCase()==='paid' : false; }
+  // Kolhapur travel supplement. Three states, because a plain paid/unpaid
+  // boolean would show every Pune-based participant as unpaid forever.
+  function travelCell(r){
+    var id=esc(r.id);
+    if(!r.travel_fee_due)
+      return '<span class="note">not travelling</span><br><button class="mini-btn" data-travel="'+id+'" data-act="due" style="margin-top:4px">Travelling</button>';
+    if(r.travel_fee_paid_at){
+      var d=new Date(r.travel_fee_paid_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+      return '<span class="pill-paid">paid '+esc(d)+'</span><br><button class="mini-btn" data-travel="'+id+'" data-act="unpaid" style="margin-top:4px">Mark not paid</button>';
+    }
+    return '<span class="pill-pending">not paid</span><br><span class="note" style="font-size:11px">&#8377;'+esc(r.travel_fee_amount||1100)+'</span>'+
+           '<br><button class="mini-btn" data-travel="'+id+'" data-act="paid" style="margin-top:4px">Mark paid</button>'+
+           ' <button class="mini-btn" data-travel="'+id+'" data-act="na">Not travelling</button>';
+  }
+
+  // Whether a participant has replaced the emailed Firstname.Lastname password
+  // with one of their own. Élan never sees or stores the password itself.
+  // Flagship and theme live in TWO places: registrations.notes is the source of
+  // truth, and participants.flagship is what the portal and the Teams tab read.
+  // The autopilot copies notes -> participants on every load, so editing only
+  // the participants row shows up in the portal and is then silently reverted.
+  // This control writes both, so the change sticks.
+  var THEMES_LIST=['BRAND \u092C\u0928\u093E\u0913','NOTE \u0928\u0940\u0924\u093F'];
+  function flagCell(p){
+    var id=esc(p.id);
+    var opts=['','Crisis Command','Cent$ible'].map(function(f){
+      return '<option value="'+esc(f)+'"'+(p.flagship===f?' selected':'')+'>'+(f||'\u2014 none \u2014')+'</option>';
+    }).join('');
+    var th='';
+    if(p.flagship==='Cent$ible'){
+      th='<br><select class="mini-sel" data-theme-for="'+id+'" style="margin-top:4px;max-width:150px">'+
+         '<option value="">\u2014 theme \u2014</option>'+
+         THEMES_LIST.map(function(t){ return '<option'+(p.centsible_theme===t?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+
+         '</select>';
+    }
+    return '<select class="mini-sel" data-flag-for="'+id+'" style="max-width:150px">'+opts+'</select>'+th;
+  }
+
+  // Rewrites the [Flagship: ...] tag inside registrations.notes, or appends one
+  // if the registration has none, then updates the participant to match.
+  async function setFlagship(pid, flagship, theme){
+    var p=PARTS.filter(function(x){ return String(x.id)===String(pid); })[0];
+    if(!p) return {ok:false, error:'Participant not found.'};
+    var tag = flagship ? ('[Flagship: '+flagship+(flagship==='Cent$ible'&&theme?(' \u2014 '+theme):'')+']') : '';
+
+    var reg=REGS.filter(function(r){ return String(r.email||'').toLowerCase()===String(p.email||'').toLowerCase(); })[0];
+    if(reg){
+      var notes=String(reg.notes||'');
+      var re=/\[Flagship:[^\]]*\]/;
+      notes = re.test(notes) ? notes.replace(re, tag) : (tag ? (tag+' '+notes).trim() : notes);
+      var r1=await sb.from('registrations').update({notes:notes}).eq('id', reg.id);
+      if(r1.error) return {ok:false, error:'registrations: '+r1.error.message};
+    }
+    var patch={ flagship: flagship||null };
+    patch.centsible_theme = (flagship==='Cent$ible') ? (theme||null) : null;
+    if(flagship!=='Crisis Command') patch.cc_role=null;
+    var r2=await sb.from('participants').update(patch).eq('id', pid);
+    if(r2.error) return {ok:false, error:'participants: '+r2.error.message};
+    return {ok:true, no_reg:!reg};
+  }
+
+  function acctCell(p){
+    if(p.must_change_password === true)
+      return '<span class="chip warn">not activated</span><br><span class="note" style="font-size:11px">still on the emailed password</span>';
+    if(p.password_changed_at){
+      var d=new Date(p.password_changed_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+      return '<span class="chip ok">activated '+esc(d)+'</span>';
+    }
+    return '<span class="chip ok">activated</span>';
+  }
+
+  // Portal-login state for one registration. Three states only: sent (with the
+  // UID they were given), failed (with the reason), or nothing yet.
+  function welcomeCell(r, paid){
+    if(r.welcome_email_sent_at){
+      var when=new Date(r.welcome_email_sent_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+      return '<span class="chip ok">sent '+esc(when)+'</span>'+
+             (r.participant_uid?'<br><span class="mono note">'+esc(r.participant_uid)+'</span>':'')+
+             '<br><button class="mini-btn" data-welcome="'+esc(r.id)+'" data-force="1" style="margin-top:4px">Resend</button>';
+    }
+    if(r.welcome_email_error){
+      return '<span class="chip bad" title="'+esc(r.welcome_email_error)+'">failed</span>'+
+             '<br><span class="note" style="font-size:11px">'+esc(String(r.welcome_email_error).slice(0,60))+'</span>'+
+             '<br><button class="mini-btn" data-welcome="'+esc(r.id)+'" data-force="0" style="margin-top:4px">Retry</button>';
+    }
+    if(!paid) return '<span class="note">on mark paid</span>';
+    return '<button class="mini-btn" data-welcome="'+esc(r.id)+'" data-force="0">Send login</button>';
+  }
+
+  function renderStats(){
+    var paid=REGS.filter(isPaid), pend=REGS.filter(function(r){return !isPaid(r);});
+    var rev=paid.reduce(function(a,r){return a+(Number(r.amount)||0);},0);
+    var pendRev=pend.reduce(function(a,r){return a+(Number(r.amount)||0);},0);
+    var flag=function(name){ return REGS.filter(function(r){return (r.notes||'').indexOf('[Flagship: '+name)!==-1;}).length; };
+    var tiers={}; REGS.forEach(function(r){ var t=(r.ticket_type||'').split('\u00B7')[0].trim()||'–'; tiers[t]=(tiers[t]||0)+1; });
+    document.getElementById('statCards').innerHTML=
+      '<div class="stat-card"><b>'+REGS.length+'</b><span>Total registrations</span></div>'+
+      '<div class="stat-card"><b>'+paid.length+'</b><span>Paid</span></div>'+
+      '<div class="stat-card"><b>'+pend.length+'</b><span>Pending</span></div>'+
+      '<div class="stat-card"><b>'+money(rev)+'</b><span>Verified revenue</span></div>';
+    document.getElementById('statCards2').innerHTML=
+      '<div class="stat-card"><b>'+flag('Crisis Command')+'</b><span>Crisis Command</span></div>'+
+      '<div class="stat-card"><b>'+flag('Cent$ible')+'</b><span>Cent$ible</span></div>'+
+      '<div class="stat-card"><b>'+PAYS.length+'</b><span>UTR submissions</span></div>'+
+      '<div class="stat-card"><b>'+realParts().length+'</b><span>Participants issued</span></div>'+
+      '<div class="stat-card"><b>'+money(pendRev)+'</b><span>Pending value</span></div>'+
+      Object.keys(tiers).map(function(t){return '<div class="stat-card"><b>'+tiers[t]+'</b><span>'+esc(t)+'</span></div>';}).join('');
+  }
+
+  // Money position on the Kolhapur travel supplement, at a glance.
+  function renderTravelBox(){
+    var box=document.getElementById('travelBox'); if(!box) return;
+    var due=REGS.filter(function(r){ return r.travel_fee_due; });
+    if(!due.length){
+      box.innerHTML='<strong>Kolhapur travel supplement (&#8377;1,100)</strong>'+
+        '<p class="note" style="margin:4px 0 0">Nobody is marked as travelling from Kolhapur yet. Use <em>Travelling</em> on each participant who owes the supplement.</p>';
+      return;
+    }
+    var paid=due.filter(function(r){ return r.travel_fee_paid_at; });
+    var amt=function(list){ return list.reduce(function(a,r){ return a+Number(r.travel_fee_amount||1100); },0); };
+    box.innerHTML='<strong>Kolhapur travel supplement (&#8377;1,100)</strong>'+
+      '<p class="note" style="margin:4px 0 8px">'+
+        due.length+' travelling &middot; <strong>'+paid.length+' paid</strong>, &#8377;'+amt(paid).toLocaleString('en-IN')+' collected'+
+        ' &middot; <strong>'+(due.length-paid.length)+' not paid</strong>, &#8377;'+(amt(due)-amt(paid)).toLocaleString('en-IN')+' to come'+
+      '</p>'+
+      (due.length-paid.length ? '<button class="mini-btn" id="travelShow">Show only not paid</button>' : '');
+    var b=document.getElementById('travelShow');
+    if(b) b.addEventListener('click', function(){
+      document.getElementById('rTravel').value='due'; renderRegs();
+    });
+  }
+
+  function renderRegs(){
+    renderTravelBox();
+    var q=(document.getElementById('rSearch').value||'').toLowerCase();
+    var st=document.getElementById('rStatus').value, tr=document.getElementById('rTier').value;
+    var fl=document.getElementById('rFlag').value, th=document.getElementById('rTheme').value;
+    var rows=REGS.filter(function(r){
+      if(q && ((r.full_name||'')+' '+(r.email||'')+' '+(r.school||'')+' '+(r.phone||'')).toLowerCase().indexOf(q)===-1) return false;
+      if(st && STATUS_COL && String(r[STATUS_COL]).toLowerCase()!==st) return false;
+      if(tr && (r.ticket_type||'').indexOf(tr)===-1) return false;
+      var ml=document.getElementById('rMail');
+      var mv=ml?ml.value:'';
+      if(mv!=='' && EMAIL_COL){ var isSent=(r[EMAIL_COL]===true||r[EMAIL_COL]==='sent'); if((mv==='1')!==isSent) return false; }
+      var tv=document.getElementById('rTravel'); var tvv=tv?tv.value:'';
+      if(tvv==='due'  && !(r.travel_fee_due && !r.travel_fee_paid_at)) return false;
+      if(tvv==='paid' && !(r.travel_fee_due &&  r.travel_fee_paid_at)) return false;
+      if(tvv==='na'   &&   r.travel_fee_due) return false;
+      var notes=r.notes||'';
+      if(fl==='__none'){ if(notes.indexOf('[Flagship:')!==-1) return false; }
+      else if(fl){ if(notes.indexOf('[Flagship: '+fl)===-1) return false; }
+      if(th && notes.indexOf(th)===-1) return false;
+      return true;
+    });
+    // theme filter only makes sense for Cent$ible
+    document.getElementById('rTheme').disabled = (fl==='Crisis Command' || fl==='__none');
+    var el=document.getElementById('regTable');
+    if(!rows.length){
+      el.innerHTML='<p class="note">No registrations match these filters. <button class="mini-btn" id="rClear">Clear filters</button></p>';
+      var rc=document.getElementById('rClear');
+      if(rc) rc.addEventListener('click',function(){
+        ['rSearch','rStatus','rTier','rFlag','rTheme','rMail','rTravel'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+        renderRegs();
+      });
+      return;
+    }
+    el.innerHTML='<p class="note" style="margin:6px 0 10px">Showing <strong>'+rows.length+'</strong> of '+REGS.length+' registration(s).</p>'+
+      '<table><tr><th>Name</th><th>Contact</th><th>School</th><th>Ticket</th><th>Amount</th><th>Flagship</th><th>Status</th><th>Kolhapur travel<br><span class="note" style="font-weight:400">&#8377;1,100</span></th><th>Email</th><th>Portal login</th><th></th></tr>'+
+      rows.map(function(r){
+        var fl=(r.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/);
+        var paid=isPaid(r);
+        var sent=EMAIL_COL ? (r[EMAIL_COL]===true || r[EMAIL_COL]==='sent') : false;
+        return '<tr><td><strong>'+esc(r.full_name)+'</strong></td>'+
+          '<td>'+esc(r.email||'')+'<br><span class="note">'+esc(r.phone||'')+'</span></td>'+
+          '<td>'+esc(r.school||'')+'</td><td>'+esc((r.ticket_type||'').split('\u00B7')[0])+(r.quantity>1?' \u00D7'+r.quantity:'')+'</td>'+
+          '<td>'+money(r.amount)+'</td><td>'+esc(fl?fl[1].trim()+(fl[2]?' \u2014 '+fl[2].trim():''):'\u2014')+'</td>'+
+          '<td>'+(STATUS_COL?('<span class="'+(paid?'pill-paid':'pill-pending')+'">'+(paid?'paid':'pending')+'</span>'):'\u2014')+'</td>'+
+          '<td>'+travelCell(r)+'</td>'+
+          '<td>'+(EMAIL_COL
+            ? ('<button class="mini-btn '+(sent?'is-sent':'')+'" data-mail="'+esc(r.id)+'" data-to="'+(sent?'0':'1')+'">'+
+               (sent?'\u2713 sent':'not sent')+'</button>')
+            : '<span class="note">add column</span>')+'</td>'+
+          '<td>'+welcomeCell(r, paid)+'</td>'+
+          '<td>'+(STATUS_COL?('<button class="mini-btn" data-id="'+esc(r.id)+'" data-to="'+(paid?'pending':'paid')+'">Mark '+(paid?'pending':'paid')+'</button>'):'')+'</td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-mail]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!EMAIL_COL) return;
+      b.disabled=true; b.textContent='\u2026';
+      var upd={}; upd[EMAIL_COL] = (b.dataset.to==='1');
+      var r=await sb.from('registrations').update(upd).eq('id', b.dataset.mail);
+      if(r.error){ alert('Blocked: '+r.error.message); b.disabled=false; b.textContent='retry'; return; }
+      var row=REGS.filter(function(x){return String(x.id)===String(b.dataset.mail);})[0];
+      if(row) row[EMAIL_COL]=(b.dataset.to==='1');
+      renderRegs();
+    });});
+    el.querySelectorAll('[data-id]').forEach(function(b){ b.addEventListener('click', async function(){
+      b.disabled=true; b.textContent='Saving\u2026';
+      var upd={}; upd[STATUS_COL]=b.dataset.to;
+      var r=await sb.from('registrations').update(upd).eq('id', b.dataset.id);
+      if(r.error){ alert('Update blocked: '+r.error.message+'\n(If this is RLS, mark paid in the Supabase Table Editor, or ask me for the admin update policy.)'); b.disabled=false; b.textContent='Retry'; return; }
+      // Marking paid provisions the portal login and emails the credentials.
+      // The function is idempotent, so an accidental re-mark will not re-send.
+      if(b.dataset.to==='paid'){
+        b.textContent='Emailing\u2026';
+        var w=await sendWelcome(b.dataset.id);
+        if(!w.ok){ alert('Marked paid, but the confirmation email failed:\n\n'+w.error+'\n\nUse Retry on that row once it is fixed. Nothing was sent.'); }
+        else if(w.dry_run){ alert('DRY RUN.\n\nThe account and UID were created, but NO email was sent and the row is not marked as sent.\n\nWhen you are ready to send for real:\nsupabase secrets set ELAN_DRY_RUN=false'); }
+        else if(w.skipped){ /* already had one, nothing to say */ }
+      }
+      loadAll();
+    });});
+    el.querySelectorAll('[data-travel]').forEach(function(b){ b.addEventListener('click', async function(){
+      var act=b.dataset.act, upd;
+      if(act==='due')        upd={travel_fee_due:true,  travel_fee_paid_at:null};
+      else if(act==='paid')  upd={travel_fee_due:true,  travel_fee_paid_at:new Date().toISOString()};
+      else if(act==='unpaid')upd={travel_fee_due:true,  travel_fee_paid_at:null};
+      else                   upd={travel_fee_due:false, travel_fee_paid_at:null};
+      b.disabled=true; b.textContent='\u2026';
+      var r=await sb.from('registrations').update(upd).eq('id', b.dataset.travel);
+      if(r.error){ alert('Could not update the travel fee: '+r.error.message); b.disabled=false; b.textContent='Retry'; return; }
+      loadAll();
+    });});
+    el.querySelectorAll('[data-welcome]').forEach(function(b){ b.addEventListener('click', async function(){
+      var force = b.dataset.force==='1';
+      if(force && !confirm('Send the confirmation email again? Their password is Firstname.Lastname and does not change, so the earlier email stays valid too.')) return;
+      b.disabled=true; b.textContent='Sending\u2026';
+      var w=await sendWelcome(b.dataset.welcome, force);
+      if(!w.ok){ alert('Not sent:\n\n'+w.error); b.disabled=false; b.textContent='Retry'; return; }
+      if(w.warning){ alert('Heads up:\n\n'+w.warning); }
+      if(w.dry_run){
+        alert('DRY RUN.\n\nThe account and UID were created, but NO email was sent and the row is not marked as sent.\n\nThat is the expected result right now. When you are ready to send for real, set ELAN_DRY_RUN=false on the function.');
+        b.disabled=false; b.textContent='Send login'; return;
+      }
+      if(w.kept_password){
+        alert('Sent.\n\nThis person had already signed in, so their existing password was left alone. The email tells them to keep using it.');
+      }
+      loadAll();
+    });});
+  }
+  (function(){
+    var btn=document.getElementById('wbRun'); if(!btn) return;
+    btn.addEventListener('click', async function(){
+      var todo=REGS.filter(function(r){ return isPaid(r) && !r.welcome_email_sent_at; });
+      var msg=document.getElementById('wbMsg'), rep=document.getElementById('wbRep');
+      rep.innerHTML='';
+      if(!todo.length){ msg.textContent='Everyone paid already has their login.'; return; }
+      if(!confirm('Send confirmation emails to '+todo.length+' participant(s)? Each password is Firstname.Lastname from their registered name.')) return;
+      btn.disabled=true;
+      var okN=0, failN=0, dry=0, fails=[];
+      for(var i=0;i<todo.length;i++){
+        msg.textContent='Sending '+(i+1)+' of '+todo.length+'\u2026';
+        var w=await sendWelcome(todo[i].id);
+        if(w.ok){ okN++; } else { failN++; fails.push({n:todo[i].full_name, e:w.error}); }
+        if(w.dry_run) dry++;
+        // Sent one at a time on purpose: a provider rate limit then costs one
+        // retry, not a silent gap in the middle of the batch.
+        await new Promise(function(res){ setTimeout(res,600); });
+      }
+      msg.textContent = dry ? ('Done, but DRY RUN: '+dry+' account(s) created, NO email sent. Set ELAN_DRY_RUN=false to send for real.') : ('Done. '+okN+' sent, '+failN+' failed.');
+      if(fails.length){
+        rep.innerHTML='<table style="margin-top:8px"><tr><th>Name</th><th>Reason</th></tr>'+
+          fails.map(function(f){ return '<tr><td>'+esc(f.n)+'</td><td>'+esc(f.e)+'</td></tr>'; }).join('')+'</table>';
+      }
+      btn.disabled=false;
+      loadAll();
+    });
+  })();
+
+  ['rSearch','rStatus','rTier','rFlag','rTheme','rMail','rTravel'].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', renderRegs); });
+
+  document.getElementById('rCsv').addEventListener('click', function(){
+    var head=['full_name','email','phone','school','ticket_type','quantity','amount','status','travel_fee','travel_fee_amount','email_sent','notes','created_at'];
+    var lines=[head.join(',')].concat(REGS.map(function(r){
+      return head.map(function(k){ var v=k==='status'?(STATUS_COL?r[STATUS_COL]:''):(k==='email_sent'?(EMAIL_COL?(r[EMAIL_COL]?'sent':'not sent'):''):(k==='travel_fee'?(!r.travel_fee_due?'not travelling':(r.travel_fee_paid_at?'paid':'not paid')):(k==='travel_fee_amount'?(r.travel_fee_due?(r.travel_fee_amount||1100):''):r[k]))); v=String(v==null?'':v).replace(/"/g,'""'); return '"'+v+'"'; }).join(',');
+    }));
+    var blob=new Blob([lines.join('\n')],{type:'text/csv'}); var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='elan-registrations.csv'; a.click();
+  });
+
+  function renderParts(){
+    var el=document.getElementById('partTable');
+    if(!PARTS.length){ el.innerHTML='<p class="note">No participant records found. If you have issued participants, this means the database is returning zero rows \u2014 check the admin banner above.</p>'; return; }
+    var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister'];
+    var pq=((document.getElementById('pSearch')||{}).value||'').toLowerCase().trim();
+    var pf=((document.getElementById('pFlag')||{}).value||'');
+    var pt=((document.getElementById('pTheme')||{}).value||'');
+    var LIST=PARTS.filter(function(p){
+      if(pq && ((p.full_name||'')+' '+(p.participant_uid||'')+' '+(p.email||'')+' '+(p.school||'')).toLowerCase().indexOf(pq)===-1) return false;
+      if(pf==='__none'){ if(p.flagship) return false; }
+      else if(pf){ if(p.flagship!==pf) return false; }
+      if(pt && p.centsible_theme!==pt) return false;
+      return true;
+    });
+    var themeSel=document.getElementById('pTheme');
+    if(themeSel) themeSel.disabled = (pf==='Crisis Command' || pf==='__none');
+    if(!LIST.length){
+      el.innerHTML='<p class="note">No participants match these filters. <button class="mini-btn" id="pClear">Clear filters</button></p>';
+      var cb=document.getElementById('pClear');
+      if(cb) cb.addEventListener('click',function(){
+        document.getElementById('pSearch').value='';
+        document.getElementById('pFlag').value='';
+        document.getElementById('pTheme').value='';
+        renderParts();
+      });
+      return;
+    }
+    el.innerHTML='<p class="note" style="margin:6px 0 10px">Showing <strong>'+LIST.length+'</strong> of '+PARTS.length+' participant(s).</p>'+'<table><tr><th>UID</th><th>Name</th><th>Flagship</th><th>Role / Theme</th><th>Cents</th><th>Contact</th><th>Account</th><th></th></tr>'+
+      LIST.map(function(p){
+        var mid='';
+        if(p.flagship==='Crisis Command'){
+          mid='<select class="mini-btn" data-role="'+esc(p.id)+'"><option value="">\u2014 assign post \u2014</option>'+ROLES.map(function(r){return '<option'+(p.cc_role===r?' selected':'')+'>'+r+'</option>';}).join('')+'</select>';
+        } else if(p.flagship==='Cent$ible'){ mid=esc(p.centsible_theme||'\u2014'); }
+        var cents=(p.flagship==='Cent$ible')?((p.cents_balance!=null?Number(p.cents_balance).toLocaleString('en-IN'):'\u2014')+' <button class="mini-btn" data-cents="'+esc(p.id)+'">\u00B1</button>'):'\u2014';
+        return '<tr'+(p.is_admin?' style="background:#faf7f2"':'')+'><td class="mono"><strong>'+esc(p.participant_uid||'')+'</strong></td><td>'+esc(p.full_name||'')+(p.is_admin?' <span class="pill-pending">admin</span>':'')+'<br><span class="note">'+esc((p.ticket_type||'').split('\u00B7')[0])+'</span></td>'+
+        '<td>'+flagCell(p)+'</td><td>'+mid+'</td><td>'+cents+'</td>'+
+        '<td>'+esc(p.email||'')+'<br><span class="note">'+esc(p.phone||'')+'</span></td>'+
+        '<td>'+acctCell(p)+'</td>'+
+        '<td><button class="mini-btn danger" data-del="'+esc(p.id)+'" data-uid="'+esc(p.participant_uid||'')+'">Remove</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-flag-for]').forEach(function(sel){ sel.addEventListener('change', async function(){
+      var pid=sel.dataset.flagFor, val=sel.value;
+      var cur=PARTS.filter(function(x){ return String(x.id)===String(pid); })[0]||{};
+      if(val==='Cent$ible' && !cur.centsible_theme){
+        alert('Set the flagship to Cent$ible first, then pick the theme from the second dropdown that appears.');
+      }
+      sel.disabled=true;
+      var r=await setFlagship(pid, val, cur.centsible_theme);
+      sel.disabled=false;
+      if(!r.ok){ alert('Could not change the flagship:\n\n'+r.error); loadAll(); return; }
+      if(r.no_reg) alert('Updated the participant, but no registration was found for that email, so registrations.notes was not changed. If a registration exists under a different address, fix that too or the autopilot will revert this.');
+      loadAll();
+    });});
+    el.querySelectorAll('[data-theme-for]').forEach(function(sel){ sel.addEventListener('change', async function(){
+      var pid=sel.dataset.themeFor;
+      sel.disabled=true;
+      var r=await setFlagship(pid, 'Cent$ible', sel.value);
+      sel.disabled=false;
+      if(!r.ok){ alert('Could not change the theme:\n\n'+r.error); loadAll(); return; }
+      loadAll();
+    });});
+    el.querySelectorAll('[data-role]').forEach(function(sel){ sel.addEventListener('change', async function(){
+      var r=await sb.from('participants').update({cc_role: sel.value||null}).eq('id', sel.dataset.role);
+      if(r.error){ alert('Blocked: '+r.error.message); return; } loadAll();
+    });});
+    el.querySelectorAll('[data-cents]').forEach(function(b){ b.addEventListener('click', async function(){
+      var v=prompt('Adjust Cents by (use minus to deduct), e.g. 25000 or -10000:'); if(v==null) return;
+      var d=parseInt(v,10); if(isNaN(d)){ alert('Not a number.'); return; }
+      var p=PARTS.find(function(x){return String(x.id)===String(b.dataset.cents);});
+      var next=(Number(p&&p.cents_balance)||0)+d;
+      var r=await sb.from('participants').update({cents_balance: next}).eq('id', b.dataset.cents);
+      if(r.error){ alert('Blocked: '+r.error.message); return; } loadAll();
+    });});
+    el.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Remove participant '+b.dataset.uid+'? Their portal access stops working. This does not refund any payment.')) return;
+      b.disabled=true; b.textContent='Removing\u2026';
+      var r=await sb.from('participants').delete().eq('id', b.dataset.del);
+      if(r.error){ alert('Blocked: '+r.error.message); b.disabled=false; b.textContent='Remove'; return; }
+      loadAll();
+    });});
+  }
+
+  ['pSearch','pFlag','pTheme'].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', renderParts); });
+
+  document.getElementById('syncFlag').addEventListener('click', async function(){
+    var m=document.getElementById('partMsg'); m.textContent='Syncing\u2026';
+    var updated=0, missed=[];
+    for(var i=0;i<PARTS.length;i++){
+      var p=PARTS[i];
+      var reg=REGS.find(function(r){ return (r.email||'').toLowerCase()===(p.email||'').toLowerCase(); });
+      if(!reg){ missed.push(p.full_name); continue; }
+      var mfl=(reg.notes||'').match(/\[Flagship: ([^\]\u2014—]+)(?:[\u2014—] ([^\]]+))?\]/);
+      if(!mfl) { missed.push(p.full_name); continue; }
+      var upd={ flagship: mfl[1].trim(), centsible_theme: mfl[2]?mfl[2].trim():null };
+      if(upd.flagship==='Cent$ible' && p.cents_balance==null){ upd.cents_balance=1000000; }
+      var r=await sb.from('participants').update(upd).eq('id', p.id);
+      if(!r.error) updated++;
+    }
+    m.textContent='Synced '+updated+(missed.length?' \u00B7 no flagship found for: '+missed.join(', '):'');
+    loadAll();
+  });
+
+  document.getElementById('assignCC').addEventListener('click', async function(){
+    var m=document.getElementById('partMsg');
+    var ROLES=['Head of State','Finance Minister','Foreign Affairs Minister'];
+    var cc=PARTS.filter(function(p){return p.flagship==='Crisis Command';})
+                .sort(function(a,b){return String(a.participant_uid).localeCompare(String(b.participant_uid));});
+    if(!cc.length){ m.textContent='No Crisis Command participants yet (run Sync first).'; return; }
+    if(!confirm('Assign posts in registration order to '+cc.length+' Crisis Command participants? Already-assigned posts are kept.')) return;
+    m.textContent='Assigning\u2026';
+    var n=0;
+    for(var i=0;i<cc.length;i++){
+      if(cc[i].cc_role) continue;                      // keep manual assignments
+      var role=ROLES[i % ROLES.length];               // round-robin by order
+      var r=await sb.from('participants').update({cc_role: role}).eq('id', cc[i].id);
+      if(!r.error) n++;
+    }
+    m.textContent='Assigned '+n+' posts \u2713';
+    loadAll();
+  });
+
+  (function(){
+    var b=document.getElementById('payCsv'); if(!b) return;
+    b.addEventListener('click', function(){
+      var head=['created_at','full_name','email','phone','message'];
+      var lines=[head.join(',')].concat(PAYS.map(function(p){
+        return head.map(function(k){ return '"'+String(p[k]==null?'':p[k]).replace(/"/g,'""')+'"'; }).join(',');
+      }));
+      var blob=new Blob([lines.join('\n')],{type:'text/csv'});
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='elan-utr-submissions.csv'; a.click();
+    });
+  })();
+
+  // ---- admins ----
+  function renderAdmins(){
+    var el=document.getElementById('adTable'); if(!el) return;
+    var admins=PARTS.filter(function(p){return p.is_admin===true;});
+    if(!admins.length){ el.innerHTML='<p class="note">No admins listed yet.</p>'; return; }
+    el.innerHTML='<h3 style="margin:22px 0 8px">Current admins</h3><table><tr><th>Name</th><th>Email</th><th>UID</th><th></th></tr>'+
+      admins.map(function(p){
+        return '<tr><td><strong>'+esc(p.full_name||'')+'</strong></td><td>'+esc(p.email||'')+'</td>'+
+        '<td class="mono">'+esc(p.participant_uid||'')+'</td>'+
+        '<td><button class="mini-btn danger" data-revoke="'+esc(p.id)+'" data-nm="'+esc(p.full_name||'')+'">Revoke admin</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-revoke]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Remove admin access for '+b.dataset.nm+'?\n\nTheir login and UID are unchanged. If they were promoted from a participant record they go back to being a normal participant, and will reappear in participant counts and check-in.')) return;
+      b.disabled=true;
+      var r=await sb.from('participants').update({is_admin:false}).eq('id', b.dataset.revoke);
+      if(r.error){ alert('Blocked: '+r.error.message); b.disabled=false; return; }
+      loadAll();
+    });});
+  }
+
+  document.getElementById('adCreate').addEventListener('click', async function(){
+    var m=document.getElementById('adMsg');
+    var nm=document.getElementById('adName').value.trim(),
+        em=document.getElementById('adEmail').value.trim().toLowerCase(),
+        pw=document.getElementById('adPw').value;
+    if(!nm||!em){ m.textContent='Fill in name and email.'; return; }
+
+    // Promotion path. signUp fails with "User already registered" for anyone who
+    // already has an account, which is exactly the case when you want to give an
+    // existing participant console access. Promote the record they already have
+    // instead: same login, same password, same UID.
+    var already=PARTS.filter(function(p){ return String(p.email||'').toLowerCase()===em; });
+    if(already.length>1){ m.textContent='Several participant records share that email. Fix the duplicate first.'; return; }
+    if(already.length===1){
+      var ex=already[0];
+      if(ex.is_admin){ m.textContent='That person is already an admin ('+(ex.participant_uid||'no UID')+').'; return; }
+      if(!confirm(ex.full_name+' is already a participant ('+(ex.participant_uid||'no UID')+').\n\n'+
+                  'Promote them to admin?\n\n'+
+                  '\u2022 They keep their existing password and UID\n'+
+                  '\u2022 They will be excluded from participant counts and check-in\n'+
+                  '\u2022 The welcome email tool will refuse to email them\n\n'+
+                  'The password box is ignored for a promotion.')) return;
+      m.textContent='Promoting\u2026';
+      var up=await sb.from('participants').update({ is_admin:true, full_name:nm||ex.full_name }).eq('id', ex.id);
+      if(up.error){ m.textContent='Could not promote: '+up.error.message; return; }
+      m.textContent='Promoted \u2713 '+(ex.participant_uid||'')+' now has console access. They sign in with their existing password.';
+      ['adName','adEmail','adPw'].forEach(function(id){document.getElementById(id).value='';});
+      loadAll();
+      return;
+    }
+
+    if(!pw){ m.textContent='Fill in a password for the new admin.'; return; }
+    if(pw.length<8){ m.textContent='Password must be at least 8 characters.'; return; }
+    m.textContent='Creating\u2026';
+    // A SEPARATE client so signUp does not replace YOUR session.
+    var sb2=window.supabase.createClient(window.ELAN_CONFIG.SUPABASE_URL, window.ELAN_CONFIG.SUPABASE_ANON_KEY,
+      {auth:{persistSession:false, autoRefreshToken:false, storageKey:'elan-admin-create'}});
+    var r=await sb2.auth.signUp({email:em, password:pw});
+    if(r.error){
+      var em2=String(r.error.message||'').toLowerCase();
+      if(em2.indexOf('already')!==-1 || em2.indexOf('registered')!==-1){
+        m.textContent='That email already has a login but no participant record here, so it cannot be promoted from this screen. '+
+                      'Either use a different email, or add their participants row in Supabase with is_admin true and their auth user id.';
+      } else { m.textContent='Could not create login: '+r.error.message; }
+      return;
+    }
+    var uid=(r.data && r.data.user && r.data.user.id) || null;
+    if(!uid){ m.textContent='Login created, but no user id returned \u2014 check Supabase Auth.'; return; }
+    // next admin UID: ELAN26-A001, A002 …
+    var used=PARTS.map(function(p){return String(p.participant_uid||'');}).filter(function(u){return /^ELAN26-A\d+$/.test(u);});
+    var n=used.reduce(function(a,u){return Math.max(a, parseInt(u.slice(9),10)||0);},0)+1;
+    var newUid='ELAN26-A'+String(n).padStart(3,'0');
+    var row={ full_name:nm, email:em, auth_user_id:uid, is_admin:true,
+              participant_uid:newUid, payment_status:'confirmed' };
+    var ins=await sb.from('participants').insert(row);
+    if(ins.error){ m.textContent='Login created, but admin record failed: '+ins.error.message+' (they can still sign in \u2014 re-run after fixing).'; return; }
+    m.textContent='Admin created \u2713  '+newUid+' \u2014 send them the email and password.';
+    ['adName','adEmail','adPw'].forEach(function(id){document.getElementById(id).value='';});
+    loadAll();
+  });
+
+  // ---- Crisis Command teams ----
+  var TEAMS=[], SUBS=[], SUBS_ERR='';
+  async function loadTeams(){
+    var a=await sb.from('cc_teams').select('*').order('name');
+    TEAMS=a.error?[]:(a.data||[]);
+    var b=await sb.from('cc_submissions').select('*');
+    // Swallowing this made every cabinet look unsubmitted with no clue why.
+    if(b.error){ console.error('cc_submissions read blocked:', b.error); SUBS=[]; SUBS_ERR=b.error.message; }
+    else { SUBS=b.data||[]; SUBS_ERR=''; }
+    renderTeams();
+  }
+  function renderTeams(){
+    var el=document.getElementById('tmTable'); if(!el) return;
+    var cc=realParts().filter(function(p){return p.flagship==='Crisis Command';});
+    var unassigned=cc.filter(function(p){return !p.team_id;});
+    var CABS=CC_TEAMS();
+    if(!CABS.length){ el.innerHTML='<p class="note" style="margin-top:14px">No cabinets yet. '+unassigned.length+' Crisis Command participant(s) waiting to be grouped. Create one above, or use Auto-form.</p>'; return; }
+    el.innerHTML='<h3 style="margin:22px 0 8px">Cabinets ('+CABS.length+') \u00B7 '+unassigned.length+' unassigned</h3>'+
+      '<table><tr><th>Team</th><th>Members</th><th>Day 1</th><th>Day 2</th><th></th></tr>'+
+      CABS.map(function(t){
+        var mem=cc.filter(function(p){return String(p.team_id)===String(t.id);});
+        var d1=SUBS.some(function(x){return String(x.team_id)===String(t.id)&&x.round==='day1';});
+        var d2=SUBS.some(function(x){return String(x.team_id)===String(t.id)&&x.round==='day2';});
+        return '<tr><td><strong>'+esc(t.name)+'</strong>'+
+        '<br><input class="mini-in" data-nation-for="'+esc(t.id)+'" value="'+esc(t.nation||'')+'" placeholder="nation" style="margin-top:4px"/>'+
+        '</td>'+
+        '<td>'+(mem.length?mem.map(function(m){
+          return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">'+
+            '<select class="mini-sel" data-role-for="'+esc(m.id)+'" style="max-width:170px">'+
+              '<option value="">no post</option>'+
+              CC_POSTS.map(function(r){ return '<option'+(m.cc_role===r?' selected':'')+'>'+esc(r)+'</option>'; }).join('')+
+            '</select>'+
+            '<span>'+esc(m.full_name)+'</span>'+
+            '<button class="mini-btn danger" data-ccremove="'+esc(m.id)+'" title="Remove from cabinet">&times;</button>'+
+          '</div>';
+        }).join(''):'<span class="note">empty</span>')+
+        '<div style="display:flex;gap:6px;margin-top:6px">'+
+          '<select class="mini-sel" data-ccadd-who="'+esc(t.id)+'" style="max-width:190px"><option value="">Add participant\u2026</option>'+
+            unassigned.map(function(u){ return '<option value="'+esc(u.id)+'">'+esc(u.full_name)+'</option>'; }).join('')+
+          '</select>'+
+          '<select class="mini-sel" data-ccadd-role="'+esc(t.id)+'" style="max-width:170px"><option value="">no post</option>'+
+            CC_POSTS.map(function(r){ return '<option>'+esc(r)+'</option>'; }).join('')+
+          '</select>'+
+          '<button class="mini-btn" data-ccadd="'+esc(t.id)+'">Add</button>'+
+        '</div></td>'+
+        '<td>'+(d1?'<span class="pill-paid">submitted</span>':'<span class="pill-pending">open</span>')+'</td>'+
+        '<td>'+(d2?'<span class="pill-paid">submitted</span>':'<span class="pill-pending">open</span>')+'</td>'+
+        '<td><button class="mini-btn" data-view="'+esc(t.id)+'" data-nm="'+esc(t.name)+'">View report</button> '+
+        '<button class="mini-btn danger" data-tmdel="'+esc(t.id)+'" data-nm="'+esc(t.name)+'">Delete</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-nation-for]').forEach(function(inp){
+      var save=async function(){
+        var v=inp.value.trim();
+        if(v===(inp.defaultValue||'')) return;
+        inp.disabled=true;
+        var r=await sb.from('cc_teams').update({nation: v||null}).eq('id', inp.dataset.nationFor);
+        inp.disabled=false;
+        if(r.error){ alert('Could not save the nation: '+r.error.message); return; }
+        inp.defaultValue=v;
+        var t=TEAMS.filter(function(x){ return String(x.id)===String(inp.dataset.nationFor); })[0];
+        if(t) t.nation=v||null;
+        inp.style.borderColor='#2e7d32';
+        setTimeout(function(){ inp.style.borderColor=''; }, 900);
+      };
+      inp.addEventListener('change', save);
+      inp.addEventListener('blur', save);
+      inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } });
+    });
+    el.querySelectorAll('[data-role-for]').forEach(function(sel){ sel.addEventListener('change', async function(){
+      var r=await sb.from('participants').update({cc_role: sel.value||null}).eq('id', sel.dataset.roleFor);
+      if(r.error){ alert('Could not set the post: '+r.error.message); return; }
+      loadAll();
+    });});
+    el.querySelectorAll('[data-ccremove]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Remove this participant from the cabinet? They become unassigned and can be added to another one.')) return;
+      var r=await sb.from('participants').update({team_id:null, cc_role:null}).eq('id', b.dataset.ccremove);
+      if(r.error){ alert('Could not remove: '+r.error.message); return; }
+      loadAll();
+    });});
+    el.querySelectorAll('[data-ccadd]').forEach(function(b){ b.addEventListener('click', async function(){
+      var tid=b.dataset.ccadd;
+      var who=el.querySelector('[data-ccadd-who="'+tid+'"]').value;
+      var role=el.querySelector('[data-ccadd-role="'+tid+'"]').value;
+      if(!who){ alert('Choose a participant to add.'); return; }
+      // A post can only be held by one person in a cabinet, otherwise two
+      // people answer for the same brief and the report has a gap.
+      if(role){
+        var clash=cc.filter(function(p){ return String(p.team_id)===String(tid) && p.cc_role===role; });
+        if(clash.length && !confirm(esc(clash[0].full_name)+' already holds '+role+' in this cabinet. Add anyway?')) return;
+      }
+      b.disabled=true; b.textContent='\u2026';
+      var r=await sb.from('participants').update({team_id:tid, cc_role: role||null}).eq('id', who);
+      if(r.error){ alert('Could not add: '+r.error.message); b.disabled=false; b.textContent='Add'; return; }
+      loadAll();
+    });});
+    el.querySelectorAll('[data-view]').forEach(function(b){ b.addEventListener('click',function(){ viewReport(b.dataset.view,b.dataset.nm); });});
+    el.querySelectorAll('[data-tmdel]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Delete cabinet '+b.dataset.nm+'? Members become unassigned and the team\u2019s report is removed.')) return;
+      await sb.from('participants').update({team_id:null}).eq('team_id', b.dataset.tmdel);
+      var r=await sb.from('cc_teams').delete().eq('id', b.dataset.tmdel);
+      if(r.error){ alert('Blocked: '+r.error.message); return; }
+      loadAll(); loadTeams();
+    });});
+  }
+  async function viewReport(teamId, name){
+    var box=document.getElementById('tmReport');
+    box.innerHTML='<p class="note">Loading report\u2026</p>';
+    // Sections and files were fetched fresh here while the submission status
+    // came from SUBS, cached at page load. A team that submitted after you
+    // opened the console showed as "not submitted" until a full reload. Fetch
+    // all three together.
+    var res=await Promise.all([
+      sb.from('cc_sections').select('*').eq('team_id',teamId).order('round'),
+      sb.from('cc_files').select('*').eq('team_id',teamId),
+      sb.from('cc_submissions').select('*').eq('team_id',teamId)
+    ]);
+    var secs=res[0], files=res[1], subsQ=res[2];
+    if(secs.error){ box.innerHTML='<p class="note">Blocked: '+esc(secs.error.message)+'</p>'; return; }
+    if(subsQ.error){ box.innerHTML='<p class="note">Could not read submission status: '+esc(subsQ.error.message)+'</p>'; return; }
+    var teamSubs=subsQ.data||[];
+    // Keep the cached list in step so the Cabinets table agrees with this view.
+    SUBS=SUBS.filter(function(x){ return String(x.team_id)!==String(teamId); }).concat(teamSubs);
+    var rounds=[['day1','Day 1: Final Submission'],['day2','Day 2: Final Response']];
+    box.innerHTML='<h3 style="margin:26px 0 10px">'+esc(name)+': report '+
+      '<button class="mini-btn" id="rpRefresh" style="vertical-align:middle;margin-left:8px">Refresh</button></h3>'+
+      rounds.map(function(r){
+        var rs=(secs.data||[]).filter(function(x){return x.round===r[0];});
+        var fs=(files.data||[]).filter(function(x){return x.round===r[0];});
+        var sub=teamSubs.filter(function(x){return x.round===r[0];})[0];
+        return '<div style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px;margin-bottom:14px">'+
+          '<strong>'+r[1]+'</strong> '+(sub?'<span class="pill-paid">submitted '+esc(String(sub.submitted_at).slice(0,16).replace('T',' '))+'</span>':'<span class="pill-pending">not submitted</span>')+
+          (rs.length?rs.map(function(x){return '<div style="margin-top:12px"><span class="note" style="font-weight:800;text-transform:uppercase;letter-spacing:.08em">'+esc(x.role)+'</span>'+
+            '<div style="white-space:pre-wrap;line-height:1.65;margin-top:4px">'+esc(x.body||'(empty)')+'</div></div>';}).join(''):'<p class="note" style="margin-top:8px">Nothing written.</p>')+
+          (fs.length?'<div style="margin-top:12px"><span class="note">Attachments:</span> '+fs.map(function(f){return '<button class="mini-btn" data-adl="'+esc(f.file_path)+'">'+esc(f.file_name)+'</button>';}).join(' '):'')+
+          '</div>';
+      }).join('');
+    box.querySelectorAll('[data-adl]').forEach(function(b){ b.addEventListener('click', async function(){
+      var r=await sb.storage.from('cc-uploads').createSignedUrl(b.dataset.adl,120);
+      if(r.data&&r.data.signedUrl) window.open(r.data.signedUrl,'_blank'); else alert('Could not open file.');
+    });});
+    box.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  var tmNationsGo=document.getElementById('tmNationsGo');
+  if(tmNationsGo) tmNationsGo.addEventListener('click', async function(){
+    var msg=document.getElementById('tmNationsMsg');
+    var list=document.getElementById('tmNations').value.split('\n')
+              .map(function(x){ return x.trim(); }).filter(Boolean);
+    if(!list.length){ msg.textContent='Paste one nation per line first.'; return; }
+    var over=document.getElementById('tmNationsOver').checked;
+    // Cabinets only, in the same order the table shows them.
+    var cabs=CC_TEAMS().slice().sort(function(a,b){
+      return String(a.name||'').localeCompare(String(b.name||''), undefined, {numeric:true});
+    });
+    var targets=over?cabs:cabs.filter(function(t){ return !t.nation; });
+    if(!targets.length){ msg.textContent='Every cabinet already has a nation. Tick overwrite to replace them.'; return; }
+    var n=Math.min(list.length, targets.length);
+    if(!confirm('Assign '+n+' nation(s) to '+(over?'the first '+n+' cabinets, replacing what is there':'the first '+n+' cabinets without one')+'?\n\n'+
+                targets.slice(0,n).map(function(t,i){ return t.name+'  ->  '+list[i]; }).join('\n'))) return;
+    tmNationsGo.disabled=true;
+    var done=0, fails=[];
+    for(var i=0;i<n;i++){
+      msg.textContent='Assigning '+(i+1)+' of '+n+'\u2026';
+      var r=await sb.from('cc_teams').update({nation:list[i]}).eq('id', targets[i].id);
+      if(r.error) fails.push(targets[i].name+': '+r.error.message); else done++;
+    }
+    tmNationsGo.disabled=false;
+    msg.textContent=done+' assigned'+(fails.length?', '+fails.length+' failed':'')+'.';
+    if(fails.length) alert('Some nations were not saved:\n\n'+fails.join('\n'));
+    if(list.length>targets.length) msg.textContent+=' '+(list.length-targets.length)+' nation(s) left over.';
+    loadAll();
+  });
+
+  var tmReload=document.getElementById('tmReload');
+  if(tmReload) tmReload.addEventListener('click', function(){ tmReload.textContent='Reloading\u2026'; loadAll(); });
+
+  document.getElementById('tmCreate').addEventListener('click', async function(){
+    var n=document.getElementById('tmName').value.trim();
+    var m=document.getElementById('tmMsg');
+    if(!n){ m.textContent='Give the team a name.'; return; }
+    var r=await sb.from('cc_teams').insert({name:n, nation:document.getElementById('tmNation').value.trim()||null, kind:'cc'});
+    if(r.error){ m.textContent='Blocked: '+r.error.message; return; }
+    document.getElementById('tmName').value=''; document.getElementById('tmNation').value='';
+    m.textContent='Created \u2713'; loadTeams();
+  });
+  document.getElementById('tmAuto').addEventListener('click', async function(){
+    var m=document.getElementById('tmMsg');
+    var size=parseInt((document.getElementById('tmSize')||{}).value||'5',10);
+    if(!(size>=1&&size<=5)) size=5;
+    var pool=realParts().filter(function(p){return p.flagship==='Crisis Command' && !p.team_id;})
+                        .sort(function(a,b){return String(a.participant_uid).localeCompare(String(b.participant_uid));});
+    if(!pool.length){ m.textContent='No unassigned Crisis Command participants.'; return; }
+    // The remainder used to be silently dropped. At size 3, 19 unassigned would
+    // form 6 cabinets and leave 1 person with no cabinet at all. Now the
+    // leftover goes into a smaller final cabinet instead of being skipped.
+    var full=Math.floor(pool.length/size), rem=pool.length%size;
+    var msg='Form '+(full+(rem?1:0))+' cabinet(s) from '+pool.length+' unassigned participant(s), at up to '+size+' each?';
+    if(rem) msg+='\n\nThe last cabinet will have '+rem+' member(s).';
+    if(!confirm(msg)) return;
+    m.textContent='Forming\u2026';
+    var made=0, n=CC_TEAMS().length;
+    for(var i=0;i<pool.length;i+=size){
+      n++;
+      var group=pool.slice(i, i+size);
+      var t=await sb.from('cc_teams').insert({name:'Cabinet '+n, kind:'cc'}).select().maybeSingle();
+      if(t.error||!t.data) continue;
+      for(var j=0;j<group.length;j++){
+        await sb.from('participants').update({team_id:t.data.id, cc_role:CC_POSTS[j]}).eq('id', group[j].id);
+      }
+      made++;
+    }
+    m.textContent='Formed '+made+' cabinet(s) \u2713';
+    loadAll(); loadTeams();
+  });
+
+  // ---- Cent$ible pairs ----
+  var CFILES=[];
+  async function loadCent(){
+    var f=await sb.from('cc_sections').select('team_id,role,body').eq('round','brief');
+    CFILES=f.error?[]:(f.data||[]);
+    renderCent();
+    renderStorage();
+  }
+
+  async function renderStorage(){
+    var box=document.getElementById('stgNote'); if(!box) return;
+    var all=await sb.from('cc_files').select('team_id,round,file_path');
+    var rows=all.error?[]:(all.data||[]);
+    // measure actual bytes from the storage API (per team folder)
+    var bytes=0, counted=0;
+    var teams={}; rows.forEach(function(r){ teams[r.team_id]=true; });
+    for(var id in teams){
+      for(var i=0;i<2;i++){
+        var folder=id+'/'+(i===0?'pitch':'day1');
+        var l=await sb.storage.from('cc-uploads').list(folder,{limit:100});
+        if(!l.error&&l.data) l.data.forEach(function(o){
+          var sz=o.metadata&&o.metadata.size; if(sz){ bytes+=sz; counted++; }
+        });
+      }
+    }
+    var mb=bytes/1048576, pct=Math.min(100, mb/1024*100);
+    var warn = pct>70;
+    box.innerHTML='<div style="background:'+(warn?'#fff7ed':'#fff')+';border:1px solid '+(warn?'#fed7aa':'var(--border,#d9d6cf)')+
+      ';border-radius:14px;padding:14px 16px;max-width:720px">'+
+      '<strong>Storage used by uploads: '+mb.toFixed(1)+' MB</strong> <span class="note">across '+counted+' file(s)</span>'+
+      '<div style="height:8px;border-radius:99px;background:#eee;margin:10px 0 6px;overflow:hidden">'+
+      '<div style="height:100%;width:'+pct.toFixed(1)+'%;background:'+(warn?'#b45309':'var(--navy,#13273F)')+'"></div></div>'+
+      '<span class="note">Supabase free tier includes 1 GB in total. '+
+      (warn?'<strong>You are approaching the limit</strong> \u2014 consider upgrading to Pro before the event.':'Check Supabase \u2192 Settings \u2192 Usage for the authoritative figure.')+
+      '</span></div>';
+  }
+  function renderCent(){
+    var selA=document.getElementById('cbA'), selB=document.getElementById('cbB');
+    if(!selA) return;
+    var free=realParts().filter(function(p){return p.flagship==='Cent$ible' && !p.team_id;})
+                        .sort(function(a,b){return String(a.full_name).localeCompare(String(b.full_name));});
+    var opts='<option value="">Select participant</option>'+free.map(function(p){
+      return '<option value="'+esc(p.id)+'">'+esc(p.full_name)+' \u00B7 '+esc(p.centsible_theme||'no theme')+'</option>';
+    }).join('');
+    selA.innerHTML=opts; selB.innerHTML=opts;
+
+    var el=document.getElementById('cbTable');
+    var cent=realParts().filter(function(p){return p.flagship==='Cent$ible' && p.team_id;});
+    var ids={}; cent.forEach(function(p){ ids[p.team_id]=true; });
+    // Include Cent$ible teams that have no members yet, so a team you just
+    // created does not vanish from this table until someone is added.
+    CENT_TEAMS().forEach(function(t){ ids[t.id]=true; });
+    var teamIds=Object.keys(ids);
+    if(!teamIds.length){ el.innerHTML='<p class="note" style="margin-top:14px">No Cent$ible teams yet. '+free.length+' participant(s) unlinked. Leave Participant 2 blank to create a solo team.</p>'; return; }
+    var soloN=teamIds.filter(function(tid){ return cent.filter(function(p){return String(p.team_id)===String(tid);}).length===1; }).length;
+      el.innerHTML='<h3 style="margin:22px 0 8px">Cent$ible teams ('+teamIds.length+(soloN?', '+soloN+' solo':'')+') \u00B7 '+free.length+' unlinked</h3>'+
+      '<table><tr><th>Team</th><th>Members</th><th>Theme</th><th>Product brief</th><th></th></tr>'+
+      teamIds.map(function(tid){
+        var mem=cent.filter(function(p){return String(p.team_id)===String(tid);});
+        var t=TEAMS.filter(function(x){return String(x.id)===String(tid);})[0]||{};
+        var ans=CFILES.filter(function(f){return String(f.team_id)===String(tid)&&(f.body||'').trim();}).length;
+        return '<tr><td><strong>'+esc(t.name||'Team')+'</strong>'+
+        (mem.length===1?'<br><span class="note">solo</span>':'')+
+        '<br><button class="mini-btn" data-cbsum="'+esc(tid)+'" data-nm="'+esc(t.name||'Team')+'">View brief</button></td>'+
+        '<td>'+mem.map(function(m){return esc(m.full_name)+'<br><span class="note">'+esc(m.school||'')+'</span>';}).join('<br>')+'</td>'+
+        '<td>'+esc(mem[0]&&mem[0].centsible_theme||'\u2014')+'</td>'+
+        '<td>'+(ans>=9?'<span class="pill-paid">complete</span>':(ans?'<span class="pill-pending">'+ans+' of 9</span>':'<span class="pill-pending">not started</span>'))+'</td>'+
+        '<td><button class="mini-btn danger" data-cbunlink="'+esc(tid)+'">Unlink</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-cdl]').forEach(function(b){ b.addEventListener('click', async function(){
+      var r=await sb.storage.from('cc-uploads').createSignedUrl(b.dataset.cdl,120);
+      if(r.data&&r.data.signedUrl) window.open(r.data.signedUrl,'_blank'); else alert('Could not open file.');
+    });});
+    el.querySelectorAll('[data-cbsum]').forEach(function(b){ b.addEventListener('click', async function(){
+      var box=document.getElementById('tmReport');
+      box.innerHTML='<p class="note">Loading pitch summary\u2026</p>';
+      var r=await sb.from('cc_sections').select('*').eq('team_id',b.dataset.cbsum).eq('round','brief');
+      if(r.error){ box.innerHTML='<p class="note">Blocked: '+esc(r.error.message)+'</p>'; return; }
+      var S={}; (r.data||[]).forEach(function(x){ S[x.role]=x.body||''; });
+      var L=[['brand_name','Brand name'],['product','Product or service'],['customer','Target customer'],['price','Price range'],['model','Business model'],['channel','Sales channel'],['differentiator','Key differentiator'],['dependency','Major dependency'],['expansion','Expansion idea']];
+      box.innerHTML='<h3 style="margin:26px 0 10px">'+esc(b.dataset.nm)+' \u2014 product brief</h3>'+
+        '<div style="background:#fff;border:1px solid var(--border,#d9d6cf);border-radius:14px;padding:16px">'+
+        L.map(function(k){ return '<div style="margin-bottom:12px"><span class="note" style="font-weight:800;text-transform:uppercase;letter-spacing:.08em">'+k[1]+'</span>'+
+          '<div style="white-space:pre-wrap;line-height:1.6;margin-top:3px">'+esc(S[k[0]]||'(not filled in)')+'</div></div>'; }).join('')+
+        '</div>';
+      box.scrollIntoView({behavior:'smooth',block:'start'});
+    });});
+    el.querySelectorAll('[data-cbunlink]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Unlink this team? Both participants become unassigned and lose access to the uploaded deck.')) return;
+      await sb.from('participants').update({team_id:null}).eq('team_id', b.dataset.cbunlink);
+      await sb.from('cc_teams').delete().eq('id', b.dataset.cbunlink);
+      loadAll(); loadTeams(); loadCent();
+    });});
+  }
+  document.getElementById('cbLink').addEventListener('click', async function(){
+    var a=document.getElementById('cbA').value, b=document.getElementById('cbB').value;
+    var nm=document.getElementById('cbName').value.trim(), m=document.getElementById('cbMsg');
+    // Participant 2 is optional. A solo team is a real team with one member, so
+    // the participant gets the same workspace, product brief, trading account
+    // and submission rights as a pair. The portal only checks team_id.
+    if(!a){ m.textContent='Select at least one participant.'; return; }
+    if(b && a===b){ m.textContent='Select two different participants.'; return; }
+    if(!nm){ m.textContent='Give the team a name.'; return; }
+    var solo=!b;
+    if(solo && !confirm('Create a SOLO team for this participant?\n\nThey will compete on their own, with the same workspace, product brief and submission access as a pair. You can add a partner later by deleting the team and relinking.')) return;
+    m.textContent=solo?'Creating solo team\u2026':'Linking\u2026';
+    var t=await sb.from('cc_teams').insert({name:nm, kind:'centsible'}).select().maybeSingle();
+    if(t.error||!t.data){ m.textContent='Blocked: '+(t.error&&t.error.message||'no team created'); return; }
+    var r1=await sb.from('participants').update({team_id:t.data.id}).eq('id',a);
+    var r2=b?(await sb.from('participants').update({team_id:t.data.id}).eq('id',b)):{error:null};
+    if(r1.error||r2.error){ m.textContent='Blocked: '+((r1.error||r2.error).message); return; }
+    m.textContent=solo?'Solo team created \u2713':'Linked \u2713'; document.getElementById('cbName').value='';
+    loadAll(); loadTeams(); loadCent();
+  });
+
+  // ---- NOTE नीति market ----
+  var MKT=[], MKOPEN=false;
+  async function loadMarket(){
+    var st=await sb.from('nn_state').select('*').eq('id',1).maybeSingle();
+    MKOPEN=!!(st.data&&st.data.is_open);
+    var c=await sb.from('nn_companies').select('*').order('sort_order');
+    MKT=c.error?[]:(c.data||[]);
+    var b=await sb.from('nn_leaderboard').select('*').order('net_worth',{ascending:false});
+    renderMarket(b.error?[]:(b.data||[]));
+  }
+  function renderMarket(board){
+    var t=document.getElementById('mkToggle'); if(!t) return;
+    t.textContent = MKOPEN ? 'Close the market' : 'Open the market';
+    document.getElementById('mkState').innerHTML = MKOPEN
+      ? '<span class="pill-paid">trading is OPEN</span>'
+      : '<span class="pill-pending">trading is CLOSED</span>';
+
+    var el=document.getElementById('mkTable');
+    if(!MKT.length){ el.innerHTML='<p class="note" style="margin-top:14px">No companies found. Run the NOTE \u0928\u0940\u0924\u093F SQL setup first.</p>'; return; }
+    el.innerHTML='<h3 style="margin:22px 0 8px">Companies ('+MKT.length+')</h3>'+
+      '<table><tr><th>Ticker</th><th>Company</th><th>Price</th><th>Since start</th><th>Move price</th></tr>'+
+      MKT.map(function(c){
+        var p=Number(c.price), s0=Number(c.start_price||p);
+        var d=s0?((p-s0)/s0*100):0;
+        return '<tr><td class="mono"><strong>'+esc(c.ticker)+'</strong></td>'+
+        '<td>'+esc(c.name)+'<br><span class="note">'+esc(c.sector||'')+'</span></td>'+
+        '<td class="mono"><strong>'+p.toFixed(2)+'</strong></td>'+
+        '<td class="mono" style="color:'+(d>0?'#166534':(d<0?'#b91c1c':'#6b7280'))+'">'+(d>0?'+':'')+d.toFixed(1)+'%</td>'+
+        '<td style="white-space:nowrap"><input class="mk-pct" id="pct-'+esc(c.id)+'" type="number" step="0.5" value="2" style="width:74px"/> % '+
+        '<button class="mini-btn" data-up="'+esc(c.id)+'">Raise</button> '+
+        '<button class="mini-btn" data-dn="'+esc(c.id)+'">Drop</button> '+
+        '<button class="mini-btn" data-set="'+esc(c.id)+'">Set exact</button></td></tr>';
+      }).join('')+'</table>';
+
+    document.getElementById('mkBoard').innerHTML = board.length
+      ? '<h3 style="margin:26px 0 8px">Leaderboard</h3><table><tr><th>#</th><th>Team</th><th>Cash</th><th>Holdings</th><th>Net worth</th></tr>'+
+        board.map(function(r,i){ return '<tr><td><strong>'+(i+1)+'</strong></td><td>'+esc(r.team_name)+'</td>'+
+          '<td class="mono">'+Number(r.cash).toLocaleString('en-IN',{maximumFractionDigits:0})+'</td>'+
+          '<td class="mono">'+Number(r.holdings_value).toLocaleString('en-IN',{maximumFractionDigits:0})+'</td>'+
+          '<td class="mono"><strong>'+Number(r.net_worth).toLocaleString('en-IN',{maximumFractionDigits:0})+' \u00a2</strong></td></tr>'; }).join('')+'</table>'
+      : '<p class="note" style="margin-top:20px">No teams trading yet.</p>';
+
+    function pct(id){ var e=document.getElementById('pct-'+id); return Math.abs(parseFloat(e&&e.value)||0); }
+    async function move(id, dir){
+      var c=MKT.filter(function(x){return String(x.id)===String(id);})[0]; if(!c) return;
+      var p=Number(c.price), v=pct(id);
+      if(!v){ document.getElementById('mkMsg').textContent='Enter a percentage first.'; return; }
+      var np=Math.max(1, +(p*(1+dir*v/100)).toFixed(2));
+      var r=await sb.from('nn_companies').update({price:np, prev_price:p, updated_at:new Date().toISOString()}).eq('id',id);
+      document.getElementById('mkMsg').textContent = r.error ? ('Blocked: '+r.error.message)
+        : (c.ticker+' '+(dir>0?'up':'down')+' '+v+'% \u2192 '+np.toFixed(2));
+      loadMarket();
+    }
+    el.querySelectorAll('[data-up]').forEach(function(b){ b.addEventListener('click',function(){ move(b.dataset.up, 1); });});
+    el.querySelectorAll('[data-dn]').forEach(function(b){ b.addEventListener('click',function(){ move(b.dataset.dn, -1); });});
+    el.querySelectorAll('[data-set]').forEach(function(b){ b.addEventListener('click', async function(){
+      var c=MKT.filter(function(x){return String(x.id)===String(b.dataset.set);})[0];
+      var v=prompt('Set exact price for '+c.ticker+':', Number(c.price).toFixed(2));
+      if(v==null) return;
+      var np=parseFloat(v); if(isNaN(np)||np<=0){ alert('Enter a positive number.'); return; }
+      var r=await sb.from('nn_companies').update({price:np, prev_price:Number(c.price), updated_at:new Date().toISOString()}).eq('id',c.id);
+      if(r.error) alert('Blocked: '+r.error.message);
+      loadMarket();
+    });});
+  }
+  (function(){
+    var t=document.getElementById('mkToggle'); if(!t) return;
+    t.addEventListener('click', async function(){
+      var r=await sb.from('nn_state').update({is_open:!MKOPEN, updated_at:new Date().toISOString()}).eq('id',1);
+      if(r.error){ document.getElementById('mkMsg').textContent='Blocked: '+r.error.message; return; }
+      loadMarket();
+    });
+    document.getElementById('mkReset').addEventListener('click', async function(){
+      if(!confirm('Reset every company to its starting price? This also clears the day range and every price chart. Portfolios are not affected.')) return;
+      var msg=document.getElementById('mkMsg');
+      msg.textContent='Resetting prices\u2026';
+      var r=await sb.rpc('nn_reset_market');
+      if(r.error){
+        msg.textContent='';
+        alert('Could not reset prices.\n\n'+r.error.message+
+              (/(function|does not exist|schema cache)/i.test(r.error.message)
+                ? '\n\nThe database function nn_reset_market() is missing. Run note-niti-market-fixes.sql in the Supabase SQL Editor.' : ''));
+        return;
+      }
+      if(r.data && r.data.ok===false){ msg.textContent=''; alert('Could not reset prices.\n\n'+r.data.error); return; }
+      msg.textContent='Prices, day range and charts reset for '+((r.data&&r.data.companies)||0)+' companies.';
+      loadMarket();
+    });
+    document.getElementById('mkWipe').addEventListener('click', async function(){
+      if(!confirm('Reset ALL portfolios? Every team returns to 10,00,000 Cents and loses all holdings and trade history. Use this only before the event.')) return;
+      var msg=document.getElementById('mkMsg');
+      msg.textContent='Resetting portfolios\u2026';
+      var r=await sb.rpc('nn_reset_portfolios');
+      if(r.error){
+        msg.textContent='';
+        alert('Could not reset portfolios.\n\n'+r.error.message+
+              (/(function|does not exist|schema cache)/i.test(r.error.message)
+                ? '\n\nThe database function nn_reset_portfolios() is missing. Run note-niti-market-fixes.sql in the Supabase SQL Editor.' : ''));
+        return;
+      }
+      if(r.data && r.data.ok===false){ msg.textContent=''; alert('Could not reset portfolios.\n\n'+r.data.error); return; }
+      msg.textContent='Portfolios reset for '+((r.data&&r.data.teams)||0)+' teams.';
+      loadMarket();
+    });
+  })();
+
+  // ---- event-day check-in ----
+  function renderCheckin(){
+    var el=document.getElementById('ciTable'); if(!el) return;
+    var q=(document.getElementById('ciSearch').value||'').toLowerCase().trim();
+    var fs=document.getElementById('ciFilter').value, ff=document.getElementById('ciFlag').value;
+    var LIST0=realParts();
+    var inCount=LIST0.filter(function(p){return !!p.checked_in_at;}).length;
+    document.getElementById('ciStats').innerHTML=
+      '<div class="stat-card"><b>'+LIST0.length+'</b><span>Participants</span></div>'+
+      '<div class="stat-card"><b>'+inCount+'</b><span>Checked in</span></div>'+
+      '<div class="stat-card"><b>'+(LIST0.length-inCount)+'</b><span>Not arrived</span></div>'+
+      '<div class="stat-card"><b>'+(LIST0.length?Math.round(inCount/LIST0.length*100):0)+'%</b><span>Arrived</span></div>';
+    var rows=LIST0.filter(function(p){
+      if(q && ((p.participant_uid||'')+' '+(p.full_name||'')+' '+(p.school||'')+' '+(p.phone||'')).toLowerCase().indexOf(q)===-1) return false;
+      if(fs==='in' && !p.checked_in_at) return false;
+      if(fs==='out' && p.checked_in_at) return false;
+      if(ff && p.flagship!==ff) return false;
+      return true;
+    });
+    if(!rows.length){ el.innerHTML='<p class="note">No participants match.</p>'; return; }
+    el.innerHTML='<table><tr><th>UID</th><th>Name</th><th>Flagship / Post or Theme</th><th>Status</th><th></th></tr>'+
+      rows.map(function(p){
+        var det = p.flagship==='Crisis Command' ? (p.cc_role||'post pending') : (p.centsible_theme||'\u2014');
+        var inn = !!p.checked_in_at;
+        return '<tr><td class="mono"><strong>'+esc(p.participant_uid||'')+'</strong></td>'+
+        '<td>'+esc(p.full_name||'')+'<br><span class="note">'+esc(p.school||'')+'</span></td>'+
+        '<td>'+esc(p.flagship||'\u2014')+'<br><span class="note">'+esc(det)+'</span></td>'+
+        '<td>'+(inn?'<span class="pill-paid">arrived</span><br><span class="note">'+esc(String(p.checked_in_at).slice(11,16))+'</span>':'<span class="pill-pending">not arrived</span>')+'</td>'+
+        '<td><button class="mini-btn'+(inn?' danger':'')+'" data-ci="'+esc(p.id)+'" data-to="'+(inn?'0':'1')+'">'+(inn?'Undo':'Mark arrived')+'</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-ci]').forEach(function(b){ b.addEventListener('click', async function(){
+      b.disabled=true; b.textContent='\u2026';
+      var val = b.dataset.to==='1' ? new Date().toISOString() : null;
+      var r=await sb.from('participants').update({checked_in_at: val}).eq('id', b.dataset.ci);
+      if(r.error){ alert('Blocked: '+r.error.message); b.disabled=false; return; }
+      var p=PARTS.filter(function(x){return String(x.id)===String(b.dataset.ci);})[0];
+      if(p) p.checked_in_at=val;
+      renderCheckin();
+    });});
+  }
+  ['ciSearch','ciFilter','ciFlag'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.addEventListener('input', renderCheckin);
+  });
+  (function(){
+    var b=document.getElementById('ciCsv'); if(!b) return;
+    b.addEventListener('click', function(){
+      var head=['participant_uid','full_name','school','email','phone','flagship','cc_role','centsible_theme','checked_in_at'];
+      var lines=[head.join(',')].concat(realParts().map(function(p){
+        return head.map(function(k){ return '"'+String(p[k]==null?'':p[k]).replace(/"/g,'""')+'"'; }).join(',');
+      }));
+      var blob=new Blob([lines.join('\n')],{type:'text/csv'});
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='elan-attendance.csv'; a.click();
+    });
+  })();
+
+  // ---- portal previews ----
+  (function(){
+    var PERSONAS=[
+      {k:"cc",  label:"Crisis Command"},
+      {k:"t1",  label:"Cent$ible \u2014 BRAND \u092C\u0928\u093E\u0913"},
+      {k:"t3",  label:"Cent$ible \u2014 NOTE \u0928\u0940\u0924\u093F"},
+      {k:"t2",  label:"Cent$ible \u2014 VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930 (retired)"},
+      {k:"t4",  label:"Cent$ible \u2014 \u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY (retired)"}
+    ];
+    var cur="cc";
+    var box=document.getElementById("pvPersonas");
+    if(!box) return;
+    box.innerHTML=PERSONAS.map(function(p,i){
+      return '<button class="atab'+(i===0?" active":"")+'" data-pv="'+p.k+'">'+p.label+'</button>';
+    }).join("");
+    function url(){
+      var page=document.getElementById("pvPage").value;
+      var q="?preview="+encodeURIComponent(cur);
+      if(cur==="cc") q+="&role="+encodeURIComponent(document.getElementById("pvRole").value);
+      return "portal/"+page+q;
+    }
+    function refresh(){
+      var u=url();
+      document.getElementById("pvFrame").src=u;
+      document.getElementById("pvNewTab").href=u;
+      var lbl=(PERSONAS.filter(function(p){return p.k===cur;})[0]||{}).label||"";
+      document.getElementById("pvWho").textContent="Showing: "+lbl+(cur==="cc"?" \u00B7 "+document.getElementById("pvRole").value:"");
+      document.getElementById("pvRole").disabled = (cur!=="cc");
+      // helpfully jump to the matching flagship page when switching persona
+    }
+    box.querySelectorAll("[data-pv]").forEach(function(b){ b.addEventListener("click",function(){
+      box.querySelectorAll("[data-pv]").forEach(function(x){x.classList.remove("active");});
+      b.classList.add("active"); cur=b.dataset.pv;
+      var pg=document.getElementById("pvPage");
+      if(pg.value==="flagship.html"&&cur!=="cc") pg.value="centsible.html";
+      if(pg.value==="centsible.html"&&cur==="cc") pg.value="flagship.html";
+      refresh();
+    });});
+    ["pvRole","pvPage"].forEach(function(id){ document.getElementById(id).addEventListener("change",refresh); });
+    document.getElementById("pvReload").addEventListener("click",function(e){ e.preventDefault(); refresh(); });
+    refresh();
+  })();
+
+  function renderAnns(){
+    var el=document.getElementById('annTable');
+    if(!ANNS.length){ el.innerHTML='<p class="note">No announcements yet.</p>'; return; }
+    el.innerHTML='<table><tr><th>When</th><th>Announcement</th><th>Status</th><th></th></tr>'+
+      ANNS.map(function(a){
+        return '<tr><td class="note">'+esc((a.created_at||'').slice(0,16).replace('T',' '))+'</td>'+
+        '<td><strong>'+esc(a.title||'')+'</strong><br><span class="note">'+esc(a.body||'')+'</span></td>'+
+        '<td>'+(a.is_published?'<span class="pill-paid">live</span>':'<span class="pill-pending">hidden</span>')+'</td>'+
+        '<td><button class="mini-btn" data-antoggle="'+esc(a.id)+'" data-to="'+(a.is_published?'false':'true')+'">'+(a.is_published?'Unpublish':'Publish')+'</button> '+
+        '<button class="mini-btn danger" data-andel="'+esc(a.id)+'">Delete</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-antoggle]').forEach(function(b){ b.addEventListener('click', async function(){
+      var r=await sb.from('portal_announcements').update({is_published:b.dataset.to==='true'}).eq('id',b.dataset.antoggle);
+      if(r.error){ alert('Blocked: '+r.error.message); return; } loadAll();
+    });});
+    el.querySelectorAll('[data-andel]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Delete this announcement for everyone?')) return;
+      var r=await sb.from('portal_announcements').delete().eq('id',b.dataset.andel);
+      if(r.error){ alert('Blocked: '+r.error.message); return; } loadAll();
+    });});
+  }
+
+  function renderSched(){
+    var el=document.getElementById('schedTable');
+    if(!SCHED.length){ el.innerHTML='<p class="note">No schedule items yet.</p>'; return; }
+    el.innerHTML='<table><tr><th>Day</th><th>Time</th><th>Item</th><th>Location</th><th>Status</th><th></th></tr>'+
+      SCHED.map(function(i){
+        return '<tr><td>Day '+esc(i.day)+'</td><td class="mono">'+esc((i.start_time||'').slice(0,5))+'</td>'+
+        '<td>'+(i.category?'<span class="note">'+esc(i.category)+'</span><br>':'')+'<strong>'+esc(i.title||'')+'</strong>'+(i.description?'<br><span class="note">'+esc(i.description)+'</span>':'')+'</td>'+
+        '<td class="note">'+esc(i.location||'')+'</td>'+
+        '<td>'+(i.is_published?'<span class="pill-paid">live</span>':'<span class="pill-pending">hidden</span>')+'</td>'+
+        '<td><button class="mini-btn" data-sctoggle="'+esc(i.id)+'" data-to="'+(i.is_published?'false':'true')+'">'+(i.is_published?'Unpublish':'Publish')+'</button> '+
+        '<button class="mini-btn danger" data-scdel="'+esc(i.id)+'">Delete</button></td></tr>';
+      }).join('')+'</table>';
+    el.querySelectorAll('[data-sctoggle]').forEach(function(b){ b.addEventListener('click', async function(){
+      var r=await sb.from('portal_schedule_items').update({is_published:b.dataset.to==='true'}).eq('id',b.dataset.sctoggle);
+      if(r.error){ alert('Blocked: '+r.error.message); return; } loadAll();
+    });});
+    el.querySelectorAll('[data-scdel]').forEach(function(b){ b.addEventListener('click', async function(){
+      if(!confirm('Delete this schedule item?')) return;
+      var r=await sb.from('portal_schedule_items').delete().eq('id',b.dataset.scdel);
+      if(r.error){ alert('Blocked: '+r.error.message); return; } loadAll();
+    });});
+  }
+
+  document.getElementById('anPost').addEventListener('click', async function(){
+    var t=document.getElementById('anTitle').value.trim(), b=document.getElementById('anBody').value.trim();
+    var m=document.getElementById('anMsg');
+    if(!t||!b){ m.textContent='Add a title and a message.'; return; }
+    m.textContent='Publishing\u2026';
+    var r=await sb.from('portal_announcements').insert({title:t, body:b, is_published:true});
+    if(r.error){ m.textContent='Blocked: '+r.error.message; return; }
+    m.textContent='Published \u2713'; document.getElementById('anTitle').value=''; document.getElementById('anBody').value='';
+    loadAll();
+  });
+
+  document.getElementById('scClearAll').addEventListener('click', async function(){
+    var m=document.getElementById('scClearMsg');
+    if(!SCHED.length){ m.textContent='Nothing to delete.'; return; }
+    if(!confirm('Delete all '+SCHED.length+' schedule items from the database?\n\nThe official itinerary in the portal is NOT affected \u2014 it is built into the site. This only clears admin-posted items (including any old seeded rows).')) return;
+    m.textContent='Deleting\u2026'; var n=0;
+    for(var i=0;i<SCHED.length;i++){
+      var r=await sb.from('portal_schedule_items').delete().eq('id', SCHED[i].id);
+      if(!r.error) n++;
+    }
+    m.textContent='Deleted '+n+' items \u2713'; loadAll();
+  });
+
+  document.getElementById('scAdd').addEventListener('click', async function(){
+    var m=document.getElementById('scMsg');
+    var row={ day:Number(document.getElementById('scDay').value), start_time:document.getElementById('scTime').value||null,
+      title:document.getElementById('scTitle').value.trim(), category:document.getElementById('scCat').value.trim()||null,
+      description:document.getElementById('scDesc').value.trim()||null, location:document.getElementById('scLoc').value.trim()||null,
+      is_published:true };
+    if(!row.title||!row.start_time){ m.textContent='Add at least a start time and title.'; return; }
+    m.textContent='Adding\u2026';
+    var r=await sb.from('portal_schedule_items').insert(row);
+    if(r.error){ m.textContent='Blocked: '+r.error.message; return; }
+    m.textContent='Added \u2713'; ['scTitle','scCat','scDesc','scLoc'].forEach(function(id){document.getElementById(id).value='';});
+    loadAll();
+  });
+
+  function renderPays(){
+    var el=document.getElementById('payTable');
+    if(!PAYS.length){ el.innerHTML='<p class="note">No UTR submissions yet.</p>'; return; }
+    el.innerHTML='<table><tr><th>Name</th><th>Contact</th><th>Details</th><th>When</th></tr>'+
+      PAYS.map(function(p){
+        return '<tr><td><strong>'+esc(p.full_name)+'</strong></td><td>'+esc(p.email||'')+'<br><span class="note">'+esc(p.phone||'')+'</span></td>'+
+        '<td class="mono" style="font-size:12px">'+esc(p.message||'')+'</td>'+
+        '<td class="note">'+esc((p.created_at||'').slice(0,16).replace('T',' '))+'</td></tr>';
+      }).join('')+'</table>';
+  }
+})();
+</script>
+
+<script>
+(function(){
+  var CFG = window.ELAN_CONFIG || {};
+  // default function URL derived from the project URL (editable above)
+  try{ var ref=(CFG.SUPABASE_URL||'').replace('https://','').split('.')[0];
+       if(ref) document.getElementById('fnUrl').value='https://'+ref+'.functions.supabase.co/admin-issue-batch'; }catch(e){}
+
+  function parseLines(txt){
+    return txt.split('\n').map(function(l){return l.trim();}).filter(Boolean).map(function(l){
+      var m=l.split(/[\t,]/);
+      var name=m[0].trim();
+      var amt=null;
+      if(m[1]){ var n=m[1].replace(/[₹,\s]/g,''); if(n && !isNaN(n)) amt=Number(n); }
+      return {name:name, amount:amt};
+    });
+  }
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var lastIssued=[];
+  window.epCopy=function(t,btn){ if(!t) return; navigator.clipboard.writeText(t);var b=btn||(window.event&&window.event.target); if(b&&b.tagName==='BUTTON'){var o=b.textContent;b.textContent='Copied \u2713'; b.disabled=true; setTimeout(function(){b.textContent=o;b.disabled=false;},1500);} };
+  window.epCopyAll=function(){ var rows=lastIssued.filter(function(x){return x.link;}).map(function(x){return x.name+'\t'+(x.uid||'')+'\t'+x.link;});if(!rows.length) return; navigator.clipboard.writeText(rows.join('\n'));var b=window.event&&window.event.target; if(b&&b.tagName==='BUTTON'){var o=b.textContent;b.textContent='Copied '+rows.length+' \u2713'; setTimeout(function(){b.textContent=o;},1800);} };
+  function linkCell(x){ return x.link ? '<button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="epCopy(\''+esc(x.link)+'\',this)">Copy link</button>' : '<span class="note">–</span>'; }
+
+  document.getElementById('run').addEventListener('click', async function(){
+    var url=document.getElementById('fnUrl').value.trim();
+    var secret=document.getElementById('secret').value;
+    var entries=parseLines(document.getElementById('list').value);
+    var st=document.getElementById('status'), rep=document.getElementById('report');
+    rep.innerHTML='';
+    if(!url||!secret||!entries.length){ st.textContent='Fill in the URL, secret, and at least one name.'; return; }
+    st.textContent='Processing '+entries.length+' names…';
+    try{
+      var res=await fetch(url,{method:'POST',
+        headers:{'content-type':'application/json','x-admin-secret':secret,
+                 'Authorization':'Bearer '+(CFG.SUPABASE_ANON_KEY||''),'apikey':(CFG.SUPABASE_ANON_KEY||'')},
+        body:JSON.stringify({entries:entries})});
+      if(!res.ok){ st.textContent='Error '+res.status+': '+(await res.text()).slice(0,160); return; }
+      var d=await res.json();
+      st.textContent='Done.';
+      var s=d.summary||{};
+      rep.innerHTML='<div style="margin-top:8px">'
+        +'<span class="chip ok">Issued '+(s.issued||0)+'</span>'
+        +'<span class="chip ok">Already done '+(s.already_done||0)+'</span>'
+        +'<span class="chip warn">Needs review '+(s.ambiguous||0)+'</span>'
+        +'<span class="chip bad">Unmatched '+(s.unmatched||0)+'</span></div>';
+      lastIssued=(d.issued||[]).concat(d.already||[]);
+      if(d.issued&&d.issued.length){
+        rep.innerHTML+='<h3>Issued: send each person their link</h3>'
+          +'<button class="btn btn-gold" style="padding:6px 14px;font-size:13px;margin-bottom:8px" onclick="epCopyAll()">Copy all (name, UID, link)</button>'
+          +'<table><tr><th>Name</th><th>UID</th><th>Email</th><th>Set-password link</th></tr>'
+          +d.issued.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td class="mono">'+esc(x.uid||'–')+'</td><td>'+esc(x.email||'')+'</td><td>'+(x.uid?linkCell(x):'<span class="chip bad">'+esc(x.note||'failed, check function logs')+'</span>')+'</td></tr>';}).join('')+'</table>'
+          +'<p class="note">Send each person their own link (WhatsApp / email). It opens the set-password page so they can log in. Links expire, so send promptly. If one expires, just re-run that name to get a fresh link.</p>';
+      }
+      if(d.already&&d.already.length){
+        rep.innerHTML+='<h3>Already issued earlier (fresh link below)</h3><table><tr><th>Name</th><th>UID</th><th>Set-password link</th></tr>'
+          +d.already.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td class="mono">'+esc(x.uid||'–')+'</td><td>'+linkCell(x)+'</td></tr>';}).join('')+'</table>';
+      }
+      if(d.ambiguous&&d.ambiguous.length){
+        rep.innerHTML+='<h3>Needs review: same name matches several registrations</h3><table><tr><th>Name</th><th>Matches</th><th>Hint</th></tr>'
+          +d.ambiguous.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td>'+esc(x.count)+'</td><td>'+esc(x.hint||'')+'</td></tr>';}).join('')+'</table>';
+      }
+      if(d.unmatched&&d.unmatched.length){
+        rep.innerHTML+='<h3>Unmatched: no pending registration with that name</h3><p class="note">Check spelling, or they may not have registered on the site.</p><p class="mono">'+d.unmatched.map(esc).join('<br>')+'</p>';
+      }
+    }catch(e){ st.textContent='Request failed: '+e.message; }
+  });
+  // after an issue run completes, refresh the console so autopilot stamps the new participants
+  document.getElementById('run').addEventListener('click', function(){
+    setTimeout(function(){ if(window.elanAdminRefresh) window.elanAdminRefresh(); }, 6000);
+  });
+})();
+</script></body></html>

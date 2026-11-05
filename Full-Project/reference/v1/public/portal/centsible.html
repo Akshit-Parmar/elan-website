@@ -1,0 +1,118 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><meta content="noindex" name="robots"/><title>Cent$ible · Élan Summit Portal</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;family=Playfair+Display:wght@600;700;800&amp;display=swap" rel="stylesheet"/><link href="/assets/css/styles.css" rel="stylesheet"/><link href="/assets/css/portal.css" rel="stylesheet"/><!-- Google Analytics 4 --><script async src="https://www.googletagmanager.com/gtag/js?id=G-WD8XZCJC7T"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WD8XZCJC7T',{anonymize_ip:true});</script>
+<link rel="icon" href="/favicon.ico" sizes="48x48"/><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png"/><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicon-192.png"/><link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png"/>
+</head>
+<body data-page="centsible"><a class="skip-link" href="#ep-main">Skip to content</a><main id="ep-main">
+<section class="page-hero"><div class="container"><div class="breadcrumb"><span>Business flagship</span></div><h1>Cent$ible.</h1><p>Élan's business flagship. Crisis Command and Cent$ible run at the same time, so this is your flagship if you chose Cent$ible. Exact round timings appear on your Schedule once published.</p></div></section>
+<section class="section light-section"><div class="container"><div class="info-grid">
+<article class="white-card info-card" data-theme="BRAND बनाओ"><span class="tag">Theme 1</span><h3 style="margin-top:10px">BRAND बनाओ</h3><p>Build a brand as its founder and pitch it in five minutes, then face a crisis written specifically for your startup.</p></article>
+<article class="white-card info-card" data-theme="NOTE नीति"><span class="tag">Theme 2</span><h3 style="margin-top:10px">NOTE नीति</h3><p>Trade a live market in this portal, then take thirty coins onto a floor of five physical investment zones.</p></article>
+</div>
+<article class="white-card" style="margin-top:16px"><h3 class="card-title">The Boardroom Finale</h3><p class="card-copy">The three highest-scoring teams from every theme advance to the Boardroom Finale on Day 2, the round that decides the overall Cent$ible championship.</p><p class="card-copy" style="margin-top:10px">The Boardroom is a business decision-making arena rather than a quiz or a pitch. You are given a business situation drawn from startup strategy, marketing, finance, brand management, business expansion, crisis management or entrepreneurial decision-making. Analyse the information, identify the opportunity, decide on a course of action, then justify that decision and answer board questioning.</p><p class="card-copy" style="margin-top:10px">Judged on business knowledge, strategic thinking, creativity, decision-making, problem-solving, financial understanding, communication, confidence, teamwork and composure under pressure. Watch <a href="announcements.html">Announcements</a> for your theme's round times and reporting details.</p></article>
+</div></section>
+</main><div class="toast" role="status" aria-live="polite"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/assets/js/config.js"></script><script src="/assets/js/portal.js"></script><script src="/assets/js/portal-centsible.js"></script><script src="/assets/js/portal-note.js"></script><script src="/assets/js/auth.js"></script><script src="/assets/js/main.js"></script><style>.ep-flag-strip{margin:18px auto 0;max-width:1120px;padding:0 20px}.ep-flag-strip .white-card{border-left:4px solid var(--red,#4E0000)}</style><script>
+document.addEventListener("elan:participant",function(ev){
+  var p=ev.detail||{}, hero=document.querySelector(".page-hero");
+  var theme=p.centsible_theme||"";
+
+  var DETAIL={
+    "BRAND \u092C\u0928\u093E\u0913":{
+      tag:"Entrepreneurship \u00B7 founder pitching",
+      blurb:"You build a brand as its founder and pitch it like one. Then you find out whether it survives a crisis written specifically for your startup.",
+      rounds:[["Before","Your product brief","Two days before \u00c9lan you submit a short form about your startup. The organising team uses it to build your crisis. You will not be told what it is."],
+              ["Round 1","The Founder Pitch","Five minutes: brand name and meaning, logo and the idea behind it, target audience, business model, marketing strategy, future vision. Judges may stop you at five minutes."],
+              ["Round 2","Brand Under Pressure","A sealed envelope with a crisis built for your startup. Twenty minutes to rebuild your strategy, three minutes to present your recovery plan."]],
+      twists:"Round 1 rewards the quality of the idea. Round 2 reveals the quality of the founder. The top three teams go through to the Boardroom."},
+
+    "VIRAL \u0935\u094D\u092F\u093E\u092A\u093E\u0930":{
+      tag:"Branding \u00B7 marketing revival",
+      blurb:"Two rounds, both about marketing. First you rescue a brand that failed. Then you make an impossible collaboration make sense.",
+      rounds:[["Round 1","The Comeback Pitch","You are given a real brand that failed because of its marketing, with its history and the reason it collapsed. Thirty minutes to prepare, five to pitch the revival. A deck or product picture is required."],
+              ["Round 2","Unexpected Collab","Draw one brand and one product category from two fish bowls, then sell the collaboration between them. Thirty minutes to prepare, five to pitch."]],
+      twists:"Judged on creativity, marketing strategy, understanding of the challenge, execution, audience engagement and time management. Top three go to the Boardroom."},
+
+    "NOTE \u0928\u0940\u0924\u093F":{
+      tag:"Finance \u00B7 live markets",
+      blurb:"Money Market Mayhem. You trade a live market in this portal, then take thirty coins onto a physical investment floor.",
+      rounds:[["Round 1","The Money Market Mayhem","Two hours trading live in this portal. The host announces a new market status every five minutes and you decide whether to hold, sell or switch. Your closing capital is locked at the final freeze."],
+              ["Round 2","The Coin Economy","Thirty coins: ten red, ten blue, ten black. Five zones open at once and you choose your own route. Ninety minutes, then the coins are counted."]],
+      twists:"Round 1 capital plus your final coin value decides your total. The top three teams go through to the Boardroom."},
+
+    "\u092A\u094D\u0930\u0936\u094D\u0928 PRODIGY":{
+      tag:"Business quiz \u00B7 strategic bidding",
+      blurb:"A high-energy business arena in three stages. Answer fast, bid well, then defend your thinking in the Boardroom.",
+      rounds:[["Round 1","Rapid Vision Rush","One minute per team. Logos, taglines, founders, emoji clues, product silhouettes, business affairs, all shuffled. 100 Cents per correct answer, no negative marking, skipping allowed."],
+              ["Round 2","The Bidding War","Bid your Cents for questions you have not seen. Bidding opens at 100. Correct adds your full bid; wrong takes away half of it."],
+              ["Round 3","Nova Boardroom","The top three teams face the final business challenge."]],
+      twists:"Nobody is eliminated after Round 1, and the Cents you earn there become your ammunition for the bidding."}
+  };
+
+  // Show ONLY the participant's own theme card; remove the other three.
+  if(p.flagship==="Cent$ible" && theme){
+    document.querySelectorAll("[data-theme]").forEach(function(c){ if(c.getAttribute("data-theme")!==theme) c.remove(); });
+    document.querySelectorAll(".section-head h2, .section-head p").forEach(function(el){
+      el.textContent = el.textContent.replace(/two competitive themes/gi,"your theme").replace(/two themes/gi,"your theme").replace(/The two themes/gi,"Your theme");
+    });
+  }
+
+  if(!hero) return;
+  var wrap=document.createElement("div"); wrap.className="ep-flag-strip";
+
+  if(p.flagship==="Crisis Command"){
+    wrap.innerHTML='<article class="white-card"><h3 class="card-title">You\u2019re registered for Crisis Command</h3><p class="card-copy">Crisis Command and Cent$ible run at the same time, and your flagship is Crisis Command. This page is for Cent$ible participants.</p><div class="cta-row" style="margin-top:10px"><a class="btn btn-gold" href="flagship.html">Go to your Crisis Command briefing</a></div></article>';
+    document.querySelectorAll("[data-theme]").forEach(function(c){ c.remove(); });
+    hero.insertAdjacentElement("afterend",wrap);
+    return;
+  }
+
+  var d=DETAIL[theme];
+  // NOTE \u0928\u0940\u0924\u093F shows a LIVE balance in the trading floor (portal-note.js),
+  // so no static balance card is rendered here for any theme.
+  var bal=null;
+
+  // ---- banking-style balance card ----
+  var balCard = bal==null ? "" :
+    '<article style="margin-top:14px;border-radius:20px;padding:26px 26px 22px;color:#E9D4C3;position:relative;overflow:hidden;' +
+    'background:linear-gradient(135deg,#0B1626 0%,#13273F 55%,#1b3350 100%);box-shadow:0 18px 40px rgba(11,22,38,.28)">' +
+      '<div style="position:absolute;right:-40px;top:-40px;width:190px;height:190px;border-radius:50%;background:rgba(233,212,195,.06)"></div>' +
+      '<div style="position:absolute;right:24px;bottom:-30px;width:120px;height:120px;border-radius:50%;background:rgba(121,0,5,.28)"></div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative">' +
+        '<div><div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.7;font-weight:800">Available balance</div>' +
+        '<div style="font-size:46px;line-height:1.1;font-weight:800;margin-top:6px;font-variant-numeric:tabular-nums">' +
+          '<span style="font-size:26px;opacity:.75;vertical-align:.28em;margin-right:6px">\u00A2</span>' + bal.toLocaleString("en-IN") + '</div></div>' +
+        '<div style="width:44px;height:32px;border-radius:6px;background:linear-gradient(135deg,#E9D4C3,#b99b83);opacity:.9"></div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:22px;position:relative">' +
+        '<div><div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.6;font-weight:800">Account holder</div>' +
+        '<div style="font-weight:700;margin-top:3px">' + (p.full_name||"") + '</div></div>' +
+        '<div style="text-align:right"><div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.6;font-weight:800">Cent$ible</div>' +
+        '<div style="font-weight:700;margin-top:3px">' + (theme||"") + '</div></div>' +
+      '</div>' +
+      '<div style="margin-top:16px;font-size:12px;opacity:.62;position:relative">Cents are Cent$ible\u2019s in-event currency. Balances update live during your rounds.</div>' +
+    '</article>';
+
+  var LI='style="display:block;margin:10px 0;padding-left:74px;position:relative;line-height:1.6"';
+  // Round counts differ per theme (BRAND has a pre-event brief), and no theme
+  // lists the Day 2 Boardroom Finale as one of its own rounds, so the heading
+  // and the closing note are both derived rather than hard-coded.
+  var day1 = d ? d.rounds.filter(function(r){ return r[0] !== "Before" && !/Boardroom/.test(r[1]); }).length : 0;
+  var WORDS = ["", "one round", "two rounds", "three rounds", "four rounds"];
+  var rounds = d ? ('<article class="white-card" style="margin-top:14px"><span class="section-label">Your rounds</span>' +
+      d.rounds.map(function(r){
+        return '<span '+LI+'><span style="position:absolute;left:0;top:.1em;font-weight:800;font-family:ui-monospace,monospace;color:#4E0000">'+r[0]+'</span>' +
+               '<strong>'+r[1]+'</strong><br><span style="opacity:.75">'+r[2]+'</span></span>';
+      }).join('') +
+      '<p class="card-copy" style="margin-top:12px">'+d.twists+'</p>' +
+      '<p class="card-copy" style="margin-top:10px">Your ' + (WORDS[day1] || (day1 + " rounds")) + ' of scored competition run in your theme room on <strong>Day 1 (5 September)</strong>. The top three teams in your theme advance to the <strong>Boardroom Finale on Day 2 (6 September)</strong>, 9:20\u201312:00. Exact block times are on your <a href="portal-schedule.html">Schedule</a>.</p></article>') : '';
+
+  wrap.innerHTML =
+    '<article class="white-card"><span class="section-label">Your theme</span>' +
+      '<h3 class="card-title" style="font-size:30px;margin:6px 0 4px">' + (theme||"Theme being confirmed") + '</h3>' +
+      (d ? '<span class="tag">'+d.tag+'</span><p class="card-copy" style="margin-top:10px;max-width:70ch">'+d.blurb+'</p>' : '') +
+    '</article>' + rounds + balCard;
+
+  hero.insertAdjacentElement("afterend",wrap);
+  var ws=document.createElement("div"); ws.id="centWorkspace"; ws.className="ep-flag-strip";
+  wrap.insertAdjacentElement("afterend", ws);
+});
+</script>
+</body></html>

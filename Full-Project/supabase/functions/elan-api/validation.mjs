@@ -1,0 +1,11 @@
+export class ApiError extends Error { constructor(message,status=400){super(message);this.status=status;} }
+export function text(v,label,max=160,min=1){if(typeof v!=='string'||v.trim().length<min||v.trim().length>max)throw new ApiError(`${label} must contain ${min}–${max} characters.`);return v.trim();}
+export function uuid(v){if(typeof v!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(v))throw new ApiError('Invalid record reference.');return v;}
+export function integer(v,label,min,max){const n=Number(v);if(!Number.isSafeInteger(n)||n<min||n>max)throw new ApiError(`${label} must be between ${min} and ${max}.`);return n;}
+export function oneOf(v,values){if(!values.includes(v))throw new ApiError('Invalid selection.');return v;}
+export function email(v){const s=text(v,'Email',254,3).toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s))throw new ApiError('Enter a valid email address.');return s;}
+export function slug(v){const s=text(v,'Slug',80);if(!/^[a-z0-9-]+$/.test(s))throw new ApiError('Use lowercase letters, numbers and hyphens.');return s;}
+export function safeImage(v,url){if(!v)return '';if(typeof v==='string'&&(v.startsWith('/assets/')&&!v.includes('..')||v.startsWith(url+'/storage/v1/object/public/elan-public-media/')))return v;throw new ApiError('Use an uploaded image or a bundled /assets/ image.');}
+export function attendees(rows){if(!Array.isArray(rows)||rows.length<1||rows.length>50)throw new ApiError('Add between 1 and 50 participants.');return rows.map(r=>({full_name:text(r.full_name,'Participant name',120,2),age:integer(r.age,'Age',1,100),grade:text(r.grade,'Grade',60)}));}
+export async function validSignature(raw,signature,secret){if(!secret||!/^[a-f0-9]{64}$/i.test(signature||''))return false;const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['verify']);return crypto.subtle.verify('HMAC',key,Uint8Array.from(signature.match(/../g).map(x=>parseInt(x,16))),new TextEncoder().encode(raw));}
+export function capturedPayment(p,stored){return !!p&&p.status==='captured'&&p.order_id===stored.order_id&&p.amount===stored.amount_paise&&p.currency===stored.currency&&typeof p.id==='string';}

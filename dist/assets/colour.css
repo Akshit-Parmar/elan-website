@@ -1,0 +1,30 @@
+/* Élan colours: navy and burgundy, balanced with copper and blue paper. */
+:root{--copper:#a94725;--blue-paper:#e1e9ee;--rose-paper:#f1ded3;--deep-wine:#671c22;--body-copy:#344557}
+.editorial-header .nav-next{background:var(--deep-wine);border-color:var(--deep-wine)}
+.ed-footer .footer-top{grid-template-columns:1.5fr 1fr 1fr;gap:8%}.ed-footer .footer-column h3{color:#dcae84}.ed-footer .footer-identity p{max-width:30ch}
+/* Give every light card its own foreground instead of inheriting a dark section's ink. */
+.legacy .role-card{background:#f8f2e9;color:#13273f;padding:clamp(22px,2.5vw,38px);border-top:5px solid #b75431}
+.legacy .role-card:nth-child(2){background:#e1e9ee;border-color:#66849a}.legacy .role-card:nth-child(3){background:#f1ded3;border-color:#a94725}
+.legacy .role-card h3{color:#13273f}.legacy .role-card p,.legacy .role-card li{color:#344557}.legacy .role-card small{color:#8c391f}.legacy .role-grid{gap:24px;align-items:stretch}
+.legacy .judging-grid .glass-card{background:#e1e9ee;padding:26px;color:#13273f;border-top:4px solid #66849a}.legacy .judging-grid .glass-card h3{color:#13273f}.legacy .judging-grid .glass-card p,.legacy .judging-grid .glass-card li{color:#344557}
+.legacy .price-grid{gap:20px}.legacy .price-card{background:#e1e9ee;color:#13273f;border:0;border-top:5px solid #66849a;padding:clamp(22px,2.5vw,34px)}
+.legacy .price-card:nth-child(2){background:#f1ded3;border-color:#a94725}.legacy .price-card:nth-child(3){background:#1b3047;border-color:#be7e51;color:#fff5e9}.legacy .price-card:nth-child(4){background:#ead5b8;border-color:#986136}
+.legacy .price-card h3,.legacy .price-card .price{color:inherit}.legacy .price-card li{color:#344557}.legacy .price-card:nth-child(3) li{color:#efe5d9}.legacy .price-card .price{margin:18px 0 24px;font-size:clamp(38px,3.4vw,52px)}
+.legacy .price-card .btn{background:transparent;border-color:currentColor;color:inherit;font-weight:600}.legacy .price-card .btn:hover{background:#ffffff25}
+.legacy .price-card ul{margin-top:0}.legacy .price-card:nth-child(3) strong{color:#fff5e9}
+.visitor-page .visitor-hero{position:relative}.visitor-page .visitor-hero em{color:#8c391f}.visitor-page .visitor-monogram{background:#671c22;color:#f5e0c7}
+.visitor-page .visitor-ledger{border-top:3px solid #a94725}.visitor-page .visitor-ledger article:nth-child(even){background:#e1e9ee;padding-inline:18px}.visitor-page .visitor-ledger article>span{color:#8c391f}
+.visitor-page .visitor-enquiry .form-card{background:#e1e9ee;border-top:4px solid #66849a}.visitor-page .visitor-callout{background:#ead5b8;padding:34px;box-sizing:border-box}
+.visitor-hero img,.lived-photo img,.first-look img{filter:none}.about-values{background:#e1e9ee}.about-values .value-ledger article>span{color:#8c391f}
+.founders-page .founder-profile:nth-of-type(even){background:#e1e9ee}.founders-page .founder-copy .founder-lead{color:#671c22}
+.archive-pathways>a:nth-child(2){background:#e1e9ee;padding-inline:24px}.archive-pathways>a:nth-child(3){background:#f1ded3;padding-inline:24px}
+.motion-home .next-chapter{background:#671c22;color:#fff4e4}.motion-home .next-chapter h2,.motion-home .next-chapter h2 em,.motion-home .next-chapter .eyebrow,.motion-home .next-chapter p,.motion-home .next-chapter a{color:#fff4e4}.motion-home .next-links a{border-color:#fff4e455}.motion-home .next-links small{color:#e8b68b}
+/* Organiser workspace has a readable, compact working layout. */
+.app-shell[data-app=admin]{max-width:1380px}.app-shell[data-app=admin] .app-heading{padding:28px 32px;background:#1b3047;color:#fff4e4;border-left:5px solid #b75431}.app-shell[data-app=admin] .app-heading h1{font-size:clamp(40px,5vw,64px);margin:14px 0}.app-shell[data-app=admin] .app-heading p{color:#e2d4c4}.app-shell[data-app=admin] .app-card{background:#fffdf8;color:#13273f}.app-shell[data-app=admin] .app-card p{color:#344557}
+.admin-welcome{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch}.admin-intro{background:#e1e9ee;padding:32px;margin:20px 0}.admin-intro h2{font:42px/1.15 var(--serif);margin:20px 0}.admin-intro ul{padding-left:20px;line-height:1.8}.admin-intro li+li{margin-top:14px}.admin-intro p{font-size:13px;line-height:1.7}.admin-welcome .app-form{margin-top:24px}
+.app-shell[data-app=admin] .app-tabs{background:#e1e9ee;padding:16px;border-bottom:3px solid #66849a}.app-shell[data-app=admin] .app-tabs button{background:#fffdf8;color:#13273f;border:1px solid #9aaab7}.app-shell[data-app=admin] .app-tabs button[aria-pressed=true]{background:#671c22;color:white;border-color:#671c22}.app-editor{scroll-margin-top:calc(var(--header-height,108px) + 20px)}
+.app-shell button:disabled{cursor:not-allowed;opacity:.55}.app-status.error{border-color:#9c302a;color:#681c18;background:#f6ded6}.app-shell[data-app=admin] #admin-rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.app-shell[data-app=admin] #admin-rows .app-card{margin:0;overflow-wrap:anywhere;border-top:3px solid #66849a}.app-shell[data-app=admin] .app-ref{font-size:11px}.app-shell[data-app=admin] .app-card h3{font-size:28px}
+@media(max-width:900px){.legacy .price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ed-footer .footer-top{gap:32px;grid-template-columns:1.3fr 1fr 1fr}}
+@media(max-width:700px){.admin-welcome,.app-shell[data-app=admin] #admin-rows{grid-template-columns:minmax(0,1fr)}.admin-intro{margin-top:0;padding:24px}.app-shell[data-app=admin] .app-heading{padding:24px 20px}.ed-footer .footer-top{grid-template-columns:1fr 1fr}.ed-footer .footer-identity{grid-column:1/-1}.legacy .role-card{padding:24px}.visitor-page .visitor-callout{padding:24px}.archive-pathways>a:nth-child(n){padding-inline:20px}}
+@media(max-width:480px){.legacy .price-grid{grid-template-columns:minmax(0,1fr)}.legacy .price-card .price{font-size:44px}}
+.legacy.flagship-editorial .role-grid .role-card h3,.legacy.flagship-editorial .judging-grid .glass-card h3{color:#13273f}

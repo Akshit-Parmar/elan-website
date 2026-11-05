@@ -1,0 +1,15 @@
+{
+  // Cloudflare Workers — static assets deployment for the Élan site.
+  // No Worker script yet: this serves the ./public directory directly.
+  // When Phase 2 (Razorpay) lands, add a "main" entry pointing at a Worker
+  // that handles /api/* while these assets keep serving everything else.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "elan-website",
+  "compatibility_date": "2026-06-01",
+  "assets": {
+    "directory": "./public",
+    // Serves /about.html at /about too, without breaking the existing
+    // explicit .html links already in the markup.
+    "html_handling": "auto-trailing-slash"
+  }
+}
