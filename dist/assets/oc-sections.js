@@ -13,7 +13,7 @@ export function renderBook(host,rows,base){
  host.replaceChildren();
  const names=[...new Set([...groups,...rows.map(section)])];
  for(const g of names){
- const list=rows.filter(x=>section(x)===g),n=groups.indexOf(g),solo=n>=0&&n<3;
+ const list=rows.filter(x=>section(x)===g).sort((a,b)=>a.sort_order-b.sort_order||a.name.localeCompare(b.name)||String(a.id).localeCompare(String(b.id))),n=groups.indexOf(g),solo=n>=0&&n<3;
  if(!list.length)continue;
  const el=document.createElement('section');
  el.className='oc-folio '+(solo?'oc-leader':'oc-team')+(n===0?' oc-opening':'');
