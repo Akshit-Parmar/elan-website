@@ -1,3 +1,4 @@
+import {deleteAccount} from './accounts.mjs';
 import {sendAcknowledgement,emailConfigured} from './acknowledgement.mjs';
 import {createClient} from 'npm:@supabase/supabase-js@2.118.0';
 import {ApiError,text,uuid,integer,oneOf,email,slug,safeImage,attendees,validSignature,capturedPayment} from './validation.mjs';
@@ -47,7 +48,7 @@ Deno.serve(async req=>{
    const name=text(b.full_name,'Name',120,2),em=email(b.email),kind=oneOf(b.kind,['contact','school','volunteer']);
    if(!b.consent)throw new ApiError('Please consent to being contacted about your enquiry.');
    const details=b.details;if(!details||Array.isArray(details)||typeof details!=='object'||JSON.stringify(details).length>12000)throw new ApiError('Invalid enquiry details.');
-   if(details.intent==='2027 organising committee application'||String(details.application_version)==='2'){text(details.study_year,'Grade or year of study',160,1);if(details.instagram)text(details.instagram,'Instagram username',80,1);if(details.linkedin){const link=text(details.linkedin,'LinkedIn profile',300,1);let parsed;try{parsed=new URL(link);}catch{throw new ApiError('Enter a valid LinkedIn profile URL.');}if(parsed.protocol!=='https:'||!['linkedin.com','www.linkedin.com'].includes(parsed.hostname))throw new ApiError('Use an https://www.linkedin.com profile link.');}}
+   if(details.intent==='2027 organising committee application'||String(details.application_version)==='2'){text(details.study_year,'Grade or year of study',160,1);text(details.instagram,'Instagram username',80,1);if(details.linkedin){const link=text(details.linkedin,'LinkedIn profile',300,1);let parsed;try{parsed=new URL(link);}catch{throw new ApiError('Enter a valid LinkedIn profile URL.');}if(parsed.protocol!=='https:'||!['linkedin.com','www.linkedin.com'].includes(parsed.hostname))throw new ApiError('Use an https://www.linkedin.com profile link.');}}
    await rate('enquiry:'+em,3,3600);await rate('ip:'+(req.headers.get('x-forwarded-for')||'unknown').split(',')[0],10,3600);
    if(env('TURNSTILE_SECRET_KEY')){const v=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body:new URLSearchParams({secret:env('TURNSTILE_SECRET_KEY'),response:String(b.captchaToken||'')})});const result=await v.json();if(!result.success)throw new ApiError('Please complete the verification.');}
    const row=checked(await db.from('elan_enquiries').insert({kind,full_name:name,email:em,details}).select('id').single());let email_status='unavailable';try{email_status=await sendAcknowledgement(db,row.id,env);}catch{}return respond({...row,email_status});
@@ -56,6 +57,10 @@ Deno.serve(async req=>{
   const {data:auth,error}=await db.auth.getUser(jwt);if(error||!auth.user||!auth.user.email_confirmed_at)throw new ApiError('Please sign in with a verified email address.',401);
   const uid=auth.user.id;await rate('user:'+uid,90,60);
   const role=checked(await db.from('elan_staff').select('role').eq('user_id',uid).maybeSingle())?.role;
+  if(action==='account-delete'){
+   const scoped=createClient(url,env('SUPABASE_ANON_KEY'),{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false,autoRefreshToken:false}});
+   return respond(await deleteAccount({db,scoped,uid,role,body:b,audit}));
+  }
   if(action==='acknowledgement-config'){if(role!=='admin')throw new ApiError('Administrator access required',403);return respond({configured:emailConfigured(env)});}
   if(action==='acknowledgement-retry'){if(role!=='admin')throw new ApiError('Administrator access required',403);await rate('mail:'+uid,10,60);return respond({status:await sendAcknowledgement(db,uuid(b.id),env)});}
   if(action==='me')return respond({user:{id:uid,email:auth.user.email},role:role||'participant',profile:checked(await db.from('elan_profiles').select('*').eq('user_id',uid).maybeSingle())});

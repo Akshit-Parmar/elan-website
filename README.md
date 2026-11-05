@@ -1,5 +1,7 @@
 > Latest update: see [Organiser tools and visitor journeys](docs/ORGANISER-TOOLS-NOVEMBER-2026.md). Start with DEPLOY-FIRST.txt. Gallery captions remain removed.
 
+Latest admin controls: [People, account deletion and direct OC appointments](docs/PEOPLE-AND-APPLICATION-CONTROLS.md).
+
 # Élan Summit — full application source
 
 This project includes the redesigned website, a Supabase-backed application, database setup, Edge API, private report storage, content administration and a Razorpay payment adapter.
