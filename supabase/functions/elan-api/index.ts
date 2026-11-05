@@ -1,4 +1,4 @@
-import {sendAcknowledgement} from './acknowledgement.mjs';
+import {sendAcknowledgement,emailConfigured} from './acknowledgement.mjs';
 import {createClient} from 'npm:@supabase/supabase-js@2.118.0';
 import {ApiError,text,uuid,integer,oneOf,email,slug,safeImage,attendees,validSignature,capturedPayment} from './validation.mjs';
 const env=(k:string)=>Deno.env.get(k)||'';
@@ -41,7 +41,7 @@ Deno.serve(async req=>{
    return respond({received:true});
   }
   const b=JSON.parse(raw),action=b.action;
-  if(action==='health')return respond({ok:true,emailConfigured:!!(env('RESEND_API_KEY')&&env('EMAIL_FROM')),paymentsConfigured:!!(env('RAZORPAY_KEY_ID')&&env('RAZORPAY_KEY_SECRET')&&env('RAZORPAY_WEBHOOK_SECRET'))});
+  if(action==='health')return respond({ok:true,emailConfigured:emailConfigured(env),paymentsConfigured:!!(env('RAZORPAY_KEY_ID')&&env('RAZORPAY_KEY_SECRET')&&env('RAZORPAY_WEBHOOK_SECRET'))});
   if(action==='enquiry'){
    if(b.honeypot)throw new ApiError('Unable to accept this submission.');
    const name=text(b.full_name,'Name',120,2),em=email(b.email),kind=oneOf(b.kind,['contact','school','volunteer']);
@@ -56,7 +56,7 @@ Deno.serve(async req=>{
   const {data:auth,error}=await db.auth.getUser(jwt);if(error||!auth.user||!auth.user.email_confirmed_at)throw new ApiError('Please sign in with a verified email address.',401);
   const uid=auth.user.id;await rate('user:'+uid,90,60);
   const role=checked(await db.from('elan_staff').select('role').eq('user_id',uid).maybeSingle())?.role;
-  if(action==='acknowledgement-config'){if(role!=='admin')throw new ApiError('Administrator access required',403);return respond({configured:!!(env('RESEND_API_KEY')&&env('EMAIL_FROM'))});}
+  if(action==='acknowledgement-config'){if(role!=='admin')throw new ApiError('Administrator access required',403);return respond({configured:emailConfigured(env)});}
   if(action==='acknowledgement-retry'){if(role!=='admin')throw new ApiError('Administrator access required',403);await rate('mail:'+uid,10,60);return respond({status:await sendAcknowledgement(db,uuid(b.id),env)});}
   if(action==='me')return respond({user:{id:uid,email:auth.user.email},role:role||'participant',profile:checked(await db.from('elan_profiles').select('*').eq('user_id',uid).maybeSingle())});
   if(action==='profile')return respond(checked(await db.from('elan_profiles').upsert({user_id:uid,full_name:text(b.full_name,'Name',120,2),phone:text(b.phone||'','Phone',30,0),school:text(b.school||'','School',180,0)}).select().single()));

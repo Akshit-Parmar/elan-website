@@ -1,5 +1,7 @@
 # Setup and handover
 
+Latest email/login update: see [EMAIL-AND-LOGIN-SETUP.md](EMAIL-AND-LOGIN-SETUP.md) for Gmail SMTP support and the remaining owner configuration. Earlier email-provider notes below describe the previous release.
+
 ## 1. Existing Supabase project
 
 The existing project is `aptaodflhiopzjibyyzn`. The initial content tables, application migrations and `elan-api` Edge Function have already been deployed. **Do not rerun `fresh-project.sql` on this populated project.** Source migrations record the applied changes.

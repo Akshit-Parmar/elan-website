@@ -1,5 +1,7 @@
 # OC application journey update
 
+Latest email/login update: see [EMAIL-AND-LOGIN-SETUP.md](EMAIL-AND-LOGIN-SETUP.md) for Gmail SMTP support and the remaining owner configuration. Earlier email-provider notes below describe the previous release.
+
 Upload this full package to the GitHub repository using the same structure as before. Cloudflare serves `dist`. The website changes are not published until the upload/build/deploy completes. Do not reset Supabase or run fresh-project.sql against the existing project.
 
 ## Using it
