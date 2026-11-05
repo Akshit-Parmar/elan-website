@@ -20,6 +20,6 @@ export function setupApplication(form){
  back.onclick=()=>show(Math.max(0,current-1));next.onclick=()=>{conditional();if(validateStep(current)){if(current===steps.length-2)review();show(current+1);}};
  form.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'&&current<steps.length-1){e.preventDefault();next.click();}});
  form.validateApplication=()=>{conditional();for(let i=0;i<steps.length;i++)if(!validateStep(i))return false;return true;};
- form.addEventListener('reset',()=>{form.querySelectorAll('fieldset,.oc-form-actions').forEach(x=>x.hidden=true);form.dataset.completed='true';});
+ form.addEventListener('reset',()=>{form.querySelectorAll('fieldset,.oc-form-actions').forEach(x=>x.hidden=true);form.dataset.completed='true';form.querySelectorAll('.oc-form-top,.oc-progress-track,.oc-required-note').forEach(x=>x.hidden=true);});
  conditional();show(0);
 }

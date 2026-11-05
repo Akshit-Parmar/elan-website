@@ -1,5 +1,6 @@
 from html import escape
 ROUTES={
+ 'application-status.html':('applications','Your next step.','Follow your OC application, interview invitation and updates from the team.'),
  'portal/login.html':('login','Your next chapter.','Sign in or create your Élan account.'),
  'portal/set-password.html':('password','Make it yours.','Choose a new password for your account.'),
  'portal/link-expired.html':('login','Let’s get you back.','Request a new confirmation or password recovery email.'),
@@ -20,4 +21,4 @@ ROUTES={
  'admin.html':('admin','Behind the scenes.','The Élan organiser workspace.'),
 }
 def app_page(mode,title,description):
- return f'''<main id="main" class="app-shell wrap" data-app="{mode}"><header class="app-heading"><p class="section-label">ÉLAN / {'ORGANISER WORKSPACE' if mode=='admin' else 'YOUR ACCOUNT'}</p><h1>{escape(title)}</h1><p>{escape(description)}</p></header><nav class="app-nav" aria-label="Account navigation"><a href="/portal/index.html">Overview</a><a href="/register.html">Register</a><a href="/portal/profile.html">Profile</a><a href="/portal/schedule.html">Programme</a><a href="/portal/report.html">Submissions</a><a href="/portal/help-desk.html">Help desk</a><a id="admin-link" href="/admin.html" hidden>Organiser workspace</a><button id="sign-out" hidden>Sign out</button></nav><p id="app-status" role="status" aria-live="polite">Loading your workspace…</p><div id="app-content"></div></main>'''
+ return f'''<main id="main" class="app-shell wrap" data-app="{mode}"><header class="app-heading"><p class="section-label">ÉLAN / {'ORGANISER WORKSPACE' if mode=='admin' else 'YOUR ACCOUNT'}</p><h1>{escape(title)}</h1><p>{escape(description)}</p></header><nav class="app-nav" aria-label="Account navigation"><a href="/portal/index.html">Overview</a><a href="/application-status.html">My OC application</a><a href="/register.html">Register</a><a href="/portal/profile.html">Profile</a><a href="/portal/schedule.html">Programme</a><a href="/portal/report.html">Submissions</a><a href="/portal/help-desk.html">Help desk</a><a id="admin-link" href="/admin.html" hidden>Organiser workspace</a><button id="sign-out" hidden>Sign out</button></nav><p id="app-status" role="status" aria-live="polite">Loading your workspace…</p><div id="app-content"></div></main>'''
