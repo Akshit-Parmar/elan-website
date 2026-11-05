@@ -61,3 +61,4 @@
 
 /* Respect the exact portrait chosen in the upload crop preview. */
 .oc-folio .oc-slide>img{aspect-ratio:auto;height:auto;object-fit:contain}.studio-edit-grid [data-preview] img{object-fit:contain}
+.team-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px;margin:24px 0}.task-deadline{font-weight:600;color:#702a20}.team-card{overflow-wrap:anywhere}.team-form input,.team-form textarea,.team-form select{max-width:100%;box-sizing:border-box}@media(max-width:650px){.team-body{min-width:0;padding:24px 18px}.team-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.team-rail nav{display:flex;overflow-x:auto;gap:8px}.team-rail nav button{flex:0 0 auto;min-height:44px}.team-body h1{font-size:clamp(32px,9vw,52px)}}

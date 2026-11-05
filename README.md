@@ -46,7 +46,7 @@ The second edition supports Crisis Command. Cent$ible is retained only in the 20
 
 ## What is implemented versus configured
 
-The backend schema and Edge API have been deployed to `aptaodflhiopzjibyyzn`. The current project has no real user accounts or administrator assignment. Sign-up and recovery depend on correctly configured Supabase Auth redirect URLs and email delivery. Registration stays closed until dates, capacity, age rules, deadline, price and participation terms are supplied. Paid registration additionally requires Razorpay keys and a webhook secret. No real payment has been attempted. The original provider was Easebuzz; this new adapter is Razorpay and does not reuse or migrate the original merchant account. If Easebuzz must remain the provider, replace the adapter before payment launch.
+The backend schema and Edge API have been deployed to `aptaodflhiopzjibyyzn`. The existing project already has user accounts and administrator access; retain these assignments. Sign-up and recovery depend on correctly configured Supabase Auth redirect URLs and email delivery. Registration stays closed until dates, capacity, age rules, deadline, price and participation terms are supplied. Paid registration additionally requires Razorpay keys and a webhook secret. No real payment has been attempted. The original provider was Easebuzz; this new adapter is Razorpay and does not reuse or migrate the original merchant account. If Easebuzz must remain the provider, replace the adapter before payment launch.
 
 This is source code and setup data, not an export of Supabase's managed Auth service, SMTP account, secrets or merchant credentials. Those must remain in their services. Existing public content is included as SQL seeds and local assets. No historical participants, payments or accounts have been imported from the old project.
 
@@ -62,3 +62,6 @@ python scripts/package-laptop.py --output /path/to/output
 ```
 
 Extract the resulting ZIP and open OPEN-WEBSITE.html. The separate live-connected launcher requires Python 3 and internet. The browsing edition disables backend submissions; web fonts still use the network, with local fallback fonts when offline.
+
+
+For the latest recruitment, deadline and review update, see docs/RELEASE-2026-11-05.md.
