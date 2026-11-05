@@ -58,3 +58,6 @@
 .oc-application .form-honeypot{display:none!important}
 .oc-application .enquiry-status:empty{display:none!important}
 @media(max-width:760px){.oc-recruit-strip{align-items:flex-start;padding:12px 20px;font-size:12px}.oc-recruit-strip>span{max-width:65%}.oc-recruit-strip strong{display:block}.oc-application{grid-template-columns:1fr}.oc-application>aside{padding:1.4rem}.oc-application [data-steps]{grid-template-columns:1fr 1fr;padding-top:.5rem}.oc-application [data-steps] li{font-size:.75rem;padding:.35rem}.oc-application>aside h2{font-size:2rem}.oc-application form{padding:1.25rem}.oc-application .oc-fields{grid-template-columns:1fr}}
+
+/* Respect the exact portrait chosen in the upload crop preview. */
+.oc-folio .oc-slide>img{aspect-ratio:auto;height:auto;object-fit:contain}.studio-edit-grid [data-preview] img{object-fit:contain}
