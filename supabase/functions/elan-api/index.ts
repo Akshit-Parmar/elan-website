@@ -1,3 +1,4 @@
+import {inviteOrganiser} from './invitations.mjs';
 import {deleteAccount} from './accounts.mjs';
 import {sendAcknowledgement,emailConfigured} from './acknowledgement.mjs';
 import {createClient} from 'npm:@supabase/supabase-js@2.118.0';
@@ -57,6 +58,10 @@ Deno.serve(async req=>{
   const {data:auth,error}=await db.auth.getUser(jwt);if(error||!auth.user||!auth.user.email_confirmed_at)throw new ApiError('Please sign in with a verified email address.',401);
   const uid=auth.user.id;await rate('user:'+uid,90,60);
   const role=checked(await db.from('elan_staff').select('role').eq('user_id',uid).maybeSingle())?.role;
+  if(action==='oc-invite'){
+   const scoped=createClient(url,env('SUPABASE_ANON_KEY'),{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false,autoRefreshToken:false}});
+   return respond(await inviteOrganiser({db,scoped,uid,role,body:b,audit,rate}));
+  }
   if(action==='account-delete'){
    const scoped=createClient(url,env('SUPABASE_ANON_KEY'),{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false,autoRefreshToken:false}});
    return respond(await deleteAccount({db,scoped,uid,role,body:b,audit}));

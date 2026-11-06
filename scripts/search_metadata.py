@@ -7,6 +7,7 @@ ORIGIN='https://elansummit.com'
 SHARE_IMAGE='/assets/social/elan-share-2026-11.png'
 SHARE_ALT='Élan Summit. Make your move. Student leadership, creativity and connection.'
 DESCRIPTIONS={
+'winners-2026.html':'Meet the winners of Élan Summit 2026, explore their awards in Crisis Command and Cent$ible, and read their memories of the first edition.',
 'cabinet-preview.html':'Try one fictional Crisis Command decision and explore what your cabinet might ask next.',
 'oc-2026.html':'Explore the departments and members of the Élan Summit 2026 organising committee in Mulshi.',
 'join-oc-2027.html':'Apply to help organise Élan Summit 2027. Tell the team about your interests, availability and preferred responsibilities.',
