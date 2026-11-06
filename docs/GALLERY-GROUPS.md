@@ -6,16 +6,16 @@ Create empty groups, rename groups, or remove groups. To remove a populated grou
 
 ## Activate this release
 
-This ZIP contains the full frontend and backend. Production changes have NOT been applied for this release.
+This ZIP contains the full frontend and backend. Production backend changes were applied and verified on 6 November 2026 (elan-api version 10).
 
-1. Apply `scripts/editable-gallery-groups.sql` once to the existing Élan database.
-2. Deploy the included `supabase/functions/elan-api` function. It accepts registered custom groups; the database checks membership. This function also contains the pending mandatory Instagram validation for OC applications.
+1. The gallery database update is already applied to the existing Élan project. Do not run it again.
+2. The included `supabase/functions/elan-api` function is already deployed. It accepts registered custom groups; the database checks membership. Mandatory Instagram validation for OC applications is live and tested.
 3. Upload this complete package to the GitHub repository using the existing Cloudflare build setup.
 
 Do not run `supabase/fresh-project.sql` on the existing project. It is only for a new empty database.
 
 Existing groups/photos are preserved. Existing standalone site image replacements are exempt from gallery membership and are not moved or removed. Old revisions referencing a removed group cannot be restored until that group is recreated. If live content cannot load, the public gallery retains its bundled fallback.
 
-Validation: build, 45 existing Node tests and syntax checks pass. Rollback-only database checks cover creation, renaming, moving photos on removal, missing destinations, duplicate names, anonymous/nonadmin denial and public group reads. No production groups/photos were changed.
+Validation: build, 45 existing Node tests and syntax checks pass. Rollback-only database checks cover creation, renaming, moving photos on removal, missing destinations, duplicate names, anonymous/nonadmin denial and public group reads. All 11 existing groups and 45 photo records were preserved. Test changes were rolled back.
 
 Browser visual verification could not be completed because the preview connection was unavailable.
