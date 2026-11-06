@@ -1,6 +1,6 @@
 import {galleryExperience} from './gallery-experience.js';
 import {fetchPhotoSettings,orderGallery} from './photo-settings.js';
-import {galleryGroups} from './gallery-groups.js';
+import {galleryGroups,setGalleryGroups} from './gallery-groups.js';
 import {galleryTemplate} from './content-templates.js';
 (()=>{
  const reduced=matchMedia('(prefers-reduced-motion: reduce)'),path=location.pathname;
@@ -21,7 +21,7 @@ import {galleryTemplate} from './content-templates.js';
  if(grid&&dialog)galleryExperience(grid,dialog);
  async function hydrate(){if(!grid&&!document.querySelector('.edition-note'))return;
   try{const config=await fetch('/assets/public-config.json').then(r=>{if(!r.ok)throw Error('config');return r.json()});const request=async route=>{const r=await fetch(config.supabaseUrl+'/rest/v1/'+route,{headers:{apikey:config.publishableKey},signal:AbortSignal.timeout(8000)});if(!r.ok)throw Error('content');return r.json()};
-   if(grid){let rows=[],offset=0;while(true){const batch=await request('elan_media?select=id,title,alt_text,image_url,category,credit,edition_slug&published=eq.true&edition_slug=eq.2026&and=(credit.not.like.site-image:*,credit.not.like.site-slot:*)&order=sort_order.asc,id.asc&limit=200&offset='+offset);rows.push(...batch);if(batch.length<200)break;offset+=200;}const settings=await fetchPhotoSettings(config).catch(()=>new Map());const cards=orderGallery(rows,settings).map(row=>galleryTemplate(row,config.supabaseUrl)).filter(Boolean);grid.replaceChildren(...cards);grid.dataset.source='supabase';syncFilters();filter();galleryExperience(grid,dialog,settings);}
+   if(grid){const groups=await request('elan_gallery_groups?select=name,sort_order&order=sort_order.asc,name.asc');let rows=[],offset=0;while(true){const batch=await request('elan_media?select=id,title,alt_text,image_url,category,credit,edition_slug&published=eq.true&edition_slug=eq.2026&and=(credit.not.like.site-image:*,credit.not.like.site-slot:*)&order=sort_order.asc,id.asc&limit=200&offset='+offset);rows.push(...batch);if(batch.length<200)break;offset+=200;}const settings=await fetchPhotoSettings(config).catch(()=>new Map());const cards=orderGallery(rows,settings).map(row=>galleryTemplate(row,config.supabaseUrl)).filter(Boolean);setGalleryGroups(groups);grid.replaceChildren(...cards);grid.dataset.source='supabase';syncFilters();filter();galleryExperience(grid,dialog,settings);}
 
    const note=document.querySelector('.edition-note');if(note){const rows=await request('elan_editions?slug=eq.next&select=summary&limit=1');if(rows[0]?.summary&&!note.dataset.cmsApplied&&!note.dataset.editorLocked)note.textContent=rows[0].summary;note.dataset.source='supabase';}
   }catch{if(grid){grid.dataset.source='local-fallback';document.querySelector('.gallery-state').textContent='Showing the saved collection. New photographs could not be loaded right now.';}}
