@@ -1,7 +1,8 @@
 from pathlib import Path
 from html.parser import HTMLParser
 import json,xml.etree.ElementTree as ET
-from search_metadata import ORIGIN,DESCRIPTIONS,canonical
+from search_metadata import ORIGIN,DESCRIPTIONS,canonical,SHARE_IMAGE
+from datetime import date
 out=Path(__file__).resolve().parents[1]/'dist'
 class Head(HTMLParser):
  def __init__(self,text):
@@ -24,11 +25,22 @@ for p in out.rglob('*.html'):
  assert ('noindex' not in h.meta['robots'])==public,path
  assert (canonical(path) in urls)==public,path
  assert h.meta['og:url']==canonical(path),path
+ assert h.meta['og:image']==ORIGIN+SHARE_IMAGE,path
+ assert h.meta['twitter:image']==ORIGIN+SHARE_IMAGE,path
+ assert h.meta['og:image:width']=='1200' and h.meta['og:image:height']=='630',path
  if public:
   assert h.meta['description']==DESCRIPTIONS[path],path
   assert len(h.schemas)==1 and h.schemas[0]['@context']=='https://schema.org',path
   assert h.schemas[0]['@graph'][2]['url']==canonical(path),path
 assert len(set(DESCRIPTIONS.values()))==len(DESCRIPTIONS)
+assert (out/SHARE_IMAGE.lstrip('/')).is_file()
+for entry in ET.parse(out/'sitemap.xml').findall('{*}url'):
+ assert date.fromisoformat(entry.find('{*}lastmod').text)<=date.today()
+for name in ('event-flow.html','event-details.html'):
+ text=(out/name).read_text()
+ main=text.split('<main',1)[1].split('</main>',1)[0]
+ assert 'unlocks after registration' not in main.lower(),name
+ assert 'Register Now' not in main,name
 robots=(out/'robots.txt').read_text()
 assert robots.startswith('User-agent: *\nAllow: /\n')
 assert 'Sitemap: '+ORIGIN+'/sitemap.xml' in robots
