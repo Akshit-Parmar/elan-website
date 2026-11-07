@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {inviteCallback,acceptInviteSession} from '../src/auth-feedback.js';
+const fragment='#access_token=test-access&refresh_token=test-refresh&type=invite';
+test('only the password page takes the admin invite; PKCE links are left alone',()=>{assert.equal(inviteCallback('login',fragment),null);assert.equal(inviteCallback('password',''),null);assert.equal(inviteCallback('password',fragment).valid,true);});
+test('invite verifies token owner before installing session',async()=>{const u={id:'invitee',email_confirmed_at:'now'};let set=false;const auth={getUser:async t=>{assert.equal(t,'test-access');return {data:{user:u}};},setSession:async tokens=>{set=true;assert.equal(tokens.refresh_token,'test-refresh');return {data:{session:{user:u}}};}};await acceptInviteSession(auth,inviteCallback('password',fragment));assert.ok(set);});
+test('invalid or incomplete invitations cannot use a previously signed-in account',async()=>{for(const h of ['#type=invite','#error=access_denied',fragment]){const auth={getUser:async()=>({error:true}),setSession:async()=>assert.fail('must not install session')};await assert.rejects(acceptInviteSession(auth,inviteCallback('password',h)));}});

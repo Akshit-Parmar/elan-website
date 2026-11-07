@@ -24,3 +24,19 @@ export function bindAuthForm(form,busyText,action){
   finally{buttons.forEach((b,i)=>{b.disabled=false;b.textContent=labels[i];});delete form.dataset.sending;form.removeAttribute('aria-busy');note.focus({preventScroll:true});}
  });
 }
+
+// Admin-issued invitations carry a session fragment, unlike PKCE signup and recovery links.
+export function inviteCallback(mode,hash){
+ if(mode!=='password')return null;
+ const p=new URLSearchParams((hash||'').replace(/^#/,''));
+ if(p.get('type')!=='invite'&&!p.has('access_token')&&!p.has('error'))return null;
+ return {valid:p.get('type')==='invite'&&!p.has('error'),access_token:p.get('access_token'),refresh_token:p.get('refresh_token')};
+}
+export async function acceptInviteSession(auth,incoming){
+ if(!incoming.valid||!incoming.access_token||!incoming.refresh_token)throw Error('Invalid invitation');
+ const {access_token,refresh_token}=incoming;
+ const verified=await auth.getUser(access_token);
+ if(verified.error||!verified.data.user?.email_confirmed_at)throw Error('Invalid invitation');
+ const session=await auth.setSession({access_token,refresh_token});
+ if(session.error||session.data.session?.user?.id!==verified.data.user.id)throw Error('Invalid invitation');
+}
