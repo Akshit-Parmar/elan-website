@@ -6,6 +6,7 @@ import {ApiError,text,uuid,integer,oneOf,email,slug,safeImage,attendees,validSig
 const env=(k:string)=>Deno.env.get(k)||'';
 const url=env('SUPABASE_URL');
 const db=createClient(url,env('SUPABASE_SERVICE_ROLE_KEY'),{auth:{persistSession:false,autoRefreshToken:false}});
+const mailAuth=()=>createClient(url,env('SUPABASE_ANON_KEY'),{auth:{persistSession:false,autoRefreshToken:false,flowType:'implicit'}}).auth;
 const origins=[...new Set(['https://elansummit.com','https://www.elansummit.com',...(env('ALLOWED_ORIGINS')||'https://elan-next-chapter.akshit-parmar.chatgpt.site,http://localhost:8000,http://127.0.0.1:8000,http://terminal.local:4173').split(',').map(x=>x.trim()).filter(Boolean)])];
 function checked(r:any){if(r.error)throw new ApiError('The request could not be saved. Check the details and try again.',409);return r.data;}
 async function rate(key:string,limit=30,seconds=60){const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key)))).map(x=>x.toString(16).padStart(2,'0')).join('');if(!checked(await db.rpc('elan_rate_check',{p_key:hash,p_limit:limit,p_seconds:seconds})))throw new ApiError('Too many requests. Please try again later.',429);}
@@ -52,24 +53,34 @@ Deno.serve(async req=>{
    if(details.intent==='2027 organising committee application'||String(details.application_version)==='2'){text(details.study_year,'Grade or year of study',160,1);text(details.instagram,'Instagram username',80,1);if(details.linkedin){const link=text(details.linkedin,'LinkedIn profile',300,1);let parsed;try{parsed=new URL(link);}catch{throw new ApiError('Enter a valid LinkedIn profile URL.');}if(parsed.protocol!=='https:'||!['linkedin.com','www.linkedin.com'].includes(parsed.hostname))throw new ApiError('Use an https://www.linkedin.com profile link.');}}
    await rate('enquiry:'+em,3,3600);await rate('ip:'+(req.headers.get('x-forwarded-for')||'unknown').split(',')[0],10,3600);
    if(env('TURNSTILE_SECRET_KEY')){const v=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body:new URLSearchParams({secret:env('TURNSTILE_SECRET_KEY'),response:String(b.captchaToken||'')})});const result=await v.json();if(!result.success)throw new ApiError('Please complete the verification.');}
-   const row=checked(await db.from('elan_enquiries').insert({kind,full_name:name,email:em,details}).select('id').single());let email_status='unavailable';try{email_status=await sendAcknowledgement(db,row.id,env);}catch{}return respond({...row,email_status});
+   const row=checked(await db.from('elan_enquiries').insert({kind,full_name:name,email:em,details}).select('id').single());let email_status='unavailable';try{email_status=await sendAcknowledgement(db,row.id,env,fetch,undefined,mailAuth());}catch{}return respond({...row,email_status});
   }
   const jwt=(req.headers.get('Authorization')||'').replace(/^Bearer /i,'');if(!jwt)throw new ApiError('Please sign in.',401);
   const {data:auth,error}=await db.auth.getUser(jwt);if(error||!auth.user||!auth.user.email_confirmed_at)throw new ApiError('Please sign in with a verified email address.',401);
   const uid=auth.user.id;await rate('user:'+uid,90,60);
   const role=checked(await db.from('elan_staff').select('role').eq('user_id',uid).maybeSingle())?.role;
+  if(action==='resend-applicant-setup'){
+   if(role!=='admin')throw new ApiError('Administrator required',403);
+   const id=uuid(b.id),account=checked(await db.rpc('elan_application_account',{p_id:id}));
+   if(!account)throw new ApiError('Application not found.',404);
+   const entry=checked(await db.from('elan_enquiries').select('email').eq('id',id).single());
+   await rate('oc-setup:'+entry.email,1,300);await audit(uid,'resend:application-setup',id);
+   const redirectTo='https://elansummit.com/portal/set-password.html?next=application';
+   const sent=account==='new'?await db.auth.admin.inviteUserByEmail(entry.email,{redirectTo,data:{invite_context:'applicant'}}):await mailAuth().resetPasswordForEmail(entry.email,{redirectTo});
+   if(sent.error)throw new ApiError('Setup email could not be requested.',502);return respond({status:'setup_requested'});
+  }
   if(action==='oc-invite'){
    const scoped=createClient(url,env('SUPABASE_ANON_KEY'),{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false,autoRefreshToken:false}});
-   return respond(await inviteOrganiser({db,scoped,uid,role,body:b,audit,rate}));
+   return respond(await inviteOrganiser({db,scoped,uid,role,body:b,audit,rate,recoveryAuth:mailAuth()}));
   }
   if(action==='account-delete'){
    const scoped=createClient(url,env('SUPABASE_ANON_KEY'),{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false,autoRefreshToken:false}});
    return respond(await deleteAccount({db,scoped,uid,role,body:b,audit}));
   }
   if(action==='acknowledgement-config'){if(role!=='admin')throw new ApiError('Administrator access required',403);return respond({configured:emailConfigured(env)});}
-  if(action==='acknowledgement-retry'){if(role!=='admin')throw new ApiError('Administrator access required',403);await rate('mail:'+uid,10,60);return respond({status:await sendAcknowledgement(db,uuid(b.id),env)});}
+  if(action==='acknowledgement-retry'){if(role!=='admin')throw new ApiError('Administrator access required',403);await rate('mail:'+uid,10,60);return respond({status:await sendAcknowledgement(db,uuid(b.id),env,fetch,undefined,mailAuth())});}
   if(action==='me')return respond({user:{id:uid,email:auth.user.email},role:role||'participant',profile:checked(await db.from('elan_profiles').select('*').eq('user_id',uid).maybeSingle())});
-  if(action==='profile')return respond(checked(await db.from('elan_profiles').upsert({user_id:uid,full_name:text(b.full_name,'Name',120,2),phone:text(b.phone||'','Phone',30,0),school:text(b.school||'','School',180,0)}).select().single()));
+  if(action==='profile')return respond(checked(await db.from('elan_profiles').upsert({user_id:uid,full_name:text(b.full_name,'Name',120,2),phone:text(b.phone||'','Phone',30,0),school:text(b.school||'','School',180,0),city:text(b.city||'','City',100,0),study_year:text(b.study_year||'','Grade or year',100,0)}).select().single()));
   if(action==='register'){
    await rate('registration:'+uid,6,3600);const rows=attendees(b.attendees);
    const {data,error}=await db.rpc('elan_create_registration',{p_user:uid,p_request:uuid(b.request_key),p_edition:slug(b.edition_slug),p_kind:oneOf(b.kind,['individual','school']),p_school:text(b.school,'School',180,2),p_name:text(b.coordinator_name,'Coordinator name',120,2),p_phone:text(b.phone,'Phone',30,6),p_attendees:rows,p_terms:text(b.terms_version,'Terms version',100),p_consent:b.consent===true});

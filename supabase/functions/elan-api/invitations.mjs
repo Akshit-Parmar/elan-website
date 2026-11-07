@@ -1,10 +1,19 @@
 import {ApiError,uuid} from './validation.mjs';
-export async function inviteOrganiser({db,scoped,uid,role,body,audit,rate}){
+export async function inviteOrganiser({db,scoped,uid,role,body,audit,rate,recoveryAuth}){
  if(role!=='admin')throw new ApiError('Administrator access required.',403);
  const id=uuid(body.id);
  const lookup=await scoped.rpc('elan_oc_invitation_target',{p_id:id});
  if(lookup.error||!lookup.data)throw new ApiError('Could not check this saved member. Refresh and try again.',409);
  const target=lookup.data;
+ if(body.resend===true&&target.account_exists){
+  const active=await Promise.all(['elan_oc_access','elan_oc_reviewers'].map(t=>scoped.from(t).select('user_id').eq('label',target.email).limit(1)));
+  if(active.some(r=>r.error))throw new ApiError('Could not check workspace access.',409);
+  if(!target.pending&&!active.some(r=>r.data.length))throw new ApiError('Assign workspace access before sending setup mail.',409);
+  await rate('oc-setup:'+target.email,1,300);await audit(uid,'resend:oc-setup',id);
+  const sent=await recoveryAuth.resetPasswordForEmail(target.email,{redirectTo:'https://elansummit.com/portal/set-password.html?next=organisers'});
+  if(sent.error)throw new ApiError('Could not request a new setup email. Try again later.',502);
+  return {status:'setup_requested'};
+ }
  if(target.account_exists)return {status:target.verified?'existing_verified':target.invited?'already_invited':'existing_unverified'};
  if(!target.pending)return {status:'no_assignment'};
  // Shared per-member/email rate check also serializes repeated browser clicks.
