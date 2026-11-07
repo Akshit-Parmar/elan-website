@@ -27,10 +27,10 @@ export function bindAuthForm(form,busyText,action){
 
 // Admin-issued invitations carry a session fragment, unlike PKCE signup and recovery links.
 export function inviteCallback(mode,hash){
- if(mode!=='password')return null;
+ if(!['password','applications'].includes(mode))return null;
  const p=new URLSearchParams((hash||'').replace(/^#/,''));
  if(p.get('type')!=='invite'&&!p.has('access_token')&&!p.has('error'))return null;
- return {valid:p.get('type')==='invite'&&!p.has('error'),access_token:p.get('access_token'),refresh_token:p.get('refresh_token')};
+ return {valid:(mode==='applications'?['magiclink','signup','email'].includes(p.get('type')):['invite','recovery'].includes(p.get('type')))&&!p.has('error'),access_token:p.get('access_token'),refresh_token:p.get('refresh_token')};
 }
 export async function acceptInviteSession(auth,incoming){
  if(!incoming.valid||!incoming.access_token||!incoming.refresh_token)throw Error('Invalid invitation');
