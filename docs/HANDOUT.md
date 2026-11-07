@@ -1,0 +1,6 @@
+# Before sharing the 2027 organiser portal
+1. Deploy the contents of dist and confirm Cloudflare serves the new organiser desk. The live database migrations are installed; do not re-run fresh-project.sql.
+2. In Admin → 2027 OC members, appoint the real Director when chosen. Both leadership seats must be active to finalise a submission. Do not use a placeholder appointment. Teams can plan and submit while one seat is vacant.
+3. Use the configured department names when granting access. Heads of All Departments and Chief Advisor are separate workspaces, not approval seats. They can consult department workload totals and keep coordination or advisory records. Only Director and Assistant Director vote. Cent$ible remains part of the 2026 archive.
+4. Using an address you control, open a fresh invitation, set a password, sign in at /organisers, and confirm the intended role appears. Test a department submission with supporting evidence before inviting the whole team. No real invitation was sent during the database rehearsal.
+5. Rollback tests submitted and approved an item from each configured department as a head and member. Finance submission included a storage evidence record; no real file upload or email inbox was tested. Verified two separate votes, scoped coordination totals and a sponsorship-to-documentation handoff. Existing site tests also passed.

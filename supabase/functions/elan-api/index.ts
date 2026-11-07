@@ -59,6 +59,13 @@ Deno.serve(async req=>{
   const {data:auth,error}=await db.auth.getUser(jwt);if(error||!auth.user||!auth.user.email_confirmed_at)throw new ApiError('Please sign in with a verified email address.',401);
   const uid=auth.user.id;await rate('user:'+uid,90,60);
   const role=checked(await db.from('elan_staff').select('role').eq('user_id',uid).maybeSingle())?.role;
+  const scopedPortal=createClient(url,env('SUPABASE_ANON_KEY'),{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false,autoRefreshToken:false}});
+  const portal=checked(await scopedPortal.rpc('elan_login_portal'));
+  if(action==='me')return respond({user:{id:uid,email:auth.user.email},role:portal,profile:portal==='participant'?checked(await db.from('elan_profiles').select('*').eq('user_id',uid).maybeSingle()):null});
+  const participantActions=['profile','register','dashboard','support','submission-upload','submission-save','payment-order','payment-verify'];
+  if(participantActions.includes(action)&&portal!=='participant')throw new ApiError('Wrong portal. This action is for participant accounts.',403);
+  if(!participantActions.includes(action)&&action!=='submission-download'&&portal!=='admin')throw new ApiError('Wrong portal. This action is for the admin account.',403);
+  if(action==='submission-download'&&!['participant','admin'].includes(portal))throw new ApiError('Wrong portal. You cannot download participant files.',403);
   if(action==='resend-applicant-setup'){
    if(role!=='admin')throw new ApiError('Administrator required',403);
    const id=uuid(b.id),account=checked(await db.rpc('elan_application_account',{p_id:id}));
@@ -79,7 +86,6 @@ Deno.serve(async req=>{
   }
   if(action==='acknowledgement-config'){if(role!=='admin')throw new ApiError('Administrator access required',403);return respond({configured:emailConfigured(env)});}
   if(action==='acknowledgement-retry'){if(role!=='admin')throw new ApiError('Administrator access required',403);await rate('mail:'+uid,10,60);return respond({status:await sendAcknowledgement(db,uuid(b.id),env,fetch,undefined,mailAuth())});}
-  if(action==='me')return respond({user:{id:uid,email:auth.user.email},role:role||'participant',profile:checked(await db.from('elan_profiles').select('*').eq('user_id',uid).maybeSingle())});
   if(action==='profile')return respond(checked(await db.from('elan_profiles').upsert({user_id:uid,full_name:text(b.full_name,'Name',120,2),phone:text(b.phone||'','Phone',30,0),school:text(b.school||'','School',180,0),city:text(b.city||'','City',100,0),study_year:text(b.study_year||'','Grade or year',100,0)}).select().single()));
   if(action==='register'){
    await rate('registration:'+uid,6,3600);const rows=attendees(b.attendees);

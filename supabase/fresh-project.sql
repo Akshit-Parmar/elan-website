@@ -1175,3 +1175,144 @@ revoke all on function elan_private.applicant_profile(),public.elan_applicant_pr
 grant execute on function elan_private.applicant_profile(),public.elan_applicant_profile(),elan_private.select_applicant(uuid,text,text,integer,text),public.elan_select_applicant(uuid,text,text,integer,text) to authenticated;
 
 grant usage on schema elan_private to service_role;
+-- Read only the information needed to coordinate one department or the summit.
+create function elan_private.ops_desk() returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare leader boolean; a public.elan_oc_access; uid uuid:=auth.uid(); result jsonb;
+begin
+ select exists(select 1 from public.elan_oc_reviewers where user_id=uid) into leader;
+ select * into a from public.elan_oc_access where user_id=uid;
+ if uid is null or (not leader and a.user_id is null) then raise exception 'Organiser access required';end if;
+ select jsonb_build_object(
+ 'teams',(select coalesce(jsonb_agg(to_jsonb(d) order by d.department),'[]') from (select m.id,m.department,m.tool from public.elan_oc_modules m where leader or m.department=a.department union all select null::uuid,x.department,'general' from (select distinct department from public.elan_oc_access) x where (leader or x.department=a.department) and not exists(select 1 from public.elan_oc_modules m where m.department=x.department))d),
+ 'people',(select coalesce(jsonb_agg(jsonb_build_object('id',x.user_id,'name',coalesce(nullif(m.name,''),x.label),'department',x.department,'role',x.role) order by x.department,x.role,x.label),'[]') from public.elan_oc_access x left join public.elan_oc_members_2027 m on m.email=lower(x.label) where leader or x.department=a.department),
+ 'tasks',(select coalesce(jsonb_agg(to_jsonb(t) order by t.due_on nulls last,t.title),'[]') from public.elan_oc_tasks t where leader or (t.department=a.department and (a.role='lead' or t.assigned_to=uid))),
+ 'posts',(select coalesce(jsonb_agg(to_jsonb(p) order by p.created_at desc),'[]') from public.elan_oc_board p where leader or (p.department=a.department and p.audience in ('department',a.role))),
+ 'handoffs',(select coalesce(jsonb_agg(to_jsonb(h) order by h.created_at desc),'[]') from public.elan_oc_handoffs h where leader or h.department=a.department),
+ 'finance',(select coalesce(jsonb_agg(to_jsonb(b)),'[]') from (select acct.* from public.elan_oc_modules m cross join lateral public.elan_oc_accounts(m.id,(now() at time zone 'Asia/Kolkata')::date) acct where leader and m.tool='finance')b),
+ 'registers',(select coalesce(jsonb_agg(jsonb_build_object('department',m.department,'title',r.title,'stage',r.details->>'stage','updated',r.updated_at) order by r.updated_at desc),'[]') from public.elan_oc_records r join public.elan_oc_modules m on m.id=r.module_id where leader or m.department=a.department)
+ ) into result;return result;
+end$$;
+create function public.elan_ops_desk() returns jsonb language sql security invoker set search_path='' as $$select elan_private.ops_desk()$$;
+create function elan_private.ops_assign(p_owner uuid,p_title text,p_brief text,p_due date) returns uuid language plpgsql security definer set search_path='' as $$
+declare target public.elan_oc_access; job uuid;
+begin
+ select * into strict target from public.elan_oc_access where user_id=p_owner for share;
+ if not exists(select 1 from public.elan_oc_reviewers where user_id=auth.uid()) and not exists(select 1 from public.elan_oc_access where user_id=auth.uid() and role='lead' and department=target.department) then raise exception 'Lead or leadership access required';end if;
+ insert into public.elan_oc_tasks(department,assigned_to,title,brief,due_on) values(target.department,p_owner,trim(p_title),trim(p_brief),p_due) returning id into job;
+ insert into public.elan_audit(actor_id,action,target) values(auth.uid(),'organiser:assign-task',job::text);return job;
+end$$;
+create function public.elan_ops_assign(p_owner uuid,p_title text,p_brief text,p_due date) returns uuid language sql security invoker set search_path='' as $$select elan_private.ops_assign(p_owner,p_title,p_brief,p_due)$$;
+create function elan_private.ops_brief(p_department text,p_title text,p_body text) returns uuid language plpgsql security definer set search_path='' as $$
+declare id_out uuid;
+begin
+ if not exists(select 1 from public.elan_oc_reviewers where user_id=auth.uid()) then raise exception 'Leadership access required';end if;
+ if not exists(select 1 from public.elan_oc_modules where department=p_department) and not exists(select 1 from public.elan_oc_access where department=p_department) then raise exception 'Unknown department';end if;
+ insert into public.elan_oc_board(department,audience,kind,title,body) values(p_department,'department','briefing',trim(p_title),trim(p_body)) returning id into id_out;
+ insert into public.elan_audit(actor_id,action,target) values(auth.uid(),'organiser:issue-brief',id_out::text);return id_out;
+end$$;
+create function public.elan_ops_brief(p_department text,p_title text,p_body text) returns uuid language sql security invoker set search_path='' as $$select elan_private.ops_brief(p_department,p_title,p_body)$$;
+revoke all on function elan_private.ops_desk(),public.elan_ops_desk(),elan_private.ops_assign(uuid,text,text,date),public.elan_ops_assign(uuid,text,text,date),elan_private.ops_brief(text,text,text),public.elan_ops_brief(text,text,text) from public,anon;
+grant execute on function elan_private.ops_desk(),public.elan_ops_desk(),elan_private.ops_assign(uuid,text,text,date),public.elan_ops_assign(uuid,text,text,date),elan_private.ops_brief(text,text,text),public.elan_ops_brief(text,text,text) to authenticated;
+-- Ensure custom department appointments always receive a working register.
+create function elan_private.ensure_ops_module() returns trigger language plpgsql security definer set search_path='' as $$
+begin
+ insert into public.elan_oc_modules(department,tool) values(new.department,
+ case when new.department ~* 'finance' then 'finance' when new.department ~* 'social' then 'social' when new.department ~* 'design|media' then 'media'
+ when new.department ~* 'sponsor|partner' then 'partnerships' when new.department ~* 'outreach|ambassador' then 'outreach'
+ when new.department ~* 'logistics|hospitality' then 'operations' when new.department ~* 'programme|crisis' then 'programme' else 'general' end)
+ on conflict(department) do nothing;return new;
+end$$;
+revoke all on function elan_private.ensure_ops_module() from public,anon,authenticated;
+create trigger ensure_ops_module after insert or update of department on public.elan_oc_access for each row execute function elan_private.ensure_ops_module();
+insert into public.elan_oc_modules(department,tool) values('Documentation','general'),('Campus Ambassadors','outreach') on conflict(department) do nothing;
+insert into public.elan_oc_modules(department,tool) select distinct department,'general' from public.elan_oc_access on conflict(department) do nothing;
+insert into public.elan_oc_modules(department,tool) values ('Heads of All Departments','general'),('Chief Advisor','general') on conflict(department) do nothing;
+
+-- Return only department names, seat occupancy and aggregate operational counts.
+-- Coordination/advisory titles do not confer reviewer or admin powers.
+create function elan_private.desk_context() returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare leadseat boolean; dept text; overview boolean;
+begin
+ select exists(select 1 from public.elan_oc_reviewers where user_id=auth.uid()) into leadseat;
+ select department into dept from public.elan_oc_access where user_id=auth.uid();
+ if not leadseat and dept is null then raise exception 'Organiser access required';end if;
+ overview:=leadseat or lower(trim(dept)) in ('heads of all departments','head of all departments','chief advisor');
+ return jsonb_build_object('departments',(select coalesce(jsonb_agg(department order by department),'[]') from public.elan_oc_modules),
+ 'seats',(select coalesce(jsonb_agg(seat),'[]') from public.elan_oc_reviewers),
+ 'coordination',case when overview then (select coalesce(jsonb_agg(jsonb_build_object('department',m.department,'open',(select count(*) from public.elan_oc_tasks t where t.department=m.department and t.status<>'Done'),'late',(select count(*) from public.elan_oc_tasks t where t.department=m.department and t.status<>'Done' and t.due_on<(now() at time zone 'Asia/Kolkata')::date),'pending',(select count(*) from public.elan_oc_requests r where r.department=m.department and r.status='pending')) order by m.department),'[]') from public.elan_oc_modules m) else null end);
+end$$;
+create function public.elan_desk_context() returns jsonb language sql security invoker set search_path='' as $$select elan_private.desk_context()$$;
+revoke all on function elan_private.desk_context(),public.elan_desk_context() from public,anon;
+grant execute on function elan_private.desk_context(),public.elan_desk_context() to authenticated;
+-- Resolve portal membership from server records; the URL and user-editable metadata never grant roles.
+create table elan_private.applicant_logins(user_id uuid primary key references auth.users on delete cascade);
+revoke all on elan_private.applicant_logins from public,anon,authenticated;
+create function elan_private.login_portal() returns text language plpgsql stable security definer set search_path='' as $$
+declare uid uuid:=auth.uid(); u auth.users;
+begin
+ select * into u from auth.users where id=uid and email_confirmed_at is not null and deleted_at is null;
+ if not found then return 'none';end if;
+ if exists(select 1 from public.elan_staff where user_id=uid and role='admin') then return 'admin';end if;
+ if exists(select 1 from public.elan_oc_reviewers where user_id=uid) or exists(select 1 from public.elan_oc_access where user_id=uid)
+ or exists(select 1 from public.elan_oc_pending_access where email=lower(u.email)) or exists(select 1 from public.elan_staff where user_id=uid and role='organiser') then return 'organiser';end if;
+ if exists(select 1 from public.elan_enquiries e where lower(e.email)=lower(u.email) and (e.details->>'application_version'='2' or e.details->>'intent'='2027 organising committee application')
+ and (e.created_at<=u.created_at or exists(select 1 from elan_private.applicant_logins where user_id=uid))) then return 'applicant';end if;
+ return 'participant';
+end$$;
+create function public.elan_login_portal() returns text language sql security invoker set search_path='' as $$select elan_private.login_portal()$$;
+-- Existing participants who themselves applied can explicitly move to recruitment.
+create function elan_private.join_applicant_login() returns void language plpgsql security definer set search_path='' as $$
+begin
+ if elan_private.login_portal()<>'participant' or not exists(select 1 from public.elan_enquiries e join auth.users u on lower(u.email)=lower(e.email) where u.id=auth.uid() and (e.details->>'application_version'='2' or e.details->>'intent'='2027 organising committee application')) then raise exception 'No eligible application for this account';end if;
+ insert into elan_private.applicant_logins values(auth.uid()) on conflict do nothing;
+end$$;
+create function public.elan_join_applicant_login() returns void language sql security invoker set search_path='' as $$select elan_private.join_applicant_login()$$;
+revoke all on function public.elan_join_applicant_login(),elan_private.join_applicant_login(),public.elan_login_portal(),elan_private.login_portal() from public,anon;
+grant execute on function public.elan_join_applicant_login(),elan_private.join_applicant_login(),public.elan_login_portal(),elan_private.login_portal() to authenticated;
+do $$declare tbl text;begin foreach tbl in array array['elan_profiles','elan_registrations','elan_attendees','elan_payments','elan_support','elan_submissions'] loop
+ execute format('create policy participant_portal_only on public.%I as restrictive for select to authenticated using ((select elan_private.login_portal())=''participant'')',tbl);
+end loop;end$$;
+create function elan_private.has_own_application() returns boolean language sql stable security definer set search_path='' as $$select exists(select 1 from public.elan_enquiries e join auth.users u on lower(u.email)=lower(e.email) where u.id=auth.uid() and u.email_confirmed_at is not null and (e.details->>'application_version'='2' or e.details->>'intent'='2027 organising committee application'))$$;
+create function public.elan_has_own_application() returns boolean language sql security invoker set search_path='' as $$select elan_private.has_own_application()$$;
+revoke all on function public.elan_has_own_application(),elan_private.has_own_application() from public,anon;
+grant execute on function public.elan_has_own_application(),elan_private.has_own_application() to authenticated;
+
+create or replace function public.elan_oc_progress(p_id uuid,p_status text) returns void language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+perform elan_private.oc_progress(p_id,p_status);end$$;
+create or replace function public.elan_review_submit(i uuid,k text,p jsonb,f text) returns void language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+perform elan_private.review_submit(i,k,p,f);end$$;
+create or replace function public.elan_review_decide(i uuid,d text,n text) returns text language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+return elan_private.review_with_plan(i,d,n,null,null);end$$;
+create or replace function public.elan_review_reopen(i uuid) returns void language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+perform elan_private.review_reopen(i);end$$;
+create or replace function public.elan_review_with_plan(i uuid,d text,n text,due date,owner_seat text) returns text language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+return elan_private.review_with_plan(i,d,n,due,owner_seat);end$$;
+create or replace function public.elan_my_applications() returns jsonb language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'applicant' then raise exception 'Wrong portal: applicant access required' using errcode='42501';end if;
+return elan_private.my_applications();end$$;
+create or replace function public.elan_interview_reply(p_id uuid,p_reply text,p_note text,p_expected integer) returns void language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'applicant' then raise exception 'Wrong portal: applicant access required' using errcode='42501';end if;
+perform elan_private.interview_reply(p_id,p_reply,p_note,p_expected);end$$;
+create or replace function public.elan_claim_appointment() returns boolean language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+return elan_private.claim_appointment();end$$;
+create or replace function public.elan_applicant_profile() returns jsonb language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'applicant' then raise exception 'Wrong portal: applicant access required' using errcode='42501';end if;
+return elan_private.applicant_profile();end$$;
+create or replace function public.elan_ops_desk() returns jsonb language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+return elan_private.ops_desk();end$$;
+create or replace function public.elan_ops_assign(p_owner uuid,p_title text,p_brief text,p_due date) returns uuid language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+return elan_private.ops_assign(p_owner,p_title,p_brief,p_due);end$$;
+create or replace function public.elan_ops_brief(p_department text,p_title text,p_body text) returns uuid language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+return elan_private.ops_brief(p_department,p_title,p_body);end$$;
+create or replace function public.elan_desk_context() returns jsonb language plpgsql security invoker set search_path='' as $$
+begin if elan_private.login_portal()<>'organiser' then raise exception 'Wrong portal: organiser access required' using errcode='42501';end if;
+return elan_private.desk_context();end$$;

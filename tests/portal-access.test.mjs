@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {getPortal,pagePortal,portals,wrongPortal} from '../src/portal-access.js';
+test('all protected page types map to one expected workspace',()=>{for(const t of ['profile','dashboard','register','schedule','support','submissions','login'])assert.equal(pagePortal(t),'participant');assert.equal(pagePortal('applications'),'applicant');assert.equal(pagePortal('admin'),'admin');});
+test('unavailable or unknown role fails closed',async()=>{for(const r of [{data:null},{data:'unknown'},{data:'admin',error:true}])await assert.rejects(getPortal({rpc:async()=>r}));});
+test('every wrong-portal combination points back to the trusted route',()=>{for(const a of Object.keys(portals))for(const b of Object.keys(portals))if(a!==b){const node={querySelector:()=>({})};wrongPortal(node,a,b,{});assert.ok(node.innerHTML.includes('href="'+portals[a].url+'"'));assert.ok(node.innerHTML.includes('cannot open the '+portals[b].title+' portal'));}});
