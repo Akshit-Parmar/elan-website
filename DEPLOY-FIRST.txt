@@ -1,14 +1,11 @@
-ELAN · ORGANISER TOOLS AND VISITOR JOURNEYS
+ÉLAN SUMMIT | GITHUB AND CLOUDFLARE
 
-1. Extract the entire ZIP.
-2. Open Elan-GitHub-Deployment. Upload its CONTENTS to the root of Akshit-Parmar/elan-website, replacing matching files. Do not upload the ZIP or add an extra nested folder.
-3. Keep Cloudflare Pages settings: Framework None; root blank; build command python3 scripts/build.py; output directory dist.
-4. Review a branch preview before merging to production.
+Extract the ZIP. Open the inner Elan-GitHub-Deployment folder. The existing repository has scripts/build.py and dist/index.html, not a root index.html. Keep that layout.
 
-NEW: bulk gallery actions and duplicate warnings; first-edition photo groups; four shorter enquiry paths; private organiser notes/assignments/follow-ups; content history and restore; optional anonymous visitor counts.
+For the source-build setup: copy the contents of Elan-GitHub-Deployment to the repository root, preserving the folders (src, scripts, dist and the other project files). Replace matching files. Do not flatten dist into the root, upload the ZIP itself, or nest the whole project inside another folder. Keep repository settings, .git and unrelated files.
 
-Gallery captions remain removed. The approved homepage, logo, colours and 3D entrance are retained.
+Check the Cloudflare Pages project settings: if it runs python3 scripts/build.py, the output directory should be dist. If it publishes prebuilt files from dist without building, keep dist in that same location. Confirm a preview deployment works before merging. The production project settings are not verified by this package.
 
-The existing Supabase project is already updated. No new API key or Edge Function setup is needed. Do not run fresh-project.sql on your existing database.
+Supabase changes from previous releases are already installed. Do not run fresh-project.sql on an existing project. See docs/APPLICANT-PORTAL.md for the Auth dashboard settings and docs/HANDOUT.md for the invitation pilot. Do not commit private keys or passwords.
 
-Read docs/ORGANISER-TOOLS-NOVEMBER-2026.md for instructions and verification limits. The frontend has NOT been pushed to GitHub or deployed for you.
+After deployment: check About Élan on mobile and desktop; submit a test application with an inbox you control; use the newest setup email and verify the role and destination. Closing a browser window is not a guaranteed logout. Use Sign out on shared devices.

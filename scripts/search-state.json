@@ -1,118 +1,126 @@
 {
   "about.html": {
-    "sha256": "e316c732a7f8083f75c96e2364e864e79d918f160aee3ae3a243bee7233460c3",
-    "lastmod": "2026-11-06"
+    "sha256": "055a81c370475374c4191e786f737cf65ff7a6b7c985c56119281011047e5890",
+    "lastmod": "2026-11-08"
   },
   "archive.html": {
-    "sha256": "5657b1003123c17433d32441711f71c026f5625b6bdfe67aac18852033dfa8fc",
-    "lastmod": "2026-11-06"
+    "sha256": "6a05717edc014be0c166e201aa91350008ca3f351a6c00024d84448e464f945b",
+    "lastmod": "2026-11-08"
   },
   "cabinet-preview.html": {
-    "sha256": "51f07e2563014ca400c93293e3bec055c299e0addd1f405fa0a031d885c439e7",
-    "lastmod": "2026-11-06"
+    "sha256": "42b848f7a94624db68577d902b51080bd90f9cae569637ad5f41b6324d05c9e1",
+    "lastmod": "2026-11-08"
   },
   "centsible.html": {
-    "sha256": "df10e926b7862b973ff5a81158c4f5956bd44c877245518e919398ae53b9ca16",
-    "lastmod": "2026-11-06"
+    "sha256": "58f10dafea3f6b0b89ba345f8e131d0dae3997e043c2c8fd98dcb8ad23663288",
+    "lastmod": "2026-11-08"
   },
   "code-of-conduct.html": {
-    "sha256": "e85bf769d2937b0a80bd8a762fa7877731ca54c4e1f801056bd11b113e5eeacb",
-    "lastmod": "2026-11-06"
+    "sha256": "5419b83ef36c230b16336d51c25d877561b46bd8e744db7eaaab9fe7dea63e11",
+    "lastmod": "2026-11-08"
   },
   "contact.html": {
-    "sha256": "0fa031740ed61537d70e3ada4084e679b492b0b8659dd3987a43d50dd4368124",
-    "lastmod": "2026-11-06"
+    "sha256": "55175718eb13cabceb0c346c3c8990154dbd26b58422130c4cc2f7473c9a10ba",
+    "lastmod": "2026-11-08"
   },
   "event-details.html": {
-    "sha256": "bc83d3e3ce312332d4367901fccdd34f57c5da0026d1350ed1bd73f346e60eb0",
-    "lastmod": "2026-11-06"
+    "sha256": "5e90386bfe992e71de9da602d91c2f56522605ec2312d37ecb6a4aa14cf5ec4d",
+    "lastmod": "2026-11-08"
   },
   "event-flow.html": {
-    "sha256": "2667346a9219ca5b66365355a440cfcc7d0a4024bb33b1cb8897aa53e5723141",
-    "lastmod": "2026-11-06"
+    "sha256": "10a2b060553b1b9030c545e866475707e9d2ad14455763d1818bd05c75ecb66e",
+    "lastmod": "2026-11-08"
   },
   "faqs-2026.html": {
-    "sha256": "c90ad02a080ce27e49d18dd71f98a3a5881bf48c2b38d41ceef28c4c019f6124",
-    "lastmod": "2026-11-06"
+    "sha256": "cabe40cddcd00c200b674432e1384b6770e113a463204bbecac4a003c52aed9a",
+    "lastmod": "2026-11-08"
   },
   "faqs.html": {
-    "sha256": "fde520f380c828a520836b6d3e30d054eca6f9b1e8d2e91937f3c580f102b0de",
-    "lastmod": "2026-11-06"
+    "sha256": "c3415cfe417e8feed7db7de57652b7c8eb0b2c9a5bcb136317faf7755f563932",
+    "lastmod": "2026-11-08"
   },
   "first-edition.html": {
-    "sha256": "bb1fc97bfb4d28b0c3257ac77186f2d5a3e715278153ec8107ef7fea037452a3",
-    "lastmod": "2026-11-06"
+    "sha256": "47fde6ade3cfa265fb37eb9423aaba0fd87ee653f2244dca80e2aff6e4522f2a",
+    "lastmod": "2026-11-08"
   },
   "flagship.html": {
-    "sha256": "d43526896ecc28f4165b1f8f765440934364892b864a250b24239cbd7bd8b259",
-    "lastmod": "2026-11-06"
+    "sha256": "5a72b1a83f9fc6036204350292ab84af2e47b743bf918656dc6e9c7c492fca82",
+    "lastmod": "2026-11-08"
   },
   "founders.html": {
-    "sha256": "3136201898a71e536f6d5b7ed55388d7bbd64466cc4eeb70aa5bc346b09b7b0d",
-    "lastmod": "2026-11-06"
+    "sha256": "f27110206de6ffe1fdcaba108294ceb0a580540a5a8e44b5d022266f4459a487",
+    "lastmod": "2026-11-08"
   },
   "gallery.html": {
-    "sha256": "84b211335f59ce4f53122b084914375c7bf0e11cc42fa06afe7dd06f4c322a2d",
-    "lastmod": "2026-11-06"
+    "sha256": "5848dfc6cc96c4ae76fa0421fab1bae2bebd1523b7d67a5cd8e6f7a64794e507",
+    "lastmod": "2026-11-08"
   },
   "guests.html": {
-    "sha256": "2f76cbbb2c99117462b866580e9f752d9e3690f87966263d015b33bb7d81db33",
-    "lastmod": "2026-11-06"
+    "sha256": "02f27a3613b1a1d74efca9f8d1f5cf05fb88c5bd063463ef6869a2f250a75251",
+    "lastmod": "2026-11-08"
   },
   "index.html": {
-    "sha256": "1de9e882f5616a2ce7b6c73c34b9f1ecc3b2ec1173dc46e04e633ac31c0f5abd",
-    "lastmod": "2026-11-06"
+    "sha256": "0c21b93c7aa5d5998cfbc67bd8a60ee6704e97a07fda90ac939368be59cdaee0",
+    "lastmod": "2026-11-08"
   },
   "join-oc-2027.html": {
-    "sha256": "4983c6e5e0d58e6e5955b90089c814f76dadf4c6435f60b50c58f2253d45eeb2",
-    "lastmod": "2026-11-06"
+    "sha256": "9d00b2a6daf3bec5324ef0d80104456ff5eddca69d4f3c341248fbd92ac06dc3",
+    "lastmod": "2026-11-08"
   },
   "next-edition.html": {
-    "sha256": "d283464a7f301dd6dc131ce0f33c9f8c5089ad4bb54d21e54b10a1c62a95cf9e",
-    "lastmod": "2026-11-06"
+    "sha256": "b80089316f5082dcf9d3d676cf04267b5e08ab9b4c8d41750b21a4da5a7dcd7a",
+    "lastmod": "2026-11-08"
   },
   "oc-2026.html": {
-    "sha256": "c6d4a9631f1e1d53ee7e0643cdca2910002422af997a06141db4c5d0f55de828",
-    "lastmod": "2026-11-06"
+    "sha256": "307f1f29fd16d89de6e553f0f80b8c9d69faea54262fc29fc6d19ec9c39cad22",
+    "lastmod": "2026-11-08"
   },
   "partners.html": {
-    "sha256": "bf50e011a79cf3f78804be996779021eccd4f7bba68b65d7ce60c571893f77f0",
-    "lastmod": "2026-11-06"
+    "sha256": "993c6d85f36179f9f5d0857453d130122765ddd4993d8828bc27d8ff727945a5",
+    "lastmod": "2026-11-08"
   },
   "privacy.html": {
-    "sha256": "09eabfab3a72fbc7ffcf5256d80d01b22b0ff099f107b58644f0826fbfa9738e",
-    "lastmod": "2026-11-06"
+    "sha256": "bb1ed2b012f8303c3b4d067412e43b032e7add745e8af4a8f496d00582406778",
+    "lastmod": "2026-11-08"
   },
   "refund.html": {
-    "sha256": "4c74ef720451ef2c881de6da9f9b4ba19972514b1d9fe374ff0b5dc307e46e12",
-    "lastmod": "2026-11-06"
+    "sha256": "23efc7a1343e13e241f0fd33398fc13918ea24166e7ebd6340d6a051af7f3bba",
+    "lastmod": "2026-11-08"
   },
   "schedule.html": {
-    "sha256": "8c764ff07454a84791ccbeee105ca04311df98898c6153ba233ac6a4f8c43d76",
-    "lastmod": "2026-11-06"
+    "sha256": "2b6296072a98b774cdbb68d0116eeff88e3e62ac140723c243cd1e535684133d",
+    "lastmod": "2026-11-08"
   },
   "school-collaboration.html": {
-    "sha256": "8fdf22cbeb7dbc13a6b83935ec55418cab5194e1cc618dafe1ee61c9555b00e9",
-    "lastmod": "2026-11-06"
+    "sha256": "aedc374beb5d392ed959254f62400ca74bfa161d5d095cbaa7427e37ea1c4d3b",
+    "lastmod": "2026-11-08"
   },
   "schools.html": {
-    "sha256": "206919d74a76836f4b4e302798c715c281f62b781f0c4b9c9880fbdbdaa65cc8",
-    "lastmod": "2026-11-06"
+    "sha256": "a371d99e7cc3fa8b341b0ce36d393d6a7cac78395dbd1b1bf66716a0c04c08ec",
+    "lastmod": "2026-11-08"
   },
   "terms.html": {
-    "sha256": "e4db7e7b95b0cd98042cf5d0a75fc43f9160fe6adab63b24ba0ca60caedd3d79",
-    "lastmod": "2026-11-06"
+    "sha256": "68523e4e7a19ca788ee5586063aed29dad88e254aafb29ebbf4da3e9dec6efca",
+    "lastmod": "2026-11-08"
   },
   "tickets.html": {
-    "sha256": "417f2c185b483e17dc3c461096acc0e15276c4e4a23bad612d4dd60a90dd4140",
-    "lastmod": "2026-11-06"
+    "sha256": "0de54682a2b18a7a11c4dee666bbc84786c8a7a9786c04a71cdd19ea649b4b75",
+    "lastmod": "2026-11-08"
   },
   "volunteers.html": {
-    "sha256": "89d4369db8855ad3e437bea26d68f20082e87a1acb5eb2a83bc91f5cbe977b26",
-    "lastmod": "2026-11-06"
+    "sha256": "2d265d2e6d8cbf154af7311dd37d95ad1128a1e5ad942c4db857388d674ac20c",
+    "lastmod": "2026-11-08"
   },
   "winners-2026.html": {
-    "sha256": "4e8e9ff370cd6bbb7cfa44b6b669a97e5bc02808bb6712dab5d882631a16aca0",
-    "lastmod": "2026-11-06"
+    "sha256": "de568b61ee19539553334d9c8efbda912f55be10956bd062db7946b94111e254",
+    "lastmod": "2026-11-08"
+  },
+  "founders-note.html": {
+    "sha256": "a0d54575f30320dfb2ddb7c978854e4cb077bd2a6d6458e0a5f0ae25bf9e70b0",
+    "lastmod": "2026-11-08"
+  },
+  "mission-and-vision.html": {
+    "sha256": "8858464ac342756d3dec99f239e31129e88e5b9c1e140e994c3a0238ea587918",
+    "lastmod": "2026-11-08"
   }
 }

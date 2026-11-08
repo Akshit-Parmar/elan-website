@@ -1,4 +1,4 @@
-import {getPortal,pagePortal,portals,wrongPortal} from './portal-access.js';
+import {getPortal,pagePortal,portals,wrongPortal,watchWorkspace} from './portal-access.js';
 import {inviteCallback,acceptInviteSession,authDestination,bindAuthForm,followVerifiedSignIn} from './auth-feedback.js';
 import {receiptHTML} from './application-content.js';
 import {setupApplication} from './oc-application.js';
@@ -30,6 +30,7 @@ for(const form of document.querySelectorAll('form[data-mode="stored-enquiry"]'))
  const inputs=[...form.querySelectorAll('input')];const full_name=inputs.find(x=>x.dataset.validate==='name')?.value||details.coordinator;const email=inputs.find(x=>x.type==='email')?.value;
  const r=await api('enquiry',{kind:form.dataset.form,full_name,email,details,consent:form.querySelector('[name=contact_consent]').checked,honeypot:form.querySelector('[name=elan_hp]')?.value||'',captchaToken:form.querySelector('[name="cf-turnstile-response"]')?.value||''});note.innerHTML=receiptHTML(r.id,form.matches('[data-oc-application]'),r.email_status);document.dispatchEvent(new Event('elan:enquiry-saved'));form.reset();}catch(e){note.dataset.error='true';note.textContent=e.message;}finally{form.querySelectorAll('[data-next],[data-back]').forEach(b=>b.disabled=false);button.disabled=false;delete form.dataset.sending;form.removeAttribute('aria-busy');note.focus();}
  });
+ form.inert=false;const hint=form.previousElementSibling?.previousElementSibling;if(hint?.matches('[data-form-loading]'))hint.hidden=true;
 }
 if(config.turnstileSiteKey&&document.querySelector('form[data-mode="stored-enquiry"]')){const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js';script.async=true;for(const f of document.querySelectorAll('form[data-mode="stored-enquiry"]')){const div=document.createElement('div');div.className='cf-turnstile';div.dataset.sitekey=config.turnstileSiteKey;f.append(div);}document.head.append(script);}
 function adminLogin(){
@@ -140,6 +141,7 @@ async function guide(){ $('#app-content').innerHTML='<section class="app-card"><
 class PortalStop extends Error{}
 const shell=$('[data-app]');let me,actualPortal;
 if(shell){try{if(invite){try{await acceptInviteSession(sb.auth,invite);}catch{if(shell.dataset.app==='applications')applicantLogin();else password();status('This invitation could not be verified. Request a password reset using the invited email address.',true);throw new Error('This invitation could not be verified. Request a new link below.');}}const {data:{session}}=await sb.auth.getSession();if(session){
+ watchWorkspace(sb,session,shell);
  actualPortal=await getPortal(sb);
  const desired=pagePortal(shell.dataset.app);
  if(shell.dataset.app!=='password'&&actualPortal!==desired){

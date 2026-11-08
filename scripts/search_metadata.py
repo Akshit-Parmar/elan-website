@@ -12,6 +12,8 @@ DESCRIPTIONS={
 'oc-2026.html':'Explore the departments and members of the Élan Summit 2026 organising committee in Mulshi.',
 'join-oc-2027.html':'Apply to help organise Élan Summit 2027. Tell the team about your interests, availability and preferred responsibilities.',
 'index.html':'Élan Summit brings students together to lead, create and connect. Explore Crisis Command, revisit our first edition and apply to help organise Élan 2027.',
+'mission-and-vision.html':'Read Élan Summit’s mission and vision for student leadership, shared decisions and learning across schools.',
+'founders-note.html':'A personal note from Akshit Parmar, founder of Élan Summit, on how the idea took shape and what he hopes students take home.',
 'about.html':'Learn how Élan Summit began and what students can experience through its cabinet simulation, creative activities and school community.',
 'founders.html':'Meet Akshit Parmar, founder of Élan Summit, and co-founders Sakshi Baldawa, Prachi Belagali and Jacinth Jebaraj.',
 'flagship.html':'Explore Crisis Command, Élan Summit’s cabinet simulation. Take a leadership role, respond to a crisis and work with your team to defend a decision.',
@@ -40,6 +42,8 @@ DESCRIPTIONS={
 TITLES={'index.html':'Élan Summit | Student Leadership & Crisis Command','founders.html':'Founder & Co-founders | Élan Summit','archive.html':'2026 Archive | Élan Summit','first-edition.html':'Élan Summit 2026 in Pictures','next-edition.html':'Next Edition & Registration Updates | Élan Summit','tickets.html':'2026 Passes & Prices (Archived) | Élan Summit','schedule.html':'2026 Programme (Archived) | Élan Summit'}
 TITLES.update({
 'about.html':'About Élan Summit | Our Story',
+'mission-and-vision.html':'Mission & Vision | Élan Summit',
+'founders-note.html':'Founder’s Note from Akshit Parmar | Élan Summit',
 'flagship.html':'Crisis Command | Élan Summit',
 'gallery.html':'Photo Gallery | Élan Summit',
 'guests.html':'2026 Guests & Judges | Élan Summit',
@@ -73,7 +77,7 @@ def structured_data(path,title,description):
     url=canonical(path)
     org={'@type':'Organization','@id':ORIGIN+'/#organization','name':'Élan Summit','alternateName':'Elan Summit','url':ORIGIN+'/','logo':ORIGIN+'/assets/img/elan-horse-logo-512.png','email':'the.elan.summit@gmail.com'}
     website={'@type':'WebSite','@id':ORIGIN+'/#website','url':ORIGIN+'/','name':'Élan Summit','alternateName':'Elan Summit','inLanguage':'en-IN','publisher':{'@id':org['@id']}}
-    page={'@type':'AboutPage' if path in ['about.html','founders.html'] else 'ContactPage' if path=='contact.html' else 'CollectionPage' if path in ['archive.html','gallery.html','guests.html'] else 'WebPage','@id':url+'#webpage','url':url,'name':title,'description':description,'inLanguage':'en-IN','isPartOf':{'@id':website['@id']}}
+    page={'@type':'AboutPage' if path in ['about.html','founders.html','mission-and-vision.html','founders-note.html'] else 'ContactPage' if path=='contact.html' else 'CollectionPage' if path in ['archive.html','gallery.html','guests.html'] else 'WebPage','@id':url+'#webpage','url':url,'name':title,'description':description,'inLanguage':'en-IN','isPartOf':{'@id':website['@id']}}
     page['primaryImageOfPage']={'@type':'ImageObject','url':ORIGIN+SHARE_IMAGE,'width':1200,'height':630}
     graph=[org,website,page]
     if path!='index.html':
@@ -96,6 +100,6 @@ def write_search_files(out):
     state_path.write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n')
     ET.indent(root);ET.ElementTree(root).write(out/'sitemap.xml',encoding='utf-8',xml_declaration=True)
     (out/'robots.txt').write_text('User-agent: *\nAllow: /\n\n# Search discovery is enabled. Model training remains disabled.\nUser-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: GPTBot\nDisallow: /\n\nSitemap: '+ORIGIN+'/sitemap.xml\n')
-    (out/'llms.txt').write_text('# Élan Summit\n\n> A student summit built around leadership, creative activities and meeting people from other schools.\n\nThe first edition took place on 5 and 6 September 2026 at SGIS Pune Campus, Mulshi, Pune. The next edition will feature Crisis Command. Its dates, venue, eligibility and prices have not been announced. Archived 2026 prices and rules must not be presented as current registration details.\n\n## Official pages\n\n'+''.join('- ['+TITLES.get(p,p.removesuffix('.html').replace('-',' ').title())+']('+canonical(p)+'): '+DESCRIPTIONS[p]+'\n' for p in ['index.html','about.html','next-edition.html','flagship.html','founders.html','contact.html','archive.html','first-edition.html','oc-2026.html','join-oc-2027.html','cabinet-preview.html','guests.html','faqs.html'])+'\n## Accounts\n\nParticipant and organiser pages require appropriate account access and are not public reference sources.\n')
+    (out/'llms.txt').write_text('# Élan Summit\n\n> A student summit built around leadership, creative activities and meeting people from other schools.\n\nThe first edition took place on 5 and 6 September 2026 at SGIS Pune Campus, Mulshi, Pune. The next edition will feature Crisis Command. Its dates, venue, eligibility and prices have not been announced. Archived 2026 prices and rules must not be presented as current registration details.\n\n## Official pages\n\n'+''.join('- ['+TITLES.get(p,p.removesuffix('.html').replace('-',' ').title())+']('+canonical(p)+'): '+DESCRIPTIONS[p]+'\n' for p in ['index.html','about.html','mission-and-vision.html','founders-note.html','next-edition.html','flagship.html','founders.html','contact.html','archive.html','first-edition.html','oc-2026.html','join-oc-2027.html','cabinet-preview.html','guests.html','faqs.html'])+'\n## Accounts\n\nParticipant and organiser pages require appropriate account access and are not public reference sources.\n')
     private=['/organisers','/organisers.html','/organiser-desk','/organiser-desk.html','/portal/*','/admin','/admin.html','/pay','/pay.html','/register','/register.html','/speakers','/speakers.html','/site-directory','/site-directory.html']
     (out/'_headers').write_text('\n\n'.join(p+'\n  X-Robots-Tag: noindex, follow' for p in private)+'\n\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n')

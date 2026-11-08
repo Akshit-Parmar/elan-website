@@ -1,4 +1,4 @@
-import {getPortal,wrongPortal} from './portal-access.js';
+import {getPortal,wrongPortal,watchWorkspace} from './portal-access.js';
 import {dueLabel,leadershipSummary} from './workspace-summary.js';
 import {submitReview,reviewView} from './leadership-review.js';
 import {finance,registry,toolNames,handoffDesk} from './department-tools.js';
@@ -14,7 +14,7 @@ export function composer(host,{sb,dept,admin=false,after}) {
  f.onsubmit=async e=>{e.preventDefault();if(f.inert)return;const v=Object.fromEntries(new FormData(f)),url=(v.url||'').trim(),out=f.querySelector('[role=status]');if(v.kind==='resource'&&!safe(url)){notice(out,'Enter a full HTTPS link.');return;}f.inert=true;try{const post={department:(admin?v.dept:dept).trim(),audience:v.audience,kind:v.kind,title:v.title.trim(),body:v.body.trim(),url};if(admin)await read(sb.from(table).insert(post));else await submitReview(sb,'board',post);f.reset();f.elements.kind.onchange();notice(out,admin?'Published.':'Submitted for leadership review.');await after();}catch(err){notice(out,err.message);}finally{f.inert=false;}};
 }
 export async function panel({host,sb,session}){
- const actual=await getPortal(sb);if(actual!=='organiser'){wrongPortal(host,actual,'organiser',sb);return;}
+ watchWorkspace(sb,session,host);const actual=await getPortal(sb);if(actual!=='organiser'){wrongPortal(host,actual,'organiser',sb);return;}
  await read(sb.rpc('elan_claim_appointment'));
 
  const mine=await read(sb.from('elan_oc_access').select('department,role').eq('user_id',session.user.id).maybeSingle());

@@ -1,4 +1,4 @@
-> Latest update: see [Organiser tools and visitor journeys](docs/ORGANISER-TOOLS-NOVEMBER-2026.md). Start with DEPLOY-FIRST.txt. Gallery captions remain removed.
+> Start with [DEPLOY-FIRST.txt](DEPLOY-FIRST.txt). For portal and email setup, see [Applicant portal](docs/APPLICANT-PORTAL.md) and [Organiser workspace](docs/ORGANISER-DESK.md).
 
 Latest admin controls: [People, account deletion and direct OC appointments](docs/PEOPLE-AND-APPLICATION-CONTROLS.md).
 

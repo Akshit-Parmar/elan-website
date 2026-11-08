@@ -1,7 +1,7 @@
 if(document.querySelector('[data-chapter-quote]'))import('/assets/stories.js').then(m=>m.chapterQuotes());
 if(document.querySelector('[data-oc]'))import('/assets/committee.js').then(m=>m.startOC()).catch(()=>{document.querySelector('#oc-directory,#oc-work').textContent='Could not load this page. Please refresh to try again.'});
 if(document.querySelector('[data-participant-stories]')) import('/assets/stories.js').then(m=>m.loadStories());
-if(document.querySelector('[data-app],form[data-mode="stored-enquiry"]')) import('/assets/app.js').catch(()=>{const el=document.querySelector('#app-status');if(el)el.textContent='Unable to load account tools. Please reload or contact the team.';});
+if(document.querySelector('[data-app],form[data-mode="stored-enquiry"]')) import('/assets/app.js').catch(()=>{const el=document.querySelector('#app-status');for(const hint of document.querySelectorAll('[data-form-loading]'))hint.textContent='The form could not load. Reload this page or email the.elan.summit@gmail.com. No information was sent.';if(el)el.textContent='Unable to load account tools. Please reload or contact the team.';});
 if(document.querySelector('.guest-journal')) import('/assets/guest-content.js');
 (() => {
   import("/assets/enhancements.js");
