@@ -10,3 +10,33 @@
 @media(max-width:660px){.reading-row,.reading-letter{grid-template-columns:1fr}.reading-letter aside{display:flex;gap:16px;align-items:center}.reading-letter aside img{width:72px}}
 
 .first-visit-note{margin:22px 0 32px;border-left:3px solid #87452c;padding:4px 0 4px 20px}.first-visit-note h3{margin:0;font-size:1.3rem}.first-visit-note p{max-width:65ch;line-height:1.65}
+
+/* About Élan: the letter and the purpose spread. */
+main.elan-folio{width:min(1120px,calc(100% - clamp(36px,9vw,128px)));margin:0 auto;padding:clamp(27px,4.3vw,58px) 0 clamp(54px,7vw,100px);color:#19273b}
+.elan-folio .folio-rule,.elan-folio .folio-label,.elan-folio figcaption span{font:600 .68rem/1.5 var(--sans,sans-serif);letter-spacing:.14em;text-transform:uppercase}
+.elan-folio .folio-rule{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #b6a690;padding-bottom:12px;color:#655849}
+.elan-folio .folio-label{margin:0 0 18px;color:#763825}
+.elan-folio h1,.elan-folio h2,.elan-folio .author-plate strong,.elan-folio .letter-signoff b{font-family:var(--serif,Georgia),serif;font-weight:400;letter-spacing:-.035em;line-height:1.05}
+.elan-folio .letter-spread{display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.3fr);gap:clamp(35px,7vw,96px);align-items:start;padding-top:clamp(25px,4vw,54px)}
+.elan-folio figure{margin:0;min-width:0}
+.elan-folio figure img{display:block;width:100%;height:auto;max-height:none;aspect-ratio:auto;object-fit:contain;transform:none}
+.elan-folio .author-plate{background:#1a293d;color:#fff4df;padding:clamp(12px,1.4vw,22px)}
+.elan-folio .author-plate figcaption{padding:18px 3px 3px;border-bottom:0}
+.elan-folio .author-plate strong{display:block;font-size:1.85rem;margin-bottom:5px}
+.elan-folio .author-plate span{color:#e1c9ab;letter-spacing:.08em}
+.elan-folio .letter-sheet h1{font-size:clamp(2.65rem,4.7vw,4.6rem);margin:0 0 25px}
+.elan-folio .letter-sheet>p:not(.folio-label),.elan-folio .purpose-pair section>p:not(.folio-label){font-size:clamp(1rem,1.15vw,1.13rem);line-height:1.68;max-width:60ch;margin:0 0 1.05em}
+.elan-folio .letter-signoff{display:grid;gap:4px;margin:23px 0;color:#693222}.elan-folio .letter-signoff b{font-size:2.25rem;font-style:italic}
+.elan-folio .folio-next{display:inline-flex;align-items:center;gap:1.3rem;border-bottom:1px solid currentColor;padding:7px 0;color:#233249;font-size:.88rem;font-weight:600;text-decoration:none}
+.elan-folio .folio-next:hover{color:#883e27}
+.elan-folio .purpose-intro{background:#19293d;color:#fff6e8;margin:22px 0 0;padding:clamp(22px,3.6vw,50px);display:grid;align-items:center;grid-template-columns:1fr 1.24fr;gap:clamp(20px,3vw,50px)}
+.elan-folio .purpose-intro .folio-label{color:#e1bd94}
+.elan-folio .purpose-intro h1{font-size:clamp(3.1rem,5vw,5.2rem);margin:0 0 16px;color:inherit}
+.elan-folio .purpose-intro h1 em{display:block;color:#e9cbab}
+.elan-folio .purpose-intro div>p:last-child{max-width:36ch;font-size:1rem;line-height:1.58;margin:0;color:#eee4d5}
+.elan-folio .purpose-intro figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:10px;color:#ecdfce;font-size:.77rem}
+.elan-folio .purpose-pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,5vw,68px);margin-top:clamp(30px,4vw,52px)}
+.elan-folio .purpose-pair section{border-top:1px solid #b6a690;padding-top:18px}
+.elan-folio .purpose-pair i{font:italic 1.05rem Georgia,serif;margin-right:.75rem;color:#7e5239}
+.elan-folio .purpose-pair h2{font-size:clamp(2rem,3vw,3rem);max-width:18ch;margin:0 0 16px}
+@media(max-width:720px){.elan-folio .letter-spread,.elan-folio .purpose-intro,.elan-folio .purpose-pair{grid-template-columns:minmax(0,1fr)}.elan-folio .author-plate{display:grid;grid-template-columns:minmax(0,105px) 1fr;align-items:end;gap:16px}.elan-folio .author-plate figcaption{padding:0 0 5px}.elan-folio .author-plate strong{font-size:1.55rem}.elan-folio .letter-spread{gap:24px}.elan-folio .purpose-intro{gap:24px}.elan-folio .purpose-intro h1 em{display:inline}.elan-folio .purpose-pair h2{max-width:23ch}}
