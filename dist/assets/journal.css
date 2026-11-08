@@ -40,3 +40,31 @@ main.elan-folio{width:min(1120px,calc(100% - clamp(36px,9vw,128px)));margin:0 au
 .elan-folio .purpose-pair i{font:italic 1.05rem Georgia,serif;margin-right:.75rem;color:#7e5239}
 .elan-folio .purpose-pair h2{font-size:clamp(2rem,3vw,3rem);max-width:18ch;margin:0 0 16px}
 @media(max-width:720px){.elan-folio .letter-spread,.elan-folio .purpose-intro,.elan-folio .purpose-pair{grid-template-columns:minmax(0,1fr)}.elan-folio .author-plate{display:grid;grid-template-columns:minmax(0,105px) 1fr;align-items:end;gap:16px}.elan-folio .author-plate figcaption{padding:0 0 5px}.elan-folio .author-plate strong{font-size:1.55rem}.elan-folio .letter-spread{gap:24px}.elan-folio .purpose-intro{gap:24px}.elan-folio .purpose-intro h1 em{display:inline}.elan-folio .purpose-pair h2{max-width:23ch}}
+
+/* Founder essay and summit purpose book */
+.elan-folio .plate-label,.elan-folio .book-cover figcaption{font:600 .72rem/1.55 var(--sans);letter-spacing:.12em;text-transform:uppercase}
+.elan-folio .plate-label{color:#784a33;margin:0 0 1rem}
+.elan-folio .essay-cover{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,24%);gap:5%;align-items:center;background:#1c293a;color:#fff3df;padding:clamp(23px,4vw,55px);margin-top:20px;border-bottom:5px solid #b78d62}
+.elan-folio .essay-cover figure{background:#e8d9c7;padding:6px}
+.elan-folio .essay-cover .plate-label,.elan-folio .practice-band .plate-label{color:#e2bf92}
+.elan-folio .essay-cover .plate-label span{margin:0 .65em}
+.elan-folio .essay-cover h1,.elan-folio .book-cover h1{margin:.23em 0;font-size:clamp(2.8rem,5.6vw,5.4rem);font-weight:400;line-height:1.02;letter-spacing:-.046em}
+.elan-folio .essay-cover h1{color:#fff3df}.elan-folio .essay-cover h1 em{color:#e5c29c}
+.elan-folio .essay-deck,.elan-folio .book-deck{font-size:clamp(1rem,1.35vw,1.25rem);line-height:1.55;margin:1em 0 0}
+.elan-folio .essay-body,.elan-folio .book-chapter{display:grid;grid-template-columns:minmax(120px,.58fr) minmax(0,1.65fr);gap:7%;padding:clamp(32px,5vw,70px) 0}
+.elan-folio .essay-margin{display:flex;flex-direction:column;gap:6px;font-size:.84rem;line-height:1.6;color:#67594b}
+.elan-folio .essay-prose,.elan-folio .book-chapter>div:last-child{max-width:63ch}
+.elan-folio .essay-prose p,.elan-folio .book-chapter p:not(.plate-label),.elan-folio .practice-band article p{font-size:1.06rem;line-height:1.75;margin:0 0 1em}
+.elan-folio .essay-prose .essay-lead{font:400 clamp(1.7rem,2.6vw,2.5rem)/1.22 var(--serif);color:#593023;margin:0 0 .85em}
+.elan-folio .essay-sign{margin:26px 0 12px;padding-top:16px;border-top:1px solid #cbb9a5;display:grid;gap:4px}.elan-folio .essay-sign b{font:italic 2.15rem var(--serif)}.elan-folio .essay-sign span{font-size:.83rem}
+.elan-folio .book-cover{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:5%;padding:clamp(28px,5vw,70px) 0}
+.elan-folio .book-cover h1 em{display:block;color:#733925}.elan-folio .book-cover figcaption{display:flex;justify-content:space-between;border-bottom:1px solid #b9a995;padding:10px 0;color:#695545}
+.elan-folio .book-index{display:flex;position:static;gap:clamp(16px,4vw,48px);flex-wrap:wrap;padding:14px 0;border-block:1px solid #bbab99}
+.elan-folio .book-index a{display:inline-flex;gap:.6em;align-items:baseline;color:#85583e;font:italic 1rem var(--serif)}.elan-folio .book-index b{color:#243147;font:600 .86rem var(--sans)}
+.elan-folio .book-chapter,.elan-folio .practice-band{scroll-margin-top:115px}.elan-folio .chapter-side>span{display:block;font:italic clamp(3rem,6vw,5rem)/1 var(--serif);color:#ab7956;margin-bottom:.16em}
+.elan-folio .book-chapter h2,.elan-folio .practice-band h2{font-size:clamp(2.3rem,3.7vw,3.65rem);margin:0 0 .4em;max-width:21ch}
+.elan-folio .practice-band{background:#243247;color:#fff2df;padding:clamp(24px,4vw,54px)}.elan-folio .practice-band h2,.elan-folio .practice-band h3,.elan-folio .practice-band .folio-next{color:inherit}
+.elan-folio .practice-pair{display:grid;grid-template-columns:1fr 1fr;gap:6%;margin-top:28px}.elan-folio .practice-pair article{border-top:1px solid #a79b87;padding-top:20px}
+.elan-folio .practice-band h3{font:400 1.85rem/1.15 var(--serif);margin:0 0 12px}
+.elan-folio .book-end{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;border-top:1px solid #baab99;padding-top:18px}.elan-folio .book-end .plate-label{margin:0}
+@media(max-width:720px){.elan-folio .book-cover,.elan-folio .book-chapter,.elan-folio .essay-body,.elan-folio .practice-pair{grid-template-columns:1fr;gap:22px}.elan-folio .essay-cover{grid-template-columns:minmax(0,1fr) 23%;gap:12px;padding:20px 14px}.elan-folio .essay-cover h1{font-size:clamp(2rem,7.3vw,3rem)}.elan-folio .essay-deck{font-size:.9rem}.elan-folio .essay-cover figure{padding:3px}.elan-folio .essay-margin{display:none}.elan-folio .book-index{gap:12px}.elan-folio .chapter-side{display:flex;gap:12px;align-items:center}.elan-folio .chapter-side>span{font-size:2rem;margin:0}.elan-folio .chapter-side .plate-label{margin:0}.elan-folio .book-cover h1{font-size:clamp(2.7rem,8vw,3.5rem)}}
