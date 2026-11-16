@@ -417,3 +417,6 @@ enabled = true
 
 [functions.elan-api]
 verify_jwt = false
+
+[functions.elan-applicant-mail]
+verify_jwt = false

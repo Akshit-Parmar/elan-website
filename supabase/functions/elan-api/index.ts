@@ -1,3 +1,4 @@
+import {dispatchApplicationMail} from './application-mail.mjs';
 import {inviteOrganiser} from './invitations.mjs';
 import {deleteAccount} from './accounts.mjs';
 import {sendAcknowledgement,emailConfigured} from './acknowledgement.mjs';
@@ -84,6 +85,7 @@ Deno.serve(async req=>{
    const scoped=createClient(url,env('SUPABASE_ANON_KEY'),{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false,autoRefreshToken:false}});
    return respond(await deleteAccount({db,scoped,uid,role,body:b,audit}));
   }
+  if(action==='application-mail-dispatch'){if(role!=='admin')throw new ApiError('Administrator access required',403);await rate('application-mail:'+uid,10,60);return respond(await dispatchApplicationMail(db,env,fetch,undefined,uuid(b.id)));}
   if(action==='acknowledgement-config'){if(role!=='admin')throw new ApiError('Administrator access required',403);return respond({configured:emailConfigured(env)});}
   if(action==='acknowledgement-retry'){if(role!=='admin')throw new ApiError('Administrator access required',403);await rate('mail:'+uid,10,60);return respond({status:await sendAcknowledgement(db,uuid(b.id),env,fetch,undefined,mailAuth())});}
   if(action==='profile')return respond(checked(await db.from('elan_profiles').upsert({user_id:uid,full_name:text(b.full_name,'Name',120,2),phone:text(b.phone||'','Phone',30,0),school:text(b.school||'','School',180,0),city:text(b.city||'','City',100,0),study_year:text(b.study_year||'','Grade or year',100,0)}).select().single()));

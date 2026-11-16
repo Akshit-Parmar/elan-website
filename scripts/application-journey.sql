@@ -8,7 +8,8 @@ begin
  if not exists(select 1 from public.elan_staff where user_id=auth.uid() and role='admin') then raise exception 'Administrator access required'; end if;
  perform pg_advisory_xact_lock(hashtextextended('recruitment:'||p_id,0));
  select interview_at,interview_instructions,interview_published into old_at,old_instructions,old_published from public.elan_oc_recruitment where enquiry_id=p_id;
- if p_published and (p_interview is null or length(trim(p_instructions))=0) then raise exception 'Add an interview time and applicant instructions before publishing';end if;
+ p_published:=coalesce(p_published,false) and p_stage='interview';
+ if p_published and (p_interview is null or length(trim(coalesce(p_instructions,'')))=0) then raise exception 'Add an interview time and applicant instructions before publishing';end if;
  r:=elan_private.save_recruitment(p_id,p_stage,p_notes,p_interview,p_details,p_expected);
  update public.elan_oc_recruitment set applicant_message=p_message,interview_published=p_published,interview_instructions=p_instructions,
  interview_reply=case when old_at is distinct from p_interview or old_instructions is distinct from p_instructions or old_published is distinct from p_published then '' else interview_reply end,

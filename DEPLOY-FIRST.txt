@@ -1,3 +1,5 @@
+STATUS FIX: Run scripts/fix-application-review-validation.sql in your existing Supabase SQL Editor, then deploy the website files. Under review and other non-interview stages no longer require interview details.
+
 ÉLAN SUMMIT | GITHUB AND CLOUDFLARE
 
 Extract the ZIP. Open the inner Elan-GitHub-Deployment folder. The existing repository has scripts/build.py and dist/index.html, not a root index.html. Keep that layout.
@@ -6,6 +8,8 @@ For the source-build setup: copy the contents of Elan-GitHub-Deployment to the r
 
 Check the Cloudflare Pages project settings: if it runs python3 scripts/build.py, the output directory should be dist. If it publishes prebuilt files from dist without building, keep dist in that same location. Confirm a preview deployment works before merging. The production project settings are not verified by this package.
 
-Supabase changes from previous releases are already installed. Do not run fresh-project.sql on an existing project. See docs/APPLICANT-PORTAL.md for the Auth dashboard settings and docs/HANDOUT.md for the invitation pilot. Do not commit private keys or passwords.
+NEW: OC application email automation requires the database upgrade, both Edge Function deployments and scheduled worker setup in docs/APPLICANT-AUTOMATED-EMAILS.md. Uploading GitHub files alone does not activate automated emails.
+
+Keep the Supabase changes installed from previous releases. Do not run fresh-project.sql on an existing project. See docs/APPLICANT-PORTAL.md for the Auth dashboard settings and docs/HANDOUT.md for the invitation pilot. Do not commit private keys or passwords.
 
 After deployment: check About Élan on mobile and desktop; submit a test application with an inbox you control; use the newest setup email and verify the role and destination. Closing a browser window is not a guaranteed logout. Use Sign out on shared devices.
