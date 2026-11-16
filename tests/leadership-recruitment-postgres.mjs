@@ -1,0 +1,47 @@
+import {PGlite} from '@electric-sql/pglite';
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const base=new URL('../',import.meta.url).pathname;
+const db=new PGlite();
+await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;create schema elan_private;
+create function auth.uid() returns uuid language sql as $$ select coalesce(nullif(current_setting('app.uid',true),''),'00000000-0000-4000-8000-000000000001')::uuid $$;
+create table public.elan_staff(user_id uuid,role text);insert into elan_staff values(auth.uid(),'admin');
+create table public.elan_enquiries(id uuid primary key,full_name text,email text,details jsonb);
+create table public.elan_oc_members_2027(email text,department text);
+create table public.elan_oc_recruitment(enquiry_id uuid primary key references elan_enquiries,stage text default 'new' constraint elan_oc_recruitment_stage_check check(stage in ('new','under_review','shortlisted','interview','selected','not_selected')),notes text default '',interview_at timestamptz,interview_details text default '',version integer default 1,updated_at timestamptz default now(),applicant_message text default '',interview_published boolean default false,interview_instructions text default '',interview_reply text default '',interview_reply_note text default '');
+create table public.elan_oc_recruitment_history(enquiry_id uuid,stage text,notes text,interview_at timestamptz,interview_details text,actor uuid);
+`);
+const rec=fs.readFileSync(base+'scripts/recruitment-upgrade.sql','utf8');await db.exec(rec.slice(rec.indexOf('create function elan_private.save_recruitment'),rec.indexOf('alter table public.elan_oc_tasks')));
+const journey=fs.readFileSync(base+'scripts/application-journey.sql','utf8');await db.exec(journey.slice(journey.indexOf('create function elan_private.save_application_review'),journey.indexOf('create function elan_private.my_applications')));
+await db.exec(fs.readFileSync(base+'scripts/applicant-email-automation.sql','utf8'));
+
+await db.exec(`create table auth.users(id uuid,email text,email_confirmed_at timestamptz,deleted_at timestamptz);
+insert into auth.users values('00000000-0000-4000-8000-000000000001','admin@example.invalid',now(),null),('00000000-0000-4000-8000-000000000003','director@example.invalid',now(),null),('00000000-0000-4000-8000-000000000004','assistant@example.invalid',now(),null),('00000000-0000-4000-8000-000000000005','member@example.invalid',now(),null);
+create table elan_oc_reviewers(user_id uuid,seat text);insert into elan_oc_reviewers values('00000000-0000-4000-8000-000000000003','director'),('00000000-0000-4000-8000-000000000004','assistant');
+create table elan_oc_access(user_id uuid);create table elan_acknowledgements(enquiry_id uuid,status text);
+alter table elan_enquiries add column created_at timestamptz default now();
+grant usage on schema auth,elan_private to authenticated;grant select on elan_staff to authenticated;
+alter table elan_enquiries enable row level security;alter table elan_oc_recruitment enable row level security;alter table elan_oc_recruitment_history enable row level security;alter table elan_acknowledgements enable row level security;
+grant select on elan_oc_recruitment,elan_oc_recruitment_history,elan_acknowledgements to authenticated;
+`);
+await db.exec(fs.readFileSync(base+'scripts/recruitment-readiness.sql','utf8'));
+await db.exec(fs.readFileSync(base+'scripts/leadership-recruitment.sql','utf8'));
+const id='00000000-0000-4000-8000-000000000010';await db.query("insert into elan_enquiries(id,full_name,email,details) values($1,'Applicant','test@example.invalid','{\"application_version\":2}'),('00000000-0000-4000-8000-000000000011','General','general@example.invalid','{}')",[id]);
+for(const [uid,version] of [['00000000-0000-4000-8000-000000000003',0],['00000000-0000-4000-8000-000000000004',1]]){
+ await db.exec(`set role authenticated;set app.uid='${uid}'`);
+ assert.equal((await db.query('select * from elan_enquiries')).rows.length,1);
+ await db.query("select elan_private.save_application_review($1,'under_review','Private',null,'',$2,'Reviewing',false,'')",[id,version]);
+ await assert.rejects(db.query("select elan_private.save_application_review($1,'selected','',null,'',$2,'',false,'')",[id,version+1]),/administrator/);
+ await db.query("insert into elan_interview_feedback(enquiry_id,interviewer,department_fit,availability,skills,recommendation) values($1,'Leader','Good','Weekends','Design','Proceed') on conflict(enquiry_id) do update set interviewer='Other leader'",[id]);
+ await db.exec('reset role');
+}
+await db.exec("set role authenticated;set app.uid='00000000-0000-4000-8000-000000000004'");
+await db.query("select elan_private.save_application_review($1,'interview','Private',now()+interval '2 days','',2,'Please confirm',true,'Join our meeting')",[id]);
+assert.equal((await db.query('select * from elan_application_mail order by created_at desc')).rows[0].kind,'interview_invitation');
+await db.exec('reset role');
+await db.exec("set role authenticated;set app.uid='00000000-0000-4000-8000-000000000005'");
+assert.equal((await db.query('select * from elan_enquiries')).rows.length,0);assert.equal((await db.query('select * from elan_interview_feedback')).rows.length,0);
+await assert.rejects(db.query("select elan_private.save_application_review($1,'interview','',now(),'',$2,'',true,'Join link')",[id,2]),/Recruitment access/);
+await db.exec("reset role;delete from elan_oc_reviewers where seat='director';set role authenticated;set app.uid='00000000-0000-4000-8000-000000000003'");
+assert.equal((await db.query('select * from elan_enquiries')).rows.length,0);
+console.log('PASS: both leadership seats can review and write feedback; general enquiries hidden; members denied; revoked director denied; final selection remains admin-only');await db.close();

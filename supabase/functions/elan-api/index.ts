@@ -63,12 +63,21 @@ Deno.serve(async req=>{
   const scopedPortal=createClient(url,env('SUPABASE_ANON_KEY'),{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false,autoRefreshToken:false}});
   const portal=checked(await scopedPortal.rpc('elan_login_portal'));
   if(action==='me')return respond({user:{id:uid,email:auth.user.email},role:portal,profile:portal==='participant'?checked(await db.from('elan_profiles').select('*').eq('user_id',uid).maybeSingle()):null});
+  const recruitmentActions=['acknowledgement-config','application-mail-dispatch','application-mail-retry','acknowledgement-retry','resend-applicant-setup'];
+  const leader=portal==='organiser'&&recruitmentActions.includes(action)&&!!checked(await db.from('elan_oc_reviewers').select('seat').eq('user_id',uid).in('seat',['director','assistant']).maybeSingle());
+  const canRecruit=role==='admin'||leader;
+  if(leader&&action!=='acknowledgement-config'){
+   let applicationId=uuid(b.id);
+   if(action==='application-mail-retry'){const job=checked(await db.from('elan_application_mail').select('enquiry_id').eq('id',applicationId).maybeSingle());if(!job)throw new ApiError('Email unavailable',404);applicationId=job.enquiry_id;}
+   const entry=checked(await db.from('elan_enquiries').select('details').eq('id',applicationId).maybeSingle());
+   if(!entry||(String(entry.details?.application_version)!=='2'&&entry.details?.intent!=='2027 organising committee application'))throw new ApiError('OC application unavailable',404);
+  }
   const participantActions=['profile','register','dashboard','support','submission-upload','submission-save','payment-order','payment-verify'];
   if(participantActions.includes(action)&&portal!=='participant')throw new ApiError('Wrong portal. This action is for participant accounts.',403);
-  if(!participantActions.includes(action)&&action!=='submission-download'&&portal!=='admin')throw new ApiError('Wrong portal. This action is for the admin account.',403);
+  if(!participantActions.includes(action)&&action!=='submission-download'&&portal!=='admin'&&!leader)throw new ApiError('Wrong portal. This action is for the admin account.',403);
   if(action==='submission-download'&&!['participant','admin'].includes(portal))throw new ApiError('Wrong portal. You cannot download participant files.',403);
   if(action==='resend-applicant-setup'){
-   if(role!=='admin')throw new ApiError('Administrator required',403);
+   if(!canRecruit)throw new ApiError('Administrator required',403);
    const id=uuid(b.id),account=checked(await db.rpc('elan_application_account',{p_id:id}));
    if(!account)throw new ApiError('Application not found.',404);
    const entry=checked(await db.from('elan_enquiries').select('email').eq('id',id).single());
@@ -85,9 +94,17 @@ Deno.serve(async req=>{
    const scoped=createClient(url,env('SUPABASE_ANON_KEY'),{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false,autoRefreshToken:false}});
    return respond(await deleteAccount({db,scoped,uid,role,body:b,audit}));
   }
-  if(action==='application-mail-dispatch'){if(role!=='admin')throw new ApiError('Administrator access required',403);await rate('application-mail:'+uid,10,60);return respond(await dispatchApplicationMail(db,env,fetch,undefined,uuid(b.id)));}
-  if(action==='acknowledgement-config'){if(role!=='admin')throw new ApiError('Administrator access required',403);return respond({configured:emailConfigured(env)});}
-  if(action==='acknowledgement-retry'){if(role!=='admin')throw new ApiError('Administrator access required',403);await rate('mail:'+uid,10,60);return respond({status:await sendAcknowledgement(db,uuid(b.id),env,fetch,undefined,mailAuth())});}
+  if(action==='application-mail-retry'){
+   if(!canRecruit)throw new ApiError('Administrator access required',403);
+   const id=uuid(b.id);await rate('application-retry:'+uid,5,300);
+   const job=checked(await db.from('elan_application_mail').update({status:'pending',attempts:0,available_at:new Date().toISOString(),error_code:null}).eq('id',id).eq('status','failed').select('enquiry_id').maybeSingle());
+   if(!job)throw new ApiError('Only definitively failed emails can be retried. Refresh the delivery history.',409);
+   await audit(uid,'retry:application-email',id);
+   return respond(await dispatchApplicationMail(db,env,fetch,undefined,job.enquiry_id));
+  }
+  if(action==='application-mail-dispatch'){if(!canRecruit)throw new ApiError('Administrator access required',403);await rate('application-mail:'+uid,10,60);return respond(await dispatchApplicationMail(db,env,fetch,undefined,uuid(b.id)));}
+  if(action==='acknowledgement-config'){if(!canRecruit)throw new ApiError('Administrator access required',403);return respond({configured:emailConfigured(env)});}
+  if(action==='acknowledgement-retry'){if(!canRecruit)throw new ApiError('Administrator access required',403);await rate('mail:'+uid,10,60);return respond({status:await sendAcknowledgement(db,uuid(b.id),env,fetch,undefined,mailAuth())});}
   if(action==='profile')return respond(checked(await db.from('elan_profiles').upsert({user_id:uid,full_name:text(b.full_name,'Name',120,2),phone:text(b.phone||'','Phone',30,0),school:text(b.school||'','School',180,0),city:text(b.city||'','City',100,0),study_year:text(b.study_year||'','Grade or year',100,0)}).select().single()));
   if(action==='register'){
    await rate('registration:'+uid,6,3600);const rows=attendees(b.attendees);

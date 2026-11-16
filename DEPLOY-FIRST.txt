@@ -1,3 +1,7 @@
+LEADERSHIP RECRUITMENT: Run scripts/leadership-recruitment.sql LAST, after the earlier recruitment upgrades; redeploy elan-api and the website. Read docs/LEADERSHIP-RECRUITMENT.md.
+
+RECRUITMENT UPDATE: Read docs/RECRUITMENT-READINESS.md. Run scripts/recruitment-readiness.sql after the prior applicant email and status fixes; redeploy elan-api and the website. No applicant withdrawal feature is included.
+
 STATUS FIX: Run scripts/fix-application-review-validation.sql in your existing Supabase SQL Editor, then deploy the website files. Under review and other non-interview stages no longer require interview details.
 
 ÉLAN SUMMIT | GITHUB AND CLOUDFLARE
