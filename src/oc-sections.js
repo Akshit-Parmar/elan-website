@@ -5,9 +5,9 @@ const intros=['','','','Two heads coordinated the work across departments.','The
 const norm=s=>String(s||'').toLowerCase().replace(/\$/g,'s').replace(/[^a-z0-9]/g,'').replace(/team$/,'');
 export function section(p){const d=norm(p.department),r=norm(p.role);if(/alldepartment/.test(r+d))return groups[3];if(['director','assistantdirector','chiefadvisor','chiefadviser'].includes(r))return r==='director'?groups[0]:r==='assistantdirector'?groups[1]:groups[2];if(d.startsWith('campusambassador'))return groups[11];return groups.find(x=>norm(x)===d)||p.department;}
 const archiveNotes={
- 'akshit parmar':'A conversation with Jacinth on the walk back from lunch was the start of Élan. Akshit built that idea into the summit’s first edition alongside Sakshi, Prachi and Jacinth.',
- 'sakshi baldawa':'Sakshi helped found Élan. She is drawn to finance, business and economics, and outside the committee room she finds another outlet for her creativity in dance.',
- 'prachi belagali':'A co-founder of Élan, Prachi brought her interest in law, history and the way people think to the first edition. Some of her favourite moments were the conversations that continued after the sessions ended.'
+ 'akshit parmar':'Founder of Élan and Director of the 2026 summit.',
+ 'sakshi baldawa':'Co-founder of Élan and Assistant Director of the 2026 summit.',
+ 'prachi belagali':'Co-founder of Élan and one of the two Heads of All Departments for the 2026 summit.'
 };
 export function renderBook(host,rows,base){
  host.replaceChildren();

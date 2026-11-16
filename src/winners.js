@@ -13,7 +13,7 @@ export function winnerCard(row,base){
 export async function loadWinners(){const host=document.querySelector('[data-winners]');if(!host)return;
  try{const c=await fetch('/assets/public-config.json').then(r=>r.json());let rows=[];
  for(let offset=0;;offset+=100){const r=await fetch(c.supabaseUrl+'/rest/v1/elan_winners?select=competition,award,name,members,school,introduction,reflection,image_url&edition_slug=eq.2026&published=eq.true&approved=eq.true&order=sort_order.asc,id.asc&limit=100&offset='+offset,{headers:{apikey:c.publishableKey},signal:AbortSignal.timeout(12000)});if(!r.ok)throw Error('Unavailable');const part=await r.json();rows.push(...part);if(part.length<100)break;}
- host.replaceChildren();if(!rows.length){host.append(el('p','The 2026 winners and their memories will appear here as their profiles are added.','winners-empty'));return;}
+ host.replaceChildren();if(!rows.length){host.append(el('p','Winner profiles will appear here once published.','winners-empty'));return;}
  for(const competition of ['Crisis Command','Cent$ible','Other honours']){const members=rows.filter(r=>r.competition===competition);if(!members.length)continue;const section=el('section',null,'winner-section');section.append(el('p','ÉLAN 2026','winner-label'),el('h2',competition));members.forEach(row=>section.append(winnerCard(row,c.supabaseUrl)));host.append(section);}
  }catch{host.replaceChildren(el('p','The winners could not be loaded. Please refresh the page to try again.','winners-empty'));}}
 if(typeof document!=='undefined')loadWinners();
