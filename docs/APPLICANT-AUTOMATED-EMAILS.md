@@ -1,3 +1,5 @@
+NOVEMBER 17 UPDATE: The elan-v2 backend is already updated. Do not rerun the historical SQL files. See docs/UPDATE-2026-11-17.md for the live status and current worker setup. The old APPLICANT_MAIL_JOB_TOKEN environment setup below is superseded by the Vault-verification worker.
+
 # Automated OC applicant emails
 
 This package adds recruitment emails. It does not activate the live Supabase project by itself. Keep your current project and data; do not run fresh-project.sql.

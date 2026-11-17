@@ -1,3 +1,7 @@
+NOVEMBER 17 UPDATE: The elan-v2 backend is already updated. Do not rerun the historical SQL files. See docs/UPDATE-2026-11-17.md for the live status and current worker setup. The old APPLICANT_MAIL_JOB_TOKEN environment setup below is superseded by the Vault-verification worker.
+
+APPOINTMENT FIX: Run scripts/fix-leadership-identity.sql in Supabase SQL Editor. Leadership conflicts now use account IDs instead of display labels; genuine conflicts name the assigned account.
+
 LEADERSHIP RECRUITMENT: Run scripts/leadership-recruitment.sql LAST, after the earlier recruitment upgrades; redeploy elan-api and the website. Read docs/LEADERSHIP-RECRUITMENT.md.
 
 RECRUITMENT UPDATE: Read docs/RECRUITMENT-READINESS.md. Run scripts/recruitment-readiness.sql after the prior applicant email and status fixes; redeploy elan-api and the website. No applicant withdrawal feature is included.

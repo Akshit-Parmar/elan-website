@@ -1,0 +1,18 @@
+/* Shared by admin and leadership recruitment. Loaded after the shell styles. */
+.recruitment{--recruit-ink:#192c3d;--recruit-paper:#fffdf8;--recruit-line:#d8cbbc}
+.recruitment>h2{font-size:clamp(32px,4vw,48px)!important;margin:16px 0!important;line-height:1.1}
+.recruitment>p:not(.app-badge){font-size:15px;max-width:78ch;line-height:1.65}
+.recruitment-health{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 16px;background:#eee8dd;border:1px solid var(--recruit-line);font-size:13px;margin:24px 0 32px}
+.recruitment-health small{margin-left:auto;color:#625c52}.health-dot{width:8px;height:8px;border-radius:50%;background:#9c642c;flex-shrink:0}.health-dot.is-healthy{background:#377356}
+.recruitment-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:24px 0 12px}.recruitment-section-heading h3{margin:0!important;font:600 18px/1.3 Arial,sans-serif!important}.recruitment-section-heading p{margin:0;font-size:13px;color:#645c53}
+.recruitment .readiness-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 30px}
+.recruitment .readiness-metrics button{margin:0;min-height:116px;padding:18px 16px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:16px;text-align:left;background:var(--recruit-paper);color:var(--recruit-ink);border:1px solid var(--recruit-line);border-top:3px solid #b7794f;font:14px/1.4 Arial,sans-serif;white-space:normal}
+.recruitment .readiness-metrics strong{font:600 28px/1 Arial,sans-serif}.recruitment .readiness-metrics button[aria-pressed=true]{background:var(--recruit-ink);color:#fff8ed;border-color:var(--recruit-ink)}
+.recruitment .recruitment-stages{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px;padding:0;grid-template-columns:none}
+.recruitment .recruitment-stages button{display:inline-flex;align-items:center;gap:8px;min-height:40px;width:auto;padding:8px 12px;margin:0;background:transparent;color:var(--recruit-ink);border:1px solid var(--recruit-line);border-radius:4px;font:14px/1.3 Arial,sans-serif;white-space:normal}
+.recruitment .recruitment-stages strong{font:600 12px/1 Arial,sans-serif;padding:4px 6px;background:#e9e0d3;border-radius:3px}
+.recruitment .recruitment-stages button[aria-pressed=true]{background:var(--recruit-ink);border-color:var(--recruit-ink);color:#fff8ed}.recruitment .recruitment-stages button[aria-pressed=true] strong{background:#3b4c5a;color:white}
+.recruitment button.recruitment-reset{font:13px/1.4 Arial,sans-serif;background:transparent;color:var(--recruit-ink);border:0;border-bottom:1px solid #9b8874;padding:4px 0;min-height:32px;margin:0}
+.recruitment button:focus-visible{outline:3px solid #b7794f;outline-offset:3px}.recruitment .overview-filters{padding:20px;background:#eee8dd;border:1px solid var(--recruit-line);margin:0}
+@media(max-width:900px){.recruitment .readiness-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.recruitment .readiness-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.recruitment .readiness-metrics button{min-height:100px;padding:14px}.recruitment-health small{margin-left:18px}.recruitment .overview-filters{padding:14px}.recruitment .recruitment-stages button{min-height:44px}}

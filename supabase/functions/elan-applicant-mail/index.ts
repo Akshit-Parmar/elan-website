@@ -3,11 +3,17 @@ import {dispatchApplicationMail} from '../elan-api/application-mail.mjs';
 const env=(key:string)=>Deno.env.get(key)||'';
 Deno.serve(async req=>{
  const headers={'Content-Type':'application/json','Cache-Control':'no-store'};
- if(req.method!=='POST')return new Response('{}',{status:405,headers});
- const token=env('APPLICANT_MAIL_JOB_TOKEN');
- if(token.length<32||req.headers.get('Authorization')!=='Bearer '+token)return new Response('{}',{status:401,headers});
+ const response=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers});
+ if(req.method!=='POST')return response({},405);
+ const bearer=req.headers.get('Authorization')||'';
+ if(!/^Bearer [a-zA-Z0-9_-]{32,256}$/.test(bearer))return response({},401);
  try{
  const db=createClient(env('SUPABASE_URL'),env('SUPABASE_SERVICE_ROLE_KEY'),{auth:{persistSession:false,autoRefreshToken:false}});
- return new Response(JSON.stringify(await dispatchApplicationMail(db,env)),{headers});
- }catch{return new Response(JSON.stringify({error:'Applicant email worker failed; check the queue.'}),{status:500,headers});}
+ const auth=await db.rpc('elan_verify_mail_worker',{p_token:bearer.slice(7)});
+ if(auth.error||auth.data!==true)return response({},401);
+ const result=await dispatchApplicationMail(db,env);
+ const heartbeat=await db.rpc('elan_mail_worker_completed',{p_configured:result.configured,p_processed:result.processed});
+ if(heartbeat.error)throw Error('Worker health update failed');
+ return response(result,result.configured?200:503);
+ }catch{return response({error:'Applicant email worker failed; check the queue.'},500);}
 });
