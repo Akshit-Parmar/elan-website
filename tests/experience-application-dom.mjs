@@ -1,0 +1,16 @@
+import {JSDOM} from 'jsdom';
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+const dom=new JSDOM(readFileSync('src/oc-join.html','utf8'),{url:'https://elansummit.com/join-oc-2027.html'});
+globalThis.window=dom.window;globalThis.document=dom.window.document;
+const {setupApplication,questions}=await import('../src/oc-application.js');
+const form=document.querySelector('form');setupApplication(form);
+for(const name of ['department','second_department'])assert([...form.elements[name].options].some(o=>o.value==='HR (Human Resource)'));
+form.elements.department.value='HR (Human Resource)';form.dispatchEvent(new window.Event('change'));
+assert.equal(form.elements.department_question.value,questions['HR (Human Resource)']);
+form.elements.second_department.value='HR (Human Resource)';form.dispatchEvent(new window.Event('change'));assert(!form.elements.second_department.checkValidity());
+form.elements.second_department.value='Finance';form.dispatchEvent(new window.Event('change'));assert(form.elements.second_department.checkValidity());
+assert(form.elements.study_year.required);assert(form.elements.instagram.required);
+form.dispatchEvent(new window.Event('input'));const leave=new window.Event('beforeunload',{cancelable:true});window.dispatchEvent(leave);assert(leave.defaultPrevented);
+form.reset();const done=new window.Event('beforeunload',{cancelable:true});window.dispatchEvent(done);assert(!done.defaultPrevented);
+console.log('PASS: HR options/question, distinct preferences, mandatory fields and unsaved-answer warning');

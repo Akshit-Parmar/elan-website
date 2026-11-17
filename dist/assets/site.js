@@ -36,10 +36,10 @@ if(document.querySelector(".edition-story")) import("/assets/story.js");
   menu?.addEventListener('click',()=>setMenu(mobile.hidden));
   mobile?.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mobile&&!mobile.hidden){closeMenu();menu.focus({preventScroll:true});}});
-  document.addEventListener('focusin',e=>{if(mobile&&!mobile.hidden&&!e.target.closest('.ed-header'))closeMenu();});
+  document.addEventListener('focusin',e=>{if(mobile&&!mobile.hidden&&!sheet.contains(e.target)&&!menu.contains(e.target))closeMenu();});
   window.addEventListener('pagehide',closeMenu);
   window.matchMedia('(min-width: 1200px)').addEventListener('change', closeMenu);
-  document.addEventListener('click', event => { if (mobile && !mobile.hidden && !event.target.closest('.ed-header')) closeMenu(); });
+  document.addEventListener('click', event => { if (mobile && !mobile.hidden && !sheet.contains(event.target)&&!menu.contains(event.target)) closeMenu(); });
   document.querySelectorAll('.faq-question').forEach((button, i) => {
     const item = button.closest('.faq-item'); const answer = item.querySelector('.faq-answer');
     if (!answer) return; answer.id ||= 'faq-answer-' + i; button.setAttribute('aria-controls', answer.id);

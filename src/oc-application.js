@@ -1,4 +1,5 @@
 export const questions={
+ 'HR (Human Resource)':'A team member has missed two meetings and their department head is frustrated. How would you understand the situation, agree next steps and handle their information responsibly?',
  Finance:'Several people are collecting payments and making purchases. How would you keep the records complete and easy to check?',
  'Social Media':'Suggest a post that would make a student interested in Élan. What would it say or show, and why?',
  Design:'Explain a piece of design work you have made, or describe an idea for Élan. What would you choose and why?',
@@ -11,7 +12,9 @@ export const questions={
 };
 export function setupApplication(form){
  const steps=[...form.querySelectorAll('[data-step]')],back=form.querySelector('[data-back]'),next=form.querySelector('[data-next]'),submit=form.querySelector('[type=submit]'),indicators=[...document.querySelectorAll('[data-steps] li')];
- let current=0;
+ let current=0,dirty=false;
+ form.addEventListener('input',()=>{dirty=true;});
+ window.addEventListener('beforeunload',e=>{if(dirty&&form.dataset.completed!=='true'){e.preventDefault();e.returnValue='';}});
  function validateStep(i){const bad=[...steps[i].querySelectorAll('input,select,textarea')].find(e=>!e.disabled&&!e.checkValidity());if(bad){show(i);bad.reportValidity();return false;}return true;}
  function show(i){current=i;form.querySelector("[data-step-count]").textContent=String(i+1).padStart(2,"0")+" / 06";form.querySelector("[data-progress]").style.width=((i+1)/steps.length*100)+"%";steps.forEach((s,n)=>s.hidden=n!==i);indicators.forEach((el,n)=>{if(n===i)el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});back.hidden=i===0;next.hidden=i===steps.length-1;submit.hidden=i!==steps.length-1;const legend=steps[i].querySelector('legend');legend.tabIndex=-1;legend.focus({preventScroll:true});}
  function conditional(){const f=form.elements,head=f.responsibility_level.value!=='Team member'&&!!f.responsibility_level.value;form.querySelector('[data-leadership]').hidden=!head;f.leadership_answer.disabled=!head;f.leadership_answer.required=head;const q=questions[f.department.value]||'Choose a department in the previous step.';form.querySelector('[data-question]').textContent=q;f.department_question.value=q;f.second_department.setCustomValidity(f.department.value&&f.second_department.value===f.department.value?'Choose a different second department.':'');}
