@@ -8,7 +8,7 @@ export const isApplication=r=>r.details?.intent==='2027 organising committee app
 export async function openRecruitment({api,sb,host,editor,status,isCurrent,leadership=false}){
  editorStyles();editor.replaceChildren();
  if(!document.querySelector('[data-recruitment-styles]')){const link=document.createElement('link');link.rel='stylesheet';link.href='/assets/recruitment-dashboard.css';link.dataset.recruitmentStyles='';document.head.append(link);}
- const [all,reviews,mail,mailConfig,modules,automation]=await Promise.all([leadership?allTable(sb,'elan_enquiries'):allRows(api,'elan_enquiries'),allTable(sb,'elan_oc_recruitment'),allTable(sb,'elan_acknowledgements'),api('acknowledgement-config'),allTable(sb,'elan_oc_modules'),sb.rpc('elan_mail_automation_status').catch(()=>({error:true}))]);if(!isCurrent())return;
+ const [all,reviews,mail,mailConfig,modules,automation]=await Promise.all([leadership?allTable(sb,'elan_enquiries'):allRows(api,'elan_enquiries'),allTable(sb,'elan_oc_recruitment'),allTable(sb,'elan_acknowledgements'),api('acknowledgement-config'),allTable(sb,'elan_oc_modules'),Promise.resolve().then(()=>sb.rpc('elan_mail_automation_status')).catch(()=>({error:true}))]);if(!isCurrent())return;
  const rows=all.filter(isApplication),saved=new Map(reviews.map(r=>[r.enquiry_id,r]));let dirty=false,busy=false,sequence=0,focus='',deliveryRows=[];let assignments=new Map(),team=[];try{const [a,t]=await Promise.all([allTable(sb,'elan_review_assignments'),sb.rpc('elan_review_team')]);assignments=new Map(a.map(x=>[x.enquiry_id,x]));team=t.data||[];}catch{}if(!isCurrent())return;
  const extraDirty=()=>!!editor.querySelector('[data-extra][data-dirty="true"]');
  changeGuard(()=>dirty||extraDirty(),()=>busy||!!editor.querySelector('[data-extra][inert]'));
