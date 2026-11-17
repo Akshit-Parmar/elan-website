@@ -3,11 +3,11 @@ const dom=new JSDOM('<main><div id="host"></div><div id="editor"></div></main>',
 const {openRecruitment}=await import('../src/recruitment.js');
 const id='00000000-0000-4000-8000-000000000010',app={id,full_name:'Applicant <test>',email:'test@example.invalid',created_at:'2026-11-16T10:00:00Z',details:{application_version:2,department:'Design'}};
 const tables={elan_enquiries:[app],elan_oc_recruitment:[],elan_acknowledgements:[],elan_oc_modules:[{department:'Design'}],elan_application_mail:[{id:'job',enquiry_id:id,status:'failed',kind:'under_review',created_at:'2026-11-16T10:00:00Z',attempts:5}],elan_interview_feedback:[],elan_member_onboarding:[],elan_oc_recruitment_history:[]};let savedArgs,upsert;
-const sb={from(t){let single=false;const q={select(){return q},range:async()=>({data:tables[t]||[]}),eq(){return q},order(){return q},limit:async()=>({data:tables[t]||[]}),maybeSingle:async()=>({data:(tables[t]||[])[0]||null}),upsert:async data=>{upsert={t,data};return{};}};return q;},rpc:async(name,args)=>{savedArgs={name,args};return {data:{version:1,stage:args.p_stage}};}};
+const sb={auth:{getUser:async()=>({data:{user:{id:"test-reviewer"}}})},from(t){let single=false;const q={select(){return q},range:async()=>({data:tables[t]||[]}),eq(){return q},order(){return q},limit:async()=>({data:tables[t]||[]}),maybeSingle:async()=>({data:(tables[t]||[])[0]||null}),upsert:async data=>{upsert={t,data};return{};}};return q;},rpc:async(name,args)=>{if(name==="elan_review_team")return {data:[]};savedArgs={name,args};return {data:{version:1,stage:args.p_stage}};}};
 const calls=[];const api=async(a,b)=>{calls.push(a);if(a==='admin-list')return{rows:[app],total:1};if(a==='acknowledgement-config')return{configured:true};return {configured:true};};
 await openRecruitment({api,sb,host:document.querySelector('#host'),editor:document.querySelector('#editor'),status:()=>{},isCurrent:()=>true,leadership:true});
 assert.match(document.querySelector('[data-focus="email"]').textContent,/1/);
-assert.equal(document.querySelectorAll('[data-attention] button').length,5);
+assert.equal(document.querySelectorAll('[data-attention] button').length,6);
 assert.equal(document.querySelectorAll('.recruitment-stages button').length,8);
 document.querySelector('[data-stage="under_review"]').click();
 assert.equal(document.querySelector('[data-count]').textContent,'0 applications');

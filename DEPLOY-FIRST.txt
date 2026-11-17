@@ -1,3 +1,5 @@
+LATEST RECRUITMENT TOOLS UPDATE: Backend already installed. Upload this package for scorecards, ownership/deadlines and overdue filters. Daily admin email alerts are live. See docs/RECRUITMENT-TEAM-TOOLS.md. Do not rerun older SQL instructions below.
+
 NOVEMBER 17 UPDATE: The elan-v2 backend is already updated. Do not rerun the historical SQL files. See docs/UPDATE-2026-11-17.md for the live status and current worker setup. The old APPLICANT_MAIL_JOB_TOKEN environment setup below is superseded by the Vault-verification worker.
 
 APPOINTMENT FIX: Run scripts/fix-leadership-identity.sql in Supabase SQL Editor. Leadership conflicts now use account IDs instead of display labels; genuine conflicts name the assigned account.
