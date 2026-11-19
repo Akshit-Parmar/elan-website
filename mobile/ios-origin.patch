@@ -1,0 +1,5 @@
+--- a/supabase/functions/elan-api/index.ts
++++ b/supabase/functions/elan-api/index.ts
+@@ -11 +11 @@
+-const origins=[...new Set(['https://elansummit.com','https://www.elansummit.com',...(env('ALLOWED_ORIGINS')||'https://elan-next-chapter.akshit-parmar.chatgpt.site,http://localhost:8000,http://127.0.0.1:8000,http://terminal.local:4173').split(',').map(x=>x.trim()).filter(Boolean)])];
++const origins=[...new Set(['https://elansummit.com','https://www.elansummit.com','capacitor://elansummit.com',...(env('ALLOWED_ORIGINS')||'https://elan-next-chapter.akshit-parmar.chatgpt.site,http://localhost:8000,http://127.0.0.1:8000,http://terminal.local:4173').split(',').map(x=>x.trim()).filter(Boolean)])];

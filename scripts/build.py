@@ -291,3 +291,6 @@ from content_inventory import prepare_content
 print(f"Prepared {prepare_content(OUT)} editable content fields.")
 
 (OUT/'_redirects').write_text('/organiser-desk /organisers 301\n/organiser-desk.html /organisers 301\n')
+
+from app_build import build_apps
+build_apps(ROOT)

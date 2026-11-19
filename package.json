@@ -1,1 +1,28 @@
-{"name":"elan-site-checks","private":true,"type":"module","scripts":{"check":"python3 scripts/release-check.py"},"devDependencies":{"@electric-sql/pglite":"0.5.16","jsdom":"26.1.0"}}
+{
+  "name": "elan-site-checks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "python3 scripts/release-check.py",
+    "build": "python3 scripts/build.py",
+    "mobile:bundle": "npm run build && node scripts/build-mobile.mjs",
+    "mobile:sync": "npm run mobile:bundle && cap sync",
+    "mobile:android": "cap open android",
+    "mobile:ios": "cap open ios"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2",
+    "@electric-sql/pglite": "0.5.16",
+    "esbuild": "0.28.2",
+    "jsdom": "26.1.0"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/browser": "8.0.5",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/ios": "8.6.2",
+    "@capacitor/share": "8.0.3"
+  }
+}

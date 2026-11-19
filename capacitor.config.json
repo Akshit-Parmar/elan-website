@@ -1,0 +1,16 @@
+{
+  "appId": "com.elansummit.app",
+  "appName": "\u00c9lan Summit",
+  "webDir": "mobile/www",
+  "server": {
+    "hostname": "elansummit.com",
+    "androidScheme": "https",
+    "iosScheme": "capacitor"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

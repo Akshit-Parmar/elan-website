@@ -7,3 +7,13 @@ node_modules/
 .supabase/
 supabase/.temp/
 .DS_Store
+
+# Native local builds and machine-specific signing
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.keystore
+*.jks
+ios/App/DerivedData/
+ios/App/App.xcodeproj/xcuserdata/

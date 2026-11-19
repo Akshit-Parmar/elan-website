@@ -1,0 +1,13 @@
+import {esc} from './organiser-utils.js';
+export async function welcomeChecklist(host,sb,context={}){
+ const current=context.isCurrent||(()=>true);
+ const [identity,assignment]=await Promise.all([sb.auth.getUser(),sb.rpc('elan_welcome_assignment')]);if(!current())return;
+ if(identity.error||assignment.error||!identity.data?.user||!assignment.data){host.textContent='Your joining checklist could not load. Refresh or contact the organising team.';return;}
+ const uid=identity.data.user.id;const saved=await sb.from('elan_welcome_progress').select('*').eq('user_id',uid).maybeSingle();if(!current())return;
+ if(saved.error){host.textContent='Your checklist could not load. Refresh before making changes.';return;}
+ const state=saved.data?.assignment===assignment.data?saved.data:{};
+ const items=[['role_read','I have checked my department and role.'],['brief_read','I have read my responsibilities and know whom to report to.'],['conduct_read','I have read the code of conduct.'],['first_task_read','I have checked my first task and its deadline.']];
+ host.innerHTML='<section class="ops-paper welcome-checklist"><small>YOUR FIRST STEPS</small><h3>Get ready to join the team</h3><p>'+esc(assignment.data.replaceAll(':',' · '))+'</p><p>Complete these steps once the information has been shared with you. Missing a brief or task? Ask your department head or summit leadership.</p><nav class="welcome-links"><button type="button" data-go="tasks">Open tasks ↗</button><button type="button" data-go="briefs">Briefings & resources ↗</button><a href="/code-of-conduct.html" target="_blank" rel="noopener">Read the code of conduct ↗</a></nav><form>'+items.map(([key,label])=>'<label><input type="checkbox" name="'+key+'" '+(state[key]?'checked':'')+'>'+label+'</label>').join('')+'<p data-progress></p><button>Save my progress</button><p role="status"></p></form><p>Your checklist records your progress. It does not change your role or permissions.</p></section>';
+ const form=host.querySelector('form'),progress=()=>{host.querySelector('[data-progress]').textContent=items.filter(([k])=>form.elements[k].checked).length+' of '+items.length+' steps complete';};progress();form.onchange=progress;
+ form.onsubmit=async e=>{e.preventDefault();if(form.inert)return;form.inert=true;const note=form.querySelector('[role=status]');note.textContent='Saving…';try{const values=Object.fromEntries(items.map(([k])=>[k,form.elements[k].checked]));const r=await sb.from('elan_welcome_progress').upsert({user_id:uid,assignment:assignment.data,...values});if(r.error)throw r.error;note.textContent='Your progress is saved.';}catch(err){note.textContent=err.message;}finally{form.inert=false;}};
+}

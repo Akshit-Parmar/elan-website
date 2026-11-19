@@ -45,3 +45,13 @@
 
 /llms.txt
   Content-Type: text/plain; charset=utf-8
+
+/service-worker.js
+  Cache-Control: no-cache
+  Service-Worker-Allowed: /
+
+/app.html
+  X-Robots-Tag: noindex, follow
+
+/offline.html
+  X-Robots-Tag: noindex, follow

@@ -1,9 +1,9 @@
 {
   "name": "Élan Summit",
   "short_name": "Élan",
-  "start_url": "/",
-  "display": "browser",
-  "background_color": "#E9D4C3",
+  "start_url": "/app.html",
+  "display": "standalone",
+  "background_color": "#f7f3eb",
   "theme_color": "#13273F",
   "icons": [
     {
@@ -15,6 +15,23 @@
       "src": "/assets/img/favicon-512.png",
       "sizes": "512x512",
       "type": "image/png"
+    }
+  ],
+  "id": "/",
+  "scope": "/",
+  "description": "Your Élan Summit event, application and team workspace.",
+  "shortcuts": [
+    {
+      "name": "My workspace",
+      "url": "/app.html"
+    },
+    {
+      "name": "Apply for the OC",
+      "url": "/join-oc-2027.html"
+    },
+    {
+      "name": "Explore Élan",
+      "url": "/next-edition.html"
     }
   ]
 }
