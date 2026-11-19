@@ -1,0 +1,1 @@
+{"name":"elan-site-checks","private":true,"type":"module","scripts":{"check":"python3 scripts/release-check.py"},"devDependencies":{"@electric-sql/pglite":"0.5.16","jsdom":"26.1.0"}}

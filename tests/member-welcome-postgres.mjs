@@ -1,0 +1,14 @@
+import {PGlite} from '@electric-sql/pglite';import fs from 'node:fs';import assert from 'node:assert/strict';
+const db=new PGlite();const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
+await db.exec(`create role anon;create role authenticated;create schema auth;create schema elan_private;grant usage on schema auth,elan_private to authenticated;create function auth.uid() returns uuid language sql as $$select nullif(current_setting('test.uid',true),'')::uuid$$;create table auth.users(id uuid primary key,email_confirmed_at timestamptz,deleted_at timestamptz);create table elan_staff(user_id uuid,role text);create table elan_oc_access(user_id uuid,department text,role text);create table elan_oc_reviewers(user_id uuid,seat text);`);
+for(let n=1;n<=3;n++)await db.query('insert into auth.users values($1,now(),null)',[id(n)]);
+await db.query("insert into elan_oc_access values($1,'Finance','member')",[id(1)]);await db.exec(fs.readFileSync('scripts/member-welcome.sql','utf8'));
+await db.exec(`set test.uid='${id(1)}';set role authenticated`);
+assert.equal((await db.query('select public.elan_welcome_assignment() a')).rows[0].a,'Finance:member');
+await db.query("insert into elan_welcome_progress(user_id,assignment,role_read) values($1,'Finance:member',true)",[id(1)]);
+await assert.rejects(db.query("insert into elan_welcome_progress(user_id,assignment) values($1,'Finance:member')",[id(2)]),/row-level/);
+await assert.rejects(db.query("update elan_welcome_progress set assignment='HR:lead'"),/row-level/);
+await db.exec(`reset role;set test.uid='${id(2)}';set role authenticated`);assert.equal((await db.query('select * from elan_welcome_progress')).rows.length,0);assert.equal((await db.query('select public.elan_welcome_assignment() a')).rows[0].a,null);
+await db.exec(`reset role;delete from elan_oc_access;set test.uid='${id(1)}';set role authenticated`);assert.equal((await db.query('select * from elan_welcome_progress')).rows.length,0);
+await db.exec('reset role;set role anon');await assert.rejects(db.query('select public.elan_welcome_assignment()'),/permission/);
+console.log('PASS: checklist ownership, assignment checks, unassigned/revoked/anonymous denial');await db.close();
