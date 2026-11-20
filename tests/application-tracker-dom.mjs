@@ -1,0 +1,14 @@
+import {JSDOM} from 'jsdom';
+import assert from 'node:assert/strict';
+import {showApplications} from '../src/application-tracker.js';
+const dom=new JSDOM('<main></main>');const host=dom.window.document.querySelector('main');
+const application={id:'a',version:2,stage:'interview',department:'Finance',full_name:'Test',created_at:'2026-11-01T10:00:00Z',interview_at:'2099-11-25T10:00:00Z',message:'<img src=x onerror=alert(1)>',instructions:'Online',reply_note:''};
+let failRead=false,failWrite=false;
+const sb={rpc:async(name)=>{if(name==='elan_interview_reply')return failWrite?{error:Error('Connection lost')}:{data:{version:3}};if(failRead)return {error:Error('Unavailable')};return {data:name==='elan_my_applications'?[application]:{name:'Test',email:'test@example.test'}};}};
+await showApplications(sb,host);
+assert.equal(host.querySelector('.applicant-message img'),null);assert.match(host.textContent,/Latest message/);
+failRead=true;await host.querySelector('[data-refresh]').onclick();assert.ok(host.querySelector('[data-interview]'));assert.match(host.textContent,/last loaded information/);
+failRead=false;const form=host.querySelector('form');form.elements.note.value='Keep my availability';form.oninput();await host.querySelector('[data-refresh]').onclick();assert.equal(form.elements.note.value,'Keep my availability');
+failWrite=true;await form.onsubmit({preventDefault(){}});assert.equal(form.elements.note.value,'Keep my availability');assert.match(form.textContent,/Could not send/);assert.equal(form.inert,false);
+failWrite=false;failRead=true;await form.onsubmit({preventDefault(){}});assert.match(form.textContent,/response was saved/);assert.doesNotMatch(form.textContent,/Could not send/);
+dom.window.close();console.log('PASS: tracker refresh preserves loaded state, failed replies retain inputs, successful writes are not misreported when reload fails, message HTML is escaped.');

@@ -12,10 +12,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.6.2"),
-        .package(name: "CapacitorApp", path: "../../../node_modules/@capacitor/app"),
-        .package(name: "CapacitorBrowser", path: "../../../node_modules/@capacitor/browser"),
-        .package(name: "CapacitorFilesystem", path: "../../../node_modules/@capacitor/filesystem"),
-        .package(name: "CapacitorShare", path: "../../../node_modules/@capacitor/share")
+        .package(name: "CapacitorApp", path: "../../../../../../web-review/source/Elan-GitHub-Deployment/node_modules/@capacitor/app"),
+        .package(name: "CapacitorBrowser", path: "../../../../../../web-review/source/Elan-GitHub-Deployment/node_modules/@capacitor/browser"),
+        .package(name: "CapacitorFilesystem", path: "../../../../../../web-review/source/Elan-GitHub-Deployment/node_modules/@capacitor/filesystem"),
+        .package(name: "CapacitorShare", path: "../../../../../../web-review/source/Elan-GitHub-Deployment/node_modules/@capacitor/share")
     ],
     targets: [
         .target(

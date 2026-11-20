@@ -1,0 +1,7 @@
+import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';import {recruitmentPriorities} from '../src/workspace-summary.js';
+const dom=new JSDOM('<section><div id="priorities"></div><button data-go="oc_applications"></button></section>');const host=dom.window.document.querySelector('#priorities');const future=new Date(Date.now()+86400000).toISOString();
+const tables={elan_oc_recruitment:[{enquiry_id:'a',stage:'interview',interview_at:future,interview_published:true},{enquiry_id:'b',stage:'interview',interview_at:future,interview_published:true}],elan_application_mail:[{enquiry_id:'a',status:'uncertain'}],elan_review_assignments:[{enquiry_id:'c',due_at:'2020-01-01'}],elan_acknowledgements:[{enquiry_id:'a',status:'failed'}]};
+let failure=false;const sb={from:t=>({select:()=>({range:async()=>failure?{error:Error('Offline')}:{data:tables[t]}})})};
+await recruitmentPriorities(host,sb,['a','b','c'].map(id=>({id})));assert.deepEqual([...host.querySelectorAll('strong')].map(x=>x.textContent),['1','1','2','1']);
+let navigated=false;dom.window.document.querySelector('[data-go]').onclick=()=>navigated=true;host.querySelector('button').click();assert.equal(navigated,true);
+failure=true;await recruitmentPriorities(host,sb,[]);assert.match(host.textContent,/other admin tools remain available/);dom.window.close();console.log('PASS: admin priorities count pending reviews, deduplicate email issues, flag simultaneous interviews, and fail without breaking admin tools.');

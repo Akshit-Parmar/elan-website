@@ -1,3 +1,5 @@
+> Latest web/operations changes: OPERATIONS-UPDATE-2026-11-20.md. App-store distribution remains paused.
+
 # Élan app delivery — 19 November 2026
 
 This package retains the complete website and adds an installable web app plus Android and iPhone **hybrid app projects**. It is source code and bundled assets, not a signed APK, AAB or IPA. Store publication and device acceptance tests are still required.
@@ -49,11 +51,9 @@ Public application/enquiry/registration pages open in the browser so the existin
 
 Existing Supabase session behaviour is retained; this release does not claim reliable OS force-close logout. Device testing must include account switching, background/foreground behaviour and sign-out. Do not share an already-signed-in device with another role.
 
-## One production change still pending
+## iPhone origin enabled
 
-The packaged API source adds **only** `capacitor://elansummit.com` to `elan-api`'s existing allowed-origin list, for iOS requests. Android uses the already-allowed `https://elansummit.com` origin. Authentication, roles, business logic and SQL are unchanged.
-
-Automatic approval review blocked deploying the production Edge Function. The live API was **not changed**. `mobile/ios-origin.patch` shows the exact edit. Approval is needed before replacing the live function. Until it is applied, iPhone actions that call `elan-api` may fail CORS checks even when database reads/sign-in work. Do not distribute this iPhone build yet.
+The live elan-api version 15 now accepts `capacitor://elansummit.com`. The exact allowed iPhone origin and existing website origin passed preflight checks; an unrelated origin remained blocked. No authentication rules, SQL or business logic changed. Real iPhone device acceptance tests are still required before distribution.
 
 No new SQL migration is needed for this app package. Do not rerun old SQL files just to install the apps.
 
@@ -72,6 +72,6 @@ No new SQL migration is needed for this app package. Do not rerun old SQL files 
 
 Run on actual Android and iPhone devices. Check each role's login, revocation/sign-out, application status, interview updates, uploads, file sharing and account setup via email. Check the keyboard, safe areas, back navigation and lost-network errors. Do not send test messages to real applicants.
 
-Complete the iPhone origin deployment, then repeat a real Edge Function action on iPhone. Build and sign release packages using your own Google Play and Apple developer accounts. Review store privacy disclosures, account deletion requirements and permissions against the actual product; the included iOS API-reason file is not a completed App Store privacy declaration. Store acceptance is not guaranteed for a hybrid app.
+Verify a real Edge Function action on iPhone. Build and sign release packages using your own Google Play and Apple developer accounts. Review store privacy disclosures, account deletion requirements and permissions against the actual product; the included iOS API-reason file is not a completed App Store privacy declaration. Store acceptance is not guaranteed for a hybrid app.
 
 No production records, permissions, appointments or applicant email deliveries were changed by this app preparation.

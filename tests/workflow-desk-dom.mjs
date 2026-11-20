@@ -1,0 +1,11 @@
+import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
+import {todayDesk,workHandoffs} from '../src/workflow-desk.js';
+const dom=new JSDOM('<main></main>');globalThis.document=dom.window.document;globalThis.FormData=dom.window.FormData;
+const box=document.querySelector('main');const data={frequency:'instant',notifications:[{title:'<script>unsafe</script>',created_at:'2026-11-20T10:00:00Z',status:'pending'}],handoffs:[],revisions:[],interviews:[],health:null};
+const sb={rpc:async name=>name==='elan_work_desk'?{data}:{error:Error('Connection lost')}};
+await todayDesk(box,sb,{tasks:[{assigned_to:'someone-else',title:'Not mine',status:'Open'},{assigned_to:'me',title:'My task',status:'Open'}]},'me');
+assert(box.textContent.includes('My task'));assert(!box.textContent.includes('Not mine'));assert(!box.querySelector('script'));
+let f=box.querySelector('form');f.elements.frequency.value='daily';await f.onsubmit({preventDefault(){}});assert.equal(f.elements.frequency.value,'daily');assert(f.textContent.includes('Connection lost'));assert(!f.inert);
+await workHandoffs(box,sb,{departments:['Finance','Design'],mine:{department:'Finance',role:'member',user_id:'me'},leader:false});
+f=box.querySelector('form');f.elements.title.value='Keep this draft';f.elements.brief.value='A clear brief';f.elements.to.value='Design';f.elements.due.value='2030-01-01';await f.onsubmit({preventDefault(){}});assert.equal(f.elements.title.value,'Keep this draft');assert(f.textContent.includes('Connection lost'));assert(!f.inert);
+console.log('PASS: Today only shows assigned tasks; notification text is escaped; failed preferences and handoffs retain entries');

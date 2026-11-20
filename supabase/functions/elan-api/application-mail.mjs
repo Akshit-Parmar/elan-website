@@ -9,6 +9,7 @@ export function applicationMailContent(row){
  interview_invitation:['Your Élan OC interview invitation','Your interview has been scheduled. Please open your applicant portal to confirm attendance or request another time.'],
  interview_changed:['Your Élan OC interview details have changed','The team has updated your interview arrangements. Please check the details below and confirm the new invitation in your applicant portal.'],
  interview_cancelled:['Your Élan OC interview invitation has been withdrawn','The previous interview invitation is no longer active. Please do not use the earlier time or meeting details. Check your applicant portal for the next step.'],
+ interview_start_reminder:['Your Élan OC interview starts within an hour','Your interview is coming up. Please check the meeting instructions and be ready a few minutes before the start time.'],
  interview_reminder:['Reminder: please confirm your Élan OC interview','Your interview is within the next 24 hours and we have not received your confirmation. Please confirm attendance or request another time in your applicant portal.'],
  reply_confirmed:['Your Élan OC interview attendance is confirmed','We have recorded your confirmation. You can find the interview details below and in your applicant portal.'],
  reply_reschedule:['We received your interview rescheduling request','The team has received your request for another interview time. A new time is not confirmed yet. We will email you when the arrangements are updated.'],
@@ -19,9 +20,9 @@ export function applicationMailContent(row){
  update:['A message about your Élan OC application','The team has added an update to your application. Please read the message below and check your applicant portal for any action needed.']
  };
  const copy=messages[row.kind];if(!copy)throw Error('Unsupported mail event');
- const showInterview=['interview_invitation','interview_changed','interview_reminder','reply_confirmed'].includes(row.kind);
+ const showInterview=['interview_invitation','interview_changed','interview_reminder','interview_start_reminder','reply_confirmed'].includes(row.kind);
  if(showInterview&&!when)throw Error('Missing interview time');
- const paragraphs=['Hi '+p.name+',',copy[1],...(showInterview?['Interview: '+when,p.instructions]:[]),...(p.message?['Message from the team: '+p.message]:[]),'Application reference: '+p.id];
+ const paragraphs=['Hi '+p.name+',',copy[1],...(showInterview?['Interview: '+when,...(p.duration_minutes?['Duration: '+p.duration_minutes+' minutes']:[]),p.instructions]:[]),...(p.message?['Message from the team: '+p.message]:[]),'Application reference: '+p.id];
  return branded(copy[0],paragraphs,row.kind==='selected'?'Open organiser workspace':'Open applicant portal',site+(row.kind==='selected'?'/organisers':'/application-status'));
 }
 export async function dispatchApplicationMail(db,env,fetcher=fetch,gmailSender,id=null){
