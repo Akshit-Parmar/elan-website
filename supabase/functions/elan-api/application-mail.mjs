@@ -1,3 +1,4 @@
+export const interviewBookingURL='https://calendar.app.google/b2bKN2LUkKdZ4sQY7';
 import {branded,site} from './mail-brand.mjs';
 import {emailConfigured} from './acknowledgement.mjs';
 export function applicationMailContent(row){
@@ -5,7 +6,7 @@ export function applicationMailContent(row){
  const messages={
  under_review:['Your Élan OC application is under review','Our team is reviewing your application for the 2027 organising committee. We will email you when there is a further update. No action is needed from you right now.'],
  shortlisted:['You have been shortlisted for the Élan OC','Your application has been shortlisted. This is not a final appointment. The team will share the next step through your applicant portal.'],
- interview:['An update on your Élan OC interview','Your application has moved to the interview stage. The team will send the invitation once the time and arrangements are confirmed.'],
+ interview:['Choose a time for your Élan OC interview','We would like to invite you to an interview for the Élan Summit 2027 organising committee. Choose a suitable time from the available slots using the booking link below. Please book with the same name and email address you used in your application.'],
  interview_invitation:['Your Élan OC interview invitation','Your interview has been scheduled. Please open your applicant portal to confirm attendance or request another time.'],
  interview_changed:['Your Élan OC interview details have changed','The team has updated your interview arrangements. Please check the details below and confirm the new invitation in your applicant portal.'],
  interview_cancelled:['Your Élan OC interview invitation has been withdrawn','The previous interview invitation is no longer active. Please do not use the earlier time or meeting details. Check your applicant portal for the next step.'],
@@ -22,8 +23,9 @@ export function applicationMailContent(row){
  const copy=messages[row.kind];if(!copy)throw Error('Unsupported mail event');
  const showInterview=['interview_invitation','interview_changed','interview_reminder','interview_start_reminder','reply_confirmed'].includes(row.kind);
  if(showInterview&&!when)throw Error('Missing interview time');
- const paragraphs=['Hi '+p.name+',',copy[1],...(showInterview?['Interview: '+when,...(p.duration_minutes?['Duration: '+p.duration_minutes+' minutes']:[]),p.instructions]:[]),...(p.message?['Message from the team: '+p.message]:[]),'Application reference: '+p.id];
- return branded(copy[0],paragraphs,row.kind==='selected'?'Open organiser workspace':'Open applicant portal',site+(row.kind==='selected'?'/organisers':'/application-status'));
+ const booking=row.kind==='interview';
+ const paragraphs=['Hi '+p.name+',',copy[1],...(showInterview?['Interview: '+when,...(p.duration_minutes?['Duration: '+p.duration_minutes+' minutes']:[]),p.instructions]:[]),...(p.message&&p.message!=='Your application has reached the interview stage. Once your invitation is published, your interview time and joining instructions will appear here. Please confirm your attendance when those details are available.'&&p.message!=='We would like to invite you to an interview for the Élan Summit 2027 organising committee. Choose a suitable time from the available slots using the booking link below. Please book with the same name and email address you used in your application.'?['Message from the team: '+p.message]:[]),...(booking?['Check the time zone shown on the booking page before choosing your slot. If you have already booked, keep your existing booking; there is no need to book again.','If no available time works for you, reply to this email and share your availability.','Track your application: '+site+'/application-status']:[]),'Application reference: '+p.id];
+ return branded(copy[0],paragraphs,booking?'Choose my interview time':row.kind==='selected'?'Open organiser workspace':'Open applicant portal',booking?interviewBookingURL:site+(row.kind==='selected'?'/organisers':'/application-status'));
 }
 export async function dispatchApplicationMail(db,env,fetcher=fetch,gmailSender,id=null){
  if(!emailConfigured(env))return {configured:false,processed:0};

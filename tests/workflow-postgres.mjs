@@ -87,6 +87,7 @@ assert(!(await db.query('select elan_claim_work_mail() batch')).rows[0].batch.so
 // Exercise the additive message upgrade against the complete workflow schema.
 await db.exec(`alter table elan_oc_members_2027 add name text;create table elan_profiles(user_id uuid,full_name text);insert into elan_profiles values('${assistant}','Review Tester');`);
 await db.exec(fs.readFileSync(base+'scripts/application-messages-update.sql','utf8'));
+await db.exec(fs.readFileSync(base+'scripts/interview-booking-link.sql','utf8'));
 await db.exec(`set app.uid='${assistant}';update elan_oc_recruitment set stage='shortlisted',applicant_message='' where enquiry_id='${ids[9]}'`);
 let automatic=(await db.query('select applicant_message from elan_oc_recruitment where enquiry_id=$1',[ids[9]])).rows[0].applicant_message;
 assert.match(automatic,/You have been shortlisted/);

@@ -1,7 +1,7 @@
 import {esc} from './organiser-utils.js';
 export function attention(review={},failed=false,now=Date.now()){
  const future=review.stage==='interview'&&review.interview_published&&Date.parse(review.interview_at)>now;
- return {review:['new','under_review'].includes(review.stage||'new'),interviews:future,unanswered:future&&!review.interview_reply,reschedule:future&&review.interview_reply==='reschedule',email:failed};
+ return {booking:review.stage==='interview'&&(!review.interview_published||!review.interview_at),followup:review.stage==='interview'&&review.interview_published&&Date.parse(review.interview_at)+(review.duration_minutes||30)*60000<=now,review:['new','under_review'].includes(review.stage||'new'),interviews:future,unanswered:future&&!review.interview_reply,reschedule:future&&review.interview_reply==='reschedule',email:failed};
 }
 export async function reviewExtras(host,sb,id,isCurrent){
  host.innerHTML='<p role="status">Loading interview feedback and onboarding…</p>';

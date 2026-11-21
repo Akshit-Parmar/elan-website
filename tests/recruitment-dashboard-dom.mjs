@@ -7,7 +7,9 @@ const sb={auth:{getUser:async()=>({data:{user:{id:"test-reviewer"}}})},from(t){l
 const calls=[];const api=async(a,b)=>{calls.push(a);if(a==='admin-list')return{rows:[app],total:1};if(a==='acknowledgement-config')return{configured:true};return {configured:true};};
 await openRecruitment({api,sb,host:document.querySelector('#host'),editor:document.querySelector('#editor'),status:()=>{},isCurrent:()=>true,leadership:true});
 assert.match(document.querySelector('[data-focus="email"]').textContent,/1/);
-assert.equal(document.querySelectorAll('[data-attention] button').length,7);
+assert.equal(document.querySelectorAll('[data-attention] button').length,9);
+assert.match(document.querySelector('[data-focus=booking]').textContent,/Booking not recorded/);
+assert.match(document.querySelector('[data-focus=followup]').textContent,/Interview follow-up/);
 assert.equal(document.querySelectorAll('.recruitment-stages button').length,8);
 document.querySelector('[data-stage="under_review"]').click();
 assert.equal(document.querySelector('[data-count]').textContent,'0 applications');
