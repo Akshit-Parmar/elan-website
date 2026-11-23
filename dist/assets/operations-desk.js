@@ -43,7 +43,7 @@ export async function operationsDesk({host,sb,session,mine,reviewer,signout,comp
  }
  if(tab==='today'){await todayDesk(box,sb,s,session.user.id);return;}
  if(tab==='revisions'){await revisionDesk(box,sb,session.user.id);return;}
- if(tab==='onboarding'){await onboardingView(box,sb,{isCurrent:()=>g===generation});return;}
+ if(tab==='onboarding'){await onboardingView(box,sb,{isCurrent:()=>g===generation,department:mine?.department,role:title,heads:s.people.filter(p=>p.department===mine?.department&&p.role==='lead').map(p=>p.name),tasks:open.filter(t=>t.assigned_to===session.user.id)});return;}
  if(tab==='decisions'){await reviewView(box,sb,reviewer?.seat);return;}
  if(tab==='tools'){const mod=s.teams.find(x=>x.department===mine.department);if(!mod?.id){box.innerHTML=empty('Department register is not configured.','Ask the administrator to configure the department workspace.');return;}await (mod.tool==='finance'?finance:registry)({box,sb,mod,lead,user:session.user.id,destinations:ctx.departments});return;}
  if(tab==='teams'){box.innerHTML=s.teams.map((m,i)=>'<article class="ops-team"><small>DEPARTMENT '+String(i+1).padStart(2,'0')+'</small><h2>'+esc(m.department)+'</h2><p>'+esc(copy[m.tool]||copy.general)+'</p><p>'+esc(s.people.filter(p=>p.department===m.department).map(p=>p.name+(p.role==='lead'?' (head)':'')).join(' · ')||'No active members assigned yet.')+'</p><button data-go="tasks" data-dept="'+esc(m.department)+'">View tasks →</button>'+ (leadership?'<details><summary>Approved department work</summary>'+ (s.registers.filter(r=>r.department===m.department).map(r=>'<p>'+esc(r.title)+' · '+esc(r.stage||'Approved')+'</p>').join('')||'<p>No approved register entries yet.</p>')+'</details>':'')+'</article>').join('');return;}

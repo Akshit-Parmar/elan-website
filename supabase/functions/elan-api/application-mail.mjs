@@ -20,6 +20,7 @@ export function applicationMailContent(row){
  new:['Your Élan OC application status has been updated','Your application is marked as received. You can check the current status in your applicant portal.'],
  update:['A message about your Élan OC application','The team has added an update to your application. Please read the message below and check your applicant portal for any action needed.']
  };
+ if(p.reply==='confirmed'){messages.interview_invitation=['Your Élan OC interview booking is confirmed','Your chosen interview time is recorded in Élan. Check the details below; you do not need to book or confirm again.'];messages.interview_changed=['Your Élan OC interview booking has changed','Your updated booking is recorded in Élan. Use the time and joining details below; you do not need to confirm again.'];}
  const copy=messages[row.kind];if(!copy)throw Error('Unsupported mail event');
  const showInterview=['interview_invitation','interview_changed','interview_reminder','interview_start_reminder','reply_confirmed'].includes(row.kind);
  if(showInterview&&!when)throw Error('Missing interview time');

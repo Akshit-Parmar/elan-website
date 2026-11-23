@@ -12,6 +12,7 @@ insert into auth.users values('00000000-0000-4000-8000-000000000002','member@exa
 insert into elan_enquiries(id,email) values('00000000-0000-4000-8000-000000000010','member@example.invalid');
 insert into elan_oc_recruitment values('00000000-0000-4000-8000-000000000010','under_review');`);
 await db.exec(fs.readFileSync(base+'scripts/recruitment-readiness.sql','utf8'));
+await db.exec(fs.readFileSync(base+'scripts/member-welcome-meeting.sql','utf8'));
 await db.exec(`set role authenticated;set app.uid='00000000-0000-4000-8000-000000000001';
 insert into elan_interview_feedback(enquiry_id,interviewer,department_fit,availability,skills,recommendation) values('00000000-0000-4000-8000-000000000010','Director','Good','Weekends','Design','Proceed');
 insert into elan_member_onboarding(enquiry_id,reporting_person,responsibilities,first_tasks) values('00000000-0000-4000-8000-000000000010','Design head','Design posters','Prepare three drafts');`);
