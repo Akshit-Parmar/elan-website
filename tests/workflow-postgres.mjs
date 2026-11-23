@@ -107,7 +107,7 @@ console.log('PASS: scheduling overlaps, adjacent slots, permissions, optimistic 
 await db.exec(`create schema extensions;
 create function extensions.gen_random_bytes(integer) returns bytea language sql as $$select decode(repeat('ab',$1),'hex')$$;
 create function extensions.digest(text,text) returns bytea language sql as $$select decode(md5($1),'hex')$$;`);
-await db.exec(fs.readFileSync(base+'scripts/calendar-booking-sync.sql','utf8'));
+const calendarSQL=fs.readFileSync(base+'scripts/calendar-booking-sync.sql','utf8');assert.match(calendarSQL,/update elan_private\.calendar_connection set last_sync=now\(\) where singleton=true;/);assert.match(calendarSQL,/delete from elan_private\.calendar_connection where singleton=true;/);await db.exec(calendarSQL);
 await db.exec(`set app.uid='${admin}'`);
 await assert.rejects(db.query("select elan_calendar_configure(null,'Interview', $1)",[[director]]),/Enter the calendar/);
 const config=(await db.query("select elan_calendar_configure('calendar@example.invalid','Elan Interview', $1) c",[[director]])).rows[0].c;

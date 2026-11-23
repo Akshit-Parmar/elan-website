@@ -38,3 +38,20 @@ Automated unit, DOM and database tests cover the new flow alongside existing per
 
 ## Database advisory review
 The Calendar ingestion function is intentionally callable with a scoped secret instead of a user session; configuration is restricted to verified administrators. Its private tables intentionally have no direct-access policies. The scanner flags these privileged entry points for review: https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable . Null/invalid credentials and non-admin configuration were tested. Existing leaked-password protection is disabled and was not changed by this release: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection .
+
+23 November follow-up: fixed the Calendar heartbeat and disconnect queries to include their singleton filter, preserving Supabase safe-update enforcement. Applied live; no Apps Script changes are required.
+
+
+## Recruitment workspace update — 23 November 2026
+
+- Interview desk: chronological upcoming bookings with department, assigned interviewers, joining link and applicant shortcut. Separate follow-up, awaiting-decision and awaiting-booking queues. Times use the viewer's browser time zone, labelled on screen.
+- Application shortcuts open answers, existing scorecard, private outcome, onboarding and email history. Existing scorecards and department feedback are retained.
+- Outcomes: completed, missed interview, rescheduling needed, or outcome not recorded. Required evidence; immutable history with actor and slot. Old-slot outcomes do not carry over to rescheduled interviews. Only verified administrator, Director and Assistant Director can record/read these outcomes. No automatic rejection, selection, cancellation or email from private outcome notes. Public stage changes retain existing email automation.
+- Member welcome: clearer two-column reporting-person/responsibilities/tasks/document brief, existing next meeting and saved acknowledgement checklist. Mobile stacks these cards.
+- Calendar: visible last contact, warning after 20 minutes without contact, refresh status and corrective guidance for booking exceptions. Email attention queue and existing safe retry/history retained.
+
+### Deployment
+The additive `scripts/interview-outcomes.sql` migration has already been applied to elan-v2 and permissions checked. Do not rerun it there. Replace website files using this complete package and push to GitHub as usual. Google Apps Script does not need changes. No applicant data was edited or test emails sent.
+
+### Verification
+Full release checks passed, including new DOM/unit coverage for agenda sorting/actions and new PostgreSQL tests for leadership permissions, non-leadership denial, slot matching, immutable history and actor spoofing prevention. Android/iOS web assets regenerated. An authenticated browser walkthrough of the deployed interface remains to be done after the GitHub deployment.

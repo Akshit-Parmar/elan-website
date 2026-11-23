@@ -21,14 +21,14 @@ begin
 end$$;
 create or replace function public.elan_calendar_disable() returns void language plpgsql security definer set search_path='' as $$begin
  if not exists(select 1 from public.elan_staff s join auth.users u on u.id=s.user_id where s.user_id=auth.uid() and s.role='admin' and u.email_confirmed_at is not null and u.deleted_at is null) then raise exception 'Admin access required';end if;
- delete from elan_private.calendar_connection;
+ delete from elan_private.calendar_connection where singleton=true;
 end$$;
 create or replace function public.elan_calendar_receive(p_token text,p_calendar text,p_event jsonb) returns jsonb language plpgsql security definer set search_path='' as $$
 declare c elan_private.calendar_connection;b elan_private.calendar_bookings;r public.elan_oc_recruitment;eid text;stamp timestamptz;at_time timestamptz;end_time timestamptz;mins integer;matches uuid[];link text;cancelled boolean;issue text;
 begin
  select * into c from elan_private.calendar_connection where singleton;
  if p_token is null or p_calendar is null or c.token_hash is null or length(p_token)<>64 or c.token_hash<>encode(extensions.digest(p_token,'sha256'),'hex') or c.calendar_id<>p_calendar or not exists(select 1 from public.elan_staff s join auth.users u on u.id=s.user_id where s.user_id=c.owner_id and s.role='admin' and u.email_confirmed_at is not null and u.deleted_at is null) then raise exception 'Calendar connection not authorised' using errcode='42501';end if;
- update elan_private.calendar_connection set last_sync=now();
+ update elan_private.calendar_connection set last_sync=now() where singleton=true;
  if p_event->>'type'='heartbeat' then return jsonb_build_object('status','ok');end if;
  if pg_column_size(p_event)>20000 then raise exception 'Event too large';end if;
  eid:=p_event->>'id';if eid is null or length(eid) not between 1 and 200 then raise exception 'Invalid event';end if;
