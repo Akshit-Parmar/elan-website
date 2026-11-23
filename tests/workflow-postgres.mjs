@@ -126,7 +126,18 @@ assert.equal((await receive({...event,updated:'2030-01-02T00:00:00Z'})).status,'
 assert.equal((await receive({...event,id:'wrong-email',attendees:[{email:'unknown@example.invalid'}]})).status,'attention');
 assert.equal((await receive({...event,id:'unrelated',summary:'Personal appointment'})).status,'ignored');
 assert.equal((await receive({...event,id:'duplicate'})).status,'attention');
+assert.ok((await receive({type:'heartbeat'})).retry_events.includes('duplicate'));
+const beforeCancel=(await db.query('select version from elan_oc_recruitment where enquiry_id=$1',[ids[9]])).rows[0].version;
+assert.equal((await receive({...event,id:'duplicate',updated:'2030-01-02T10:00:00Z',status:'cancelled'})).status,'cancelled');
+assert.equal((await db.query('select version from elan_oc_recruitment where enquiry_id=$1',[ids[9]])).rows[0].version,beforeCancel);
+assert.equal((await receive({...event,id:'remaining'})).status,'attention');
 assert.equal((await receive({...event,updated:'2030-01-03T00:00:00Z',status:'cancelled'})).status,'cancelled');
+assert.equal((await receive({...event,id:'remaining'})).status,'synced');
+assert.equal((await receive({...event,id:'remaining',updated:'2030-01-03T01:00:00Z',status:'cancelled'})).status,'cancelled');
+// The original previously cancelled event is no longer the active record; resetting its
+// binding version here represents a newly created event for the existing manual-edit test.
+await db.exec("update elan_private.calendar_bookings set last_version=(select version from elan_oc_recruitment where enquiry_id='"+ids[9]+"') where event_id='booking1'");
+
 assert.equal((await db.query('select stage from elan_oc_recruitment where enquiry_id=$1',[ids[9]])).rows[0].stage,'interview');
 assert.equal((await receive({...event,updated:'2030-01-04T00:00:00Z'})).status,'synced');
 await db.exec(`update elan_oc_recruitment set notes='Manual review',version=version+1 where enquiry_id='${ids[9]}'`);

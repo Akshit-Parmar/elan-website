@@ -26,3 +26,10 @@ A new imported slot is treated as confirmed because the applicant chose it. Éla
 Google grants the script Calendar read access. Only matching titles and cancelled event identifiers are sent to Élan, with the fields needed to match and record interviews. No Calendar descriptions or unrelated event content are sent. Use a dedicated interview calendar where possible. The connection token cannot read applications; it can submit events only to the configured calendar bridge.
 
 To stop, use **Disconnect Calendar sync** in Élan, then run **stopElanCalendar** in Apps Script. Existing applications and recorded interviews remain. Remove the Script Properties and Google's authorisation if retiring the integration.
+
+## Update an existing connection (23 November 2026)
+
+Replace only the contents of Code.gs with this package's Code.gs and save.
+Keep appsscript.json, Script Properties (including ELAN_TOKEN) and the existing five-minute trigger.
+Select syncElanCalendar and click Run once. No deployment or new connection key is needed.
+The updated script checks up to 20 flagged events against Google after each completed incremental sync, processing cancellations before active bookings. A Google read error never counts as a cancellation. Manual application edits, overlapping slots and genuinely missing details still require review.

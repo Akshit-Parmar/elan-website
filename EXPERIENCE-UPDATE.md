@@ -55,3 +55,19 @@ The additive `scripts/interview-outcomes.sql` migration has already been applied
 
 ### Verification
 Full release checks passed, including new DOM/unit coverage for agenda sorting/actions and new PostgreSQL tests for leadership permissions, non-leadership denial, slot matching, immutable history and actor spoofing prevention. Android/iOS web assets regenerated. An authenticated browser walkthrough of the deployed interface remains to be done after the GitHub deployment.
+
+## Reliability update — 23 November 2026
+
+- Calendar retries flagged events using fresh Google Events.get reads, cancellations first. Cancelling an unused duplicate no longer clears the real slot. After the original slot is cancelled, the remaining flagged booking can be rechecked automatically.
+- Backend heartbeat returns bounded retry IDs only to the token-authorised calendar connection. Existing permission and manual-edit guards retained.
+- Calendar alerts show applicant names, specific validation failures, suggested action and an Open application button. Unknown applicants remain explicitly unmatched.
+- Recruitment dashboard checks for new data every minute while visible. Refresh now uses the same safe path. Unsaved inputs, in-progress saves and new typing during a request prevent refresh from overwriting work. A review changed elsewhere gets a Load latest review prompt instead of replacing the open form.
+- Applicant login says Forgot password? and Send password reset email. Reviewer action uses the same clear label; existing recovery backend remains unchanged.
+
+### Required once
+1. Push this complete package to GitHub as usual.
+2. In the existing Google Apps Script project, replace Code.gs with integrations/google-calendar/Code.gs, save, select syncElanCalendar and Run once. Keep the existing token, calendar ID, title, manifest and trigger. No Deploy needed.
+
+The backend migration calendar-retry-recovery.sql has already been applied to elan-v2. No SQL needs to be run there. Until Code.gs is updated, the existing scheduled sync continues but cannot perform the new automatic rechecks.
+
+Full release checks pass, including fresh-event retry ordering, transient Google failures, duplicate cancellation protection, remaining-slot recovery and refresh races. The new script must still be installed in the owner's Google account; this session does not have access to that Apps Script project. No live applicant records were manually changed and no test email was sent.

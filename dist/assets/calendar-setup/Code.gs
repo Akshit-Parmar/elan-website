@@ -19,9 +19,20 @@ function syncElanCalendar(){
  if(sync)options.syncToken=sync;else{let since=p.getProperty('ELAN_SINCE');if(!since){since=new Date(Date.now()-86400000).toISOString();p.setProperty('ELAN_SINCE',since);}options.timeMin=since;}
  if(page)options.pageToken=page;
  let data;try{data=Calendar.Events.list(calendar,options);}catch(e){if(String(e).match(/410|sync token|full sync/i)){p.deleteProperty('ELAN_SYNC');p.deleteProperty('ELAN_PAGE');p.deleteProperty('ELAN_SINCE');return;}throw e;}
- for(const e of data.items||[]){if(e.recurrence)continue;if(e.status!=='cancelled'&&!String(e.summary||'').startsWith(prefix))continue;request({id:e.id,updated:e.updated||new Date().toISOString(),status:e.status,summary:e.summary,start:e.start,end:e.end,hangoutLink:e.hangoutLink,location:e.location,attendees:(e.attendees||[]).map(a=>({email:a.email,organizer:!!a.organizer}))});}
+ const sendEvent=e=>request({id:e.id,updated:e.updated||new Date().toISOString(),status:e.status,summary:e.summary,start:e.start,end:e.end,hangoutLink:e.hangoutLink,location:e.location,attendees:(e.attendees||[]).map(a=>({email:a.email,organizer:!!a.organizer}))});
+ // Apply cancellations first, then consider remaining bookings.
+ for(const e of (data.items||[]).sort((a,b)=>Number(b.status==='cancelled')-Number(a.status==='cancelled'))){if(e.recurrence)continue;if(e.status!=='cancelled'&&!String(e.summary||'').startsWith(prefix))continue;sendEvent(e);}
  if(data.nextPageToken)p.setProperty('ELAN_PAGE',data.nextPageToken);else{p.deleteProperty('ELAN_PAGE');if(data.nextSyncToken)p.setProperty('ELAN_SYNC',data.nextSyncToken);}
- request({type:'heartbeat'});
+ const state=request({type:'heartbeat'});
+ // Re-read flagged events from Google even when they have not changed since the last sync.
+ // Never infer cancellation from an API error or reuse a stale cached event.
+ if(!data.nextPageToken){
+ const retry=[];
+ for(const id of state.retry_events||[]){try{retry.push(Calendar.Events.get(calendar,id));}catch(e){console.warn('A flagged Calendar event could not be checked. It remains for review.');}}
+ retry.sort((a,b)=>Number(b.status==='cancelled')-Number(a.status==='cancelled'));
+ for(const e of retry){if(e.recurrence)continue;sendEvent(e);}
+ }
+
  }finally{lock.releaseLock();}
 }
 function stopElanCalendar(){ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='syncElanCalendar').forEach(t=>ScriptApp.deleteTrigger(t));}
