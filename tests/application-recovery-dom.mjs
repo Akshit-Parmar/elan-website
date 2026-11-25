@@ -1,0 +1,9 @@
+import {JSDOM} from 'jsdom';import {readFileSync} from 'node:fs';import assert from 'node:assert/strict';
+import {setupApplication} from '../src/oc-application.js';import {meetingLink} from '../src/application-tracker.js';
+const html=readFileSync('src/oc-join.html','utf8'),key='elan-oc-draft-2027-v1';
+function page(saved){const dom=new JSDOM(html,{url:'https://elansummit.com/join-oc-2027.html'});globalThis.window=dom.window;globalThis.document=dom.window.document;if(saved)window.localStorage.setItem(key,saved);const f=document.querySelector('form');setupApplication(f);return f;}
+let f=page();f.elements.full_name.value='Draft applicant';f.elements.department.value='Finance';f.dataset.submissionId='11111111-1111-4111-8111-111111111111';f.elements.contact_consent.checked=true;f.dispatchEvent(new window.Event('input'));let saved=window.localStorage.getItem(key);assert(!JSON.parse(saved).values.contact_consent);f=page(saved);assert.equal(f.elements.full_name.value,'Draft applicant');assert.equal(f.dataset.submissionId,'11111111-1111-4111-8111-111111111111');assert(!f.elements.contact_consent.checked);assert(f.elements.department_question.value.includes('payments'));f.reset();assert.equal(window.localStorage.getItem(key),null);
+f=page(JSON.stringify({at:Date.now()-8*86400000,values:{full_name:'Expired'}}));assert.equal(f.elements.full_name.value,'');
+Object.defineProperty(window,'localStorage',{get(){throw Error('disabled')}});assert.doesNotThrow(()=>f.dispatchEvent(new window.Event('input')));assert(document.querySelector('[data-draft-status]').textContent.includes('cannot save'));
+assert(meetingLink('Join https://meet.google.com/abc-defg-hij').includes('Join interview'));assert.equal(meetingLink('https://meet.google.com.evil.example/steal'),'');assert.equal(meetingLink('javascript:alert(1)'),'');
+console.log('PASS: draft restore/expiry/cleanup, consent excluded, stable retry ID, blocked storage, safe meeting link');

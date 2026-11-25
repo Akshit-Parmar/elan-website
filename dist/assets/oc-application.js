@@ -13,6 +13,16 @@ export const questions={
 export function setupApplication(form){
  const steps=[...form.querySelectorAll('[data-step]')],back=form.querySelector('[data-back]'),next=form.querySelector('[data-next]'),submit=form.querySelector('[type=submit]'),indicators=[...document.querySelectorAll('[data-steps] li')];
  let current=0,dirty=false;
+ const key='elan-oc-draft-2027-v1',age=7*24*60*60*1000;
+ const banner=document.createElement('div');banner.className='application-draft';banner.innerHTML='<p role="status" data-draft-status>Your progress is saved on this device for 7 days. Avoid shared devices.</p><button type="button" data-clear-draft>Clear saved progress</button>';form.prepend(banner);
+ const draftStatus=banner.querySelector('[data-draft-status]');
+ let draft=null;try{draft=JSON.parse(window.localStorage.getItem(key));if(!draft||Date.now()-draft.at>age){window.localStorage.removeItem(key);draft=null;}}catch{}
+ if(draft?.values){for(const [name,value] of Object.entries(draft.values)){const el=form.elements.namedItem(name);if(el&&el.type!=='hidden'&&el.type!=='checkbox'&&el.type!=='password'&&el.name!=='elan_hp'&&typeof value==='string')el.value=value;}form.dataset.submissionId=draft.id||'';draftStatus.textContent='Your saved progress has been restored. Check your answers before submitting.';}
+ const save=()=>{if(form.dataset.completed==='true')return;const values={};for(const el of form.querySelectorAll('input,select,textarea'))if(el.name&&!['hidden','checkbox','password','file'].includes(el.type)&&!['elan_hp','cf-turnstile-response'].includes(el.name))values[el.name]=el.value;try{window.localStorage.setItem(key,JSON.stringify({at:Date.now(),values,id:form.dataset.submissionId||''}));draftStatus.textContent='Progress saved on this device. Your application has not been submitted.';}catch{draftStatus.textContent='This browser cannot save progress. Keep this page open until you submit.';}};
+ form.saveDraft=save;
+ form.addEventListener('input',save);form.addEventListener('change',save);
+ banner.querySelector('button').onclick=()=>{if(!window.confirm('Clear your saved answers on this device?'))return;try{window.localStorage.removeItem(key);}catch{}for(const el of form.querySelectorAll('input,select,textarea'))if(el.type!=='hidden'){if(el.type==='checkbox')el.checked=false;else el.value='';}delete form.dataset.submissionId;dirty=false;conditional();show(0);draftStatus.textContent='Saved progress cleared. You can start again.';};
+ form.addEventListener('reset',()=>{try{window.localStorage.removeItem(key);}catch{}banner.hidden=true;});
  form.addEventListener('input',()=>{dirty=true;});
  window.addEventListener('beforeunload',e=>{if(dirty&&form.dataset.completed!=='true'){e.preventDefault();e.returnValue='';}});
  function validateStep(i){const bad=[...steps[i].querySelectorAll('input,select,textarea')].find(e=>!e.disabled&&!e.checkValidity());if(bad){show(i);bad.reportValidity();return false;}return true;}

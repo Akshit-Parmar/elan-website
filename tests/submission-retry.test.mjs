@@ -1,0 +1,6 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+const source=readFileSync('supabase/functions/elan-api/index.ts','utf8');const body=source.slice(source.indexOf('const submissionId='),source.indexOf('let email_status='));
+const run=new (Object.getPrototypeOf(async function(){}).constructor)('b','db','uuid','checked','ApiError','respond','em','kind','name','details',body+'return row;');
+const records=new Map();let inserts=0;const db={from(){return {insert(row){return {select(){return {async single(){if(records.has(row.id))return {error:{code:'23505'}};records.set(row.id,row);inserts++;return {data:{id:row.id}};}};} };},select(){return {eq(k,id){return {async maybeSingle(){return {data:records.get(id)}}}}}}}}};
+const submit=(email='applicant@example.test')=>run({submission_id:'stable-id'},db,x=>x,r=>{if(r.error)throw r.error;return r.data;},Error,x=>x,email,'volunteer','Test',{});
+test('retry keeps one record and rejects mismatched ownership',async()=>{assert.equal((await submit()).id,'stable-id');assert.equal((await submit()).id,'stable-id');assert.equal(inserts,1);await assert.rejects(submit('other@example.test'));assert.equal(inserts,1);});

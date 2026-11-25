@@ -54,7 +54,10 @@ Deno.serve(async req=>{
    if(details.intent==='2027 organising committee application'||String(details.application_version)==='2'){text(details.study_year,'Grade or year of study',160,1);text(details.instagram,'Instagram username',80,1);if(details.linkedin){const link=text(details.linkedin,'LinkedIn profile',300,1);let parsed;try{parsed=new URL(link);}catch{throw new ApiError('Enter a valid LinkedIn profile URL.');}if(parsed.protocol!=='https:'||!['linkedin.com','www.linkedin.com'].includes(parsed.hostname))throw new ApiError('Use an https://www.linkedin.com profile link.');}}
    await rate('enquiry:'+em,3,3600);await rate('ip:'+(req.headers.get('x-forwarded-for')||'unknown').split(',')[0],10,3600);
    if(env('TURNSTILE_SECRET_KEY')){const v=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body:new URLSearchParams({secret:env('TURNSTILE_SECRET_KEY'),response:String(b.captchaToken||'')})});const result=await v.json();if(!result.success)throw new ApiError('Please complete the verification.');}
-   const row=checked(await db.from('elan_enquiries').insert({kind,full_name:name,email:em,details}).select('id').single());let email_status='unavailable';try{email_status=await sendAcknowledgement(db,row.id,env,fetch,undefined,mailAuth());}catch{}return respond({...row,email_status});
+   const submissionId=b.submission_id?uuid(b.submission_id):crypto.randomUUID();
+   const inserted=await db.from('elan_enquiries').insert({id:submissionId,kind,full_name:name,email:em,details}).select('id').single();
+   if(inserted.error?.code==='23505'){const existing=checked(await db.from('elan_enquiries').select('id,email,kind').eq('id',submissionId).maybeSingle());if(!existing||existing.email!==em||existing.kind!==kind)throw new ApiError('Submission could not be confirmed.',409);return respond({id:existing.id,email_status:'pending'});}
+   const row=checked(inserted);let email_status='unavailable';try{email_status=await sendAcknowledgement(db,row.id,env,fetch,undefined,mailAuth());}catch{}return respond({...row,email_status});
   }
   const jwt=(req.headers.get('Authorization')||'').replace(/^Bearer /i,'');if(!jwt)throw new ApiError('Please sign in.',401);
   const {data:auth,error}=await db.auth.getUser(jwt);if(error||!auth.user||!auth.user.email_confirmed_at)throw new ApiError('Please sign in with a verified email address.',401);
@@ -172,4 +175,3 @@ Deno.serve(async req=>{
   throw new ApiError('Unknown action.',404);
  }catch(e){if(e instanceof SyntaxError)return respond({error:'Invalid JSON.'},400);if(e instanceof ApiError)return respond({error:e.message},e.status);console.error('elan-api request failed',e?.name);return respond({error:'Something went wrong. Please try again or contact the team.'},500);}
 });
-
