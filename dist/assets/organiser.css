@@ -95,3 +95,33 @@
 .welcome-brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:24px 0}.welcome-brief-grid>section{padding:24px;background:#fffdf8;border:1px solid #d6c8b7;border-top:3px solid #b7794f}.welcome-brief-grid h3{font-size:1.25rem;margin:0 0 14px}.welcome-brief-grid p{line-height:1.7}.welcome-checklist label{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #d6c8b7;align-items:flex-start}.welcome-checklist input[type=checkbox]{width:20px;height:20px;flex-shrink:0}.welcome-checklist [data-progress]{font-weight:600}@media(max-width:650px){.welcome-brief-grid{grid-template-columns:1fr}.welcome-brief-grid>section{padding:18px}}
 
 .daily-focus{padding:clamp(1rem,3vw,2rem);border-top:3px solid #aa6a40;background:#fffaf2;margin-bottom:1.5rem}.daily-focus .priority-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}.daily-focus button{padding:1.25rem;text-align:left;min-height:90px}.daily-focus strong{display:block;font-size:2rem}.ops-canvas :focus-visible{outline:3px solid #aa6a40;outline-offset:3px}
+
+/* Keep nested grids and native controls within narrow portal columns. */
+:where(.app-shell,.ops-layout,.team-shell,.application-tracker) :where(section,article,form,fieldset,label,details,nav,div){min-width:0}
+:where(.app-shell,.ops-layout,.team-shell,.application-tracker) :where(p,a,summary,button,code){overflow-wrap:anywhere}
+:where(.app-shell,.ops-layout,.team-shell,.application-tracker) :where(input,select,textarea){min-width:0;max-width:100%;box-sizing:border-box}
+:where(.app-shell,.ops-layout,.team-shell,.application-tracker) textarea{width:100%;resize:vertical}
+:where(.app-shell,.ops-layout,.team-shell,.application-tracker) button{max-width:100%;white-space:normal}
+.recruitment-detail form,.recruitment-detail label{grid-template-columns:minmax(0,1fr)}
+.recruitment-detail :is(input:not([type=checkbox]):not([type=radio]),select,textarea){width:100%;min-width:0;max-width:100%;font-size:16px}
+.recruitment-detail .check-row{display:flex;align-items:flex-start;gap:12px}
+.recruitment-detail .check-row input{width:20px;height:20px;flex:0 0 20px;margin-top:3px}
+.recruitment-detail .applicant-message{margin-inline:0;overflow-wrap:anywhere}
+.recruitment-detail .readiness-paper{max-width:100%}
+@media(max-width:650px){
+ .recruitment-detail form{padding:16px;margin-block:24px}
+ .recruitment-detail .readiness-paper{padding:14px}
+ .recruitment-detail .application-answer-group dl{grid-template-columns:minmax(0,1fr)!important}
+ .recruitment-detail .review-shortcuts{gap:8px}
+ .recruitment-detail .review-shortcuts button{flex:1 1 110px}
+ .recruitment-detail form>button{width:100%;min-height:48px}
+ .photo-admin-grid{grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr))}
+ .daily-focus .priority-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:650px){
+ .oc-recruit-strip{flex-wrap:wrap}
+ .oc-recruit-strip>span{max-width:100%;min-width:0}
+ .oc-recruit-strip a{white-space:normal;overflow-wrap:anywhere}
+ .oc-application .oc-form-actions{flex-wrap:wrap}
+ .oc-application .oc-form-actions button{min-width:0;max-width:100%;overflow-wrap:anywhere;flex:1 1 130px}
+}

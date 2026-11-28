@@ -15,7 +15,7 @@ export function applicationMailContent(row){
  reply_confirmed:['Your Élan OC interview attendance is confirmed','We have recorded your confirmation. You can find the interview details below and in your applicant portal.'],
  reply_reschedule:['We received your interview rescheduling request','The team has received your request for another interview time. A new time is not confirmed yet. We will email you when the arrangements are updated.'],
  waitlisted:['An update on your Élan OC application','Your application is on the waiting list. You have not been assigned an organising role. We will contact you if a suitable place becomes available.'],
- selected:['You have been selected for the Élan 2027 OC','You have been selected for the Élan Summit 2027 organising committee'+(p.department?' in '+p.department:'')+'. Sign in with the email you applied with to view your department workspace. If your access is still pending, contact the team.'],
+ selected:['You’re joining the Élan Summit 2027 organising committee','We’re pleased to welcome you to the Élan Summit 2027 organising committee'+(p.department?' in the '+p.department+' department':'')+'.'],
  not_selected:['An update on your Élan OC application','Thank you for taking the time to apply to the Élan Summit 2027 organising committee. We will not be taking this application forward. We appreciate the time and effort you put into your application.'],
  new:['Your Élan OC application status has been updated','Your application is marked as received. You can check the current status in your applicant portal.'],
  update:['A message about your Élan OC application','The team has added an update to your application. Please read the message below and check your applicant portal for any action needed.']
@@ -26,6 +26,20 @@ export function applicationMailContent(row){
  if(showInterview&&!when)throw Error('Missing interview time');
  const booking=row.kind==='interview';
  const paragraphs=['Hi '+p.name+',',copy[1],...(showInterview?['Interview: '+when,...(p.duration_minutes?['Duration: '+p.duration_minutes+' minutes']:[]),p.instructions]:[]),...(p.message&&p.message!=='Your application has reached the interview stage. Once your invitation is published, your interview time and joining instructions will appear here. Please confirm your attendance when those details are available.'&&p.message!=='We would like to invite you to an interview for the Élan Summit 2027 organising committee. Choose a suitable time from the available slots using the booking link below. Please book with the same name and email address you used in your application.'?['Message from the team: '+p.message]:[]),...(booking?['Check the time zone shown on the booking page before choosing your slot. If you have already booked, keep your existing booking; there is no need to book again.','If no available time works for you, reply to this email and share your availability.','Track your application: '+site+'/application-status']:[]),'Application reference: '+p.id];
+ if(row.kind==='selected'){
+  const welcome=[
+   'Hi '+p.name+',',copy[1],
+   'Thank you for the time and thought you put into your application. We’re looking forward to working with you to bring the next edition of Élan together.',
+   'Getting started',
+   'Sign in to your organiser portal using '+p.email+'. Review your department workspace and any onboarding brief shared by the team. Your responsibilities and first tasks will be coordinated there.',
+   'You’ll shortly be added to the relevant WhatsApp groups and invited to a welcome session, where you’ll meet the team and hear about the next steps. We’ll share the meeting date, time and joining link with you separately.',
+   'All organising committee positions at Élan are unpaid. Please reply to this email to confirm that you’re joining us. If you have questions about your role or availability, let us know in your reply.',
+   ...(p.message?['Message from the team: '+p.message]:[]),
+   'Welcome to the team, '+p.name+'. We’re glad to have you with us.',
+   'Application reference: '+p.id
+  ];
+  return branded(copy[0],welcome,'Open your organiser portal',site+'/organisers');
+ }
  return branded(copy[0],paragraphs,booking?'Choose my interview time':row.kind==='selected'?'Open organiser workspace':'Open applicant portal',booking?interviewBookingURL:site+(row.kind==='selected'?'/organisers':'/application-status'));
 }
 export async function dispatchApplicationMail(db,env,fetcher=fetch,gmailSender,id=null){

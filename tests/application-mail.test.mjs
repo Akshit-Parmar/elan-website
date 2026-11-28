@@ -17,3 +17,13 @@ test('interview stage email invites booking without requiring an interview date'
 test('scheduled invitation keeps confirmation action instead of asking for a duplicate booking',()=>{const m=applicationMailContent(event());assert.match(m.text,/confirm attendance/);assert.doesNotMatch(m.html,/calendar.app.google/);});
 
 test('confirmed bookings do not ask the applicant to book or confirm again',()=>{for(const kind of ['interview_invitation','interview_changed']){const row=event(kind);row.payload={...payload,reply:'confirmed'};const m=applicationMailContent(row);assert.match(m.text,/do not need to/);assert.doesNotMatch(m.text,/confirm attendance|confirm the new invitation/);assert.doesNotMatch(m.html,/calendar.app.google/);}});
+
+
+test('selection welcomes applicants with their assigned department and clear joining steps',()=>{
+ const row=event('selected');row.payload={...payload,message:''};const m=applicationMailContent(row);
+ assert.equal(m.subject,'You’re joining the Élan Summit 2027 organising committee');
+ for(const phrase of ['Design department','applicant@example.invalid','WhatsApp groups','welcome session','unpaid','reply to this email to confirm','Open your organiser portal']) assert.ok(m.text.includes(phrase),phrase);
+ assert.doesNotMatch(m.text,/access is still pending|January|Message from the team|undefined/);
+ assert.match(m.html,/A &lt;script&gt;/);
+ const personal=applicationMailContent(event('selected'));assert.match(personal.text,/Message from the team: Please prepare a sample/);
+});

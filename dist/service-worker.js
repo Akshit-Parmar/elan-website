@@ -1,6 +1,6 @@
 // Cache only a generic offline page. Never store accounts, API replies, receipts,
 // applications, uploads, tokens or authenticated HTML in Cache Storage.
-const CACHE='elan-offline-542aa88745d01d83';
+const CACHE='elan-offline-62c2a3ed6fc06279';
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.add('/offline.html'))));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const key of await caches.keys())if(key.startsWith('elan-offline-')&&key!==CACHE)await caches.delete(key);await self.clients.claim();})()));
 self.addEventListener('fetch',event=>{
